@@ -21,7 +21,6 @@ import {
   Select,
 } from "flowbite-react";
 
-// ---- DATA TYPE ----
 type Image = {
   id: number;
   image: string;
@@ -58,7 +57,7 @@ export default function Dashboard() {
     harvest_date: "",
     status: "",
   });
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -82,15 +81,16 @@ export default function Dashboard() {
       for (const [key, value] of Object.entries(form)) {
         formData.append(key, value);
       }
-      if (imageFile) {
-        formData.append("image", imageFile);
-      }
+      imageFiles.forEach(file => {
+        formData.append('uploaded_images', file);
+      });
       const res = await fetch("http://localhost:8000/api/trees/", {
         method: "POST",
         body: formData,
       });
       if (!res.ok) {
-        alert("บันทึกข้อมูลไม่สำเร็จ");
+        const errorText = await res.text();
+        alert("บันทึกข้อมูลไม่สำเร็จ: " + errorText);
         return;
       }
       setShowAddModal(false);
@@ -105,7 +105,7 @@ export default function Dashboard() {
         harvest_date: "",
         status: "",
       });
-      setImageFile(null);
+      setImageFiles([]);
       fetchTrees();
     } finally {
       setSubmitting(false);
@@ -155,15 +155,11 @@ export default function Dashboard() {
                     <TableCell>{tree.plant_date}</TableCell>
                     <TableCell>{tree.status}</TableCell>
                     <TableCell>
-                      {tree.images?.[0] ? (
-                        <img
-                          src={tree.images[0].image}
-                          alt="tree"
-                          className="object-cover w-12 h-12 rounded"
-                        />
-                      ) : (
-                        <span className="text-gray-400">-</span>
-                      )}
+                      <div className="flex gap-1">
+                        {tree.images?.map(img => (
+                          <img key={img.id} src={img.image} alt="" className="w-10 h-10 rounded" />
+                        ))}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -177,75 +173,46 @@ export default function Dashboard() {
           + เพิ่มต้นไม้
         </Button>
       </div>
-      {/* Modal */}
       <Modal show={showAddModal} onClose={() => setShowAddModal(false)}>
         <ModalHeader>เพิ่มต้นไม้ใหม่</ModalHeader>
         <ModalBody>
           <div className="space-y-2">
+            {/* ...form input ตามตัวอย่างเดิม... */}
             <div>
               <Label>สายพันธุ์</Label>
-              <TextInput
-                required
-                value={form.species}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, species: e.target.value }))
-                }
-              />
+              <TextInput required value={form.species}
+                onChange={e => setForm(f => ({ ...f, species: e.target.value }))} />
             </div>
             <div>
               <Label>พันธุ์</Label>
-              <TextInput
-                value={form.variety}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, variety: e.target.value }))
-                }
-              />
+              <TextInput value={form.variety}
+                onChange={e => setForm(f => ({ ...f, variety: e.target.value }))} />
             </div>
             <div>
               <Label>ชื่อเล่น</Label>
-              <TextInput
-                value={form.nickname}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, nickname: e.target.value }))
-                }
-              />
+              <TextInput value={form.nickname}
+                onChange={e => setForm(f => ({ ...f, nickname: e.target.value }))} />
             </div>
             <div>
               <Label>วันที่ปลูก</Label>
-              <TextInput
-                type="date"
-                value={form.plant_date}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, plant_date: e.target.value }))
-                }
-              />
+              <TextInput type="date" value={form.plant_date}
+                onChange={e => setForm(f => ({ ...f, plant_date: e.target.value }))} />
             </div>
             <div>
               <Label>สถานที่ปลูก</Label>
-              <TextInput
-                value={form.location}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, location: e.target.value }))
-                }
-              />
+              <TextInput value={form.location}
+                onChange={e => setForm(f => ({ ...f, location: e.target.value }))} />
             </div>
             <div>
               <Label>ลักษณะเด่น</Label>
-              <Textarea
-                rows={2}
-                value={form.main_characteristics}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, main_characteristics: e.target.value }))
-                }
-              />
+              <Textarea rows={2} value={form.main_characteristics}
+                onChange={e => setForm(f => ({ ...f, main_characteristics: e.target.value }))} />
             </div>
             <div>
               <Label>สถานะ</Label>
-              <Select
-                value={form.status}
+              <Select value={form.status}
                 onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
-                required
-              >
+                required>
                 <option value="">-- เลือกสถานะ --</option>
                 <option value="มีชีวิต">มีชีวิต</option>
                 <option value="ตายแล้ว">ตายแล้ว</option>
@@ -255,27 +222,17 @@ export default function Dashboard() {
             </div>
             <div>
               <Label>หมายเหตุ</Label>
-              <Textarea
-                rows={2}
-                value={form.notes}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, notes: e.target.value }))
-                }
-              />
+              <Textarea rows={2} value={form.notes}
+                onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} />
             </div>
             <div>
               <Label>วันที่เก็บเกี่ยว</Label>
-              <TextInput
-                type="date"
-                value={form.harvest_date}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, harvest_date: e.target.value }))
-                }
-              />
+              <TextInput type="date" value={form.harvest_date}
+                onChange={e => setForm(f => ({ ...f, harvest_date: e.target.value }))} />
             </div>
             <div>
-              <Label>รูปภาพ</Label>
-              <FileInput onChange={e => setImageFile(e.target.files?.[0] || null)} />
+              <Label>รูปภาพ (เลือกได้หลายไฟล์)</Label>
+              <FileInput multiple onChange={e => setImageFiles(e.target.files ? Array.from(e.target.files) : [])} />
             </div>
           </div>
         </ModalBody>
