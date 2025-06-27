@@ -182,3 +182,4 @@ cython_debug/
 
 # Docs
 flowbite_react_all_docs.txt
+.docs/
