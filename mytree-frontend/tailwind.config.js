@@ -6,6 +6,8 @@ module.exports = {
     "./node_modules/flowbite-react/**/*.js",
     "./node_modules/flowbite/**/*.js"
   ],
-  theme: { extend: {} },
+  theme: {
+    extend: {},
+  },
   plugins: [require('flowbite/plugin')],
 };
