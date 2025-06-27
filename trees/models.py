@@ -2,6 +2,14 @@ from django.db import models
 
 # Create your models here.
 
+SEX_CHOICES = [
+    ("bisexual", "สมบูรณ์เพศ"),
+    ("male", "ตัวผู้"),
+    ("female", "ตัวเมีย"),
+    ("monoecious", "แยกเพศในต้นเดียวกัน"),
+    ("mixed", "ผสมหลายเพศ"),
+    ("unknown", "ไม่ระบุ/ไม่แน่ใจ"),
+]
 
 class Image(models.Model):
     image = models.ImageField(upload_to='tree_images/')
@@ -20,3 +28,4 @@ class Tree(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     images = models.ManyToManyField(Image, blank=True, related_name="trees")
+    sex = models.CharField(max_length=20, choices=SEX_CHOICES, default="unknown", blank=True)
