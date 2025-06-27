@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Tree, Image
+from .models import Tree, Image, SEX_CHOICES
 
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -11,13 +11,15 @@ class TreeSerializer(serializers.ModelSerializer):
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(), write_only=True, required=False
     )
+    sex = serializers.ChoiceField(choices=SEX_CHOICES, default="unknown")
 
     class Meta:
         model = Tree
         fields = [
             'id', 'species', 'variety', 'nickname', 'plant_date',
             'location', 'main_characteristics', 'notes', 'harvest_date',
-            'status', 'created_at', 'updated_at', 'images', 'uploaded_images'
+            'status', 'sex', 'created_at', 'updated_at', 'images',
+            'uploaded_images'
         ]
 
     def create(self, validated_data):
