@@ -1,13 +1,39 @@
 from rest_framework import serializers
-from .models import Tree, Image, SEX_CHOICES
+from .models import Tree, Image, Strain, Batch, SEX_CHOICES
 
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Image
         fields = ['id', 'image', 'uploaded_at']
 
+class StrainSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Strain
+        fields = ['id', 'name', 'description']
+
+class BatchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Batch
+        fields = ['id', 'batch_code', 'description', 'started_date']
+
 class TreeSerializer(serializers.ModelSerializer):
     images = ImageSerializer(many=True, read_only=True)
+    strain = StrainSerializer(read_only=True)
+    strain_id = serializers.PrimaryKeyRelatedField(
+        queryset=Strain.objects.all(),
+        source='strain',
+        write_only=True,
+        required=False,
+        allow_null=True
+    )
+    batch = BatchSerializer(read_only=True)
+    batch_id = serializers.PrimaryKeyRelatedField(
+        queryset=Batch.objects.all(),
+        source='batch',
+        write_only=True,
+        required=False,
+        allow_null=True
+    )
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(), write_only=True, required=False
     )
@@ -16,10 +42,12 @@ class TreeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tree
         fields = [
-            'id', 'species', 'variety', 'nickname', 'plant_date',
-            'location', 'phenotype', 'notes', 'harvest_date',
-            'status', 'sex', 'created_at', 'updated_at', 'images',
-            'uploaded_images'
+            'id', 'nickname', 'strain', 'strain_id', 'variety', 'batch', 'batch_id', 'location', 'status',
+            'created_at', 'updated_at', 'germination_date', 'plant_date', 'growth_stage',
+            'harvest_date', 'sex', 'genotype', 'phenotype', 'parent_male', 'parent_female',
+            'clone_source', 'pollination_date', 'pollinated_by', 'yield_amount',
+            'flower_quality', 'seed_count', 'seed_harvest_date', 'disease_notes',
+            'document', 'images', 'notes', 'uploaded_images'
         ]
 
     def create(self, validated_data):
@@ -29,3 +57,17 @@ class TreeSerializer(serializers.ModelSerializer):
             img_obj = Image.objects.create(image=img_file)
             tree.images.add(img_obj)
         return tree
+
+    def update(self, instance, validated_data):
+        uploaded_images = validated_data.pop('uploaded_images', [])
+        # อัปเดตข้อมูลต้นไม้
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        
+        # เพิ่มรูปภาพใหม่
+        for img_file in uploaded_images:
+            img_obj = Image.objects.create(image=img_file)
+            instance.images.add(img_obj)
+        
+        return instance
