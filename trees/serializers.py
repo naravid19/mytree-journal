@@ -17,7 +17,7 @@ class TreeSerializer(serializers.ModelSerializer):
         model = Tree
         fields = [
             'id', 'species', 'variety', 'nickname', 'plant_date',
-            'location', 'main_characteristics', 'notes', 'harvest_date',
+            'location', 'phenotype', 'notes', 'harvest_date',
             'status', 'sex', 'created_at', 'updated_at', 'images',
             'uploaded_images'
         ]
