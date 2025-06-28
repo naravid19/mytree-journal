@@ -21,7 +21,7 @@ class Tree(models.Model):
     nickname = models.CharField(max_length=100, blank=True)
     plant_date = models.DateField(blank=True, null=True)
     location = models.CharField(max_length=255, blank=True)
-    main_characteristics = models.TextField(blank=True)
+    phenotype = models.TextField(blank=True)
     notes = models.TextField(blank=True)
     harvest_date = models.DateField(blank=True, null=True)
     status = models.CharField(max_length=50, blank=True)
