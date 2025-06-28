@@ -34,7 +34,7 @@ type Tree = {
   nickname: string;
   plant_date: string;
   location: string;
-  main_characteristics: string;
+  phenotype: string;
   notes: string;
   harvest_date: string;
   status: string;
@@ -63,7 +63,7 @@ export default function Dashboard() {
     nickname: "",
     plant_date: "",
     location: "",
-    main_characteristics: "",
+    phenotype: "",
     notes: "",
     harvest_date: "",
     status: "",
@@ -115,7 +115,7 @@ export default function Dashboard() {
         nickname: "",
         plant_date: "",
         location: "",
-        main_characteristics: "",
+        phenotype: "",
         notes: "",
         harvest_date: "",
         status: "",
@@ -136,7 +136,7 @@ export default function Dashboard() {
       nickname: selectedTree.nickname || "",
       plant_date: selectedTree.plant_date || "",
       location: selectedTree.location || "",
-      main_characteristics: selectedTree.main_characteristics || "",
+      phenotype: selectedTree.phenotype || "",
       notes: selectedTree.notes || "",
       harvest_date: selectedTree.harvest_date || "",
       status: selectedTree.status || "",
@@ -174,7 +174,7 @@ export default function Dashboard() {
         nickname: "",
         plant_date: "",
         location: "",
-        main_characteristics: "",
+        phenotype: "",
         notes: "",
         harvest_date: "",
         status: "",
@@ -453,10 +453,10 @@ export default function Dashboard() {
             </div>
             <div className="md:col-span-2">
               <Label className="mb-1 font-semibold">ลักษณะเด่น</Label>
-              <Textarea rows={2} value={form.main_characteristics}
+              <Textarea rows={2} value={form.phenotype}
                 placeholder="เช่น ผลใหญ่ รสหวาน"
                 className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={e => setForm(f => ({ ...f, main_characteristics: e.target.value }))} />
+                onChange={e => setForm(f => ({ ...f, phenotype: e.target.value }))} />
             </div>
             <div>
               <Label className="mb-1 font-semibold">สถานะ</Label>
@@ -634,7 +634,7 @@ export default function Dashboard() {
                   <span className="font-medium">สถานที่ปลูก: </span>{selectedTree.location || "-"}
                 </div>
                 <div>
-                  <span className="font-medium">ลักษณะเด่น: </span>{selectedTree.main_characteristics || "-"}
+                  <span className="font-medium">ลักษณะเด่น: </span>{selectedTree.phenotype || "-"}
                 </div>
                 <div>
                   <span className="font-medium">สถานะ: </span>{selectedTree.status || "-"}
@@ -728,9 +728,9 @@ export default function Dashboard() {
               <Label className="mb-1 font-semibold">ลักษณะเด่น</Label>
               <Textarea
                 rows={2}
-                value={form.main_characteristics}
+                value={form.phenotype}
                 className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={e => setForm(f => ({ ...f, main_characteristics: e.target.value }))}
+                onChange={e => setForm(f => ({ ...f, phenotype: e.target.value }))}
               />
             </div>
             <div>
