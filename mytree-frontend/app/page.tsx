@@ -26,6 +26,7 @@ import {
   Pagination,
   Spinner,
 } from "flowbite-react";
+import { HiSearch } from "react-icons/hi";
 
 type Image = {
   id: number;
@@ -99,6 +100,9 @@ export default function Dashboard() {
   // เพิ่ม state สำหรับ form error
   const [formError, setFormError] = useState<string>("");
 
+  // เพิ่ม state สำหรับ success message
+  const [successMessage, setSuccessMessage] = useState<string>("");
+
   const today = new Date();
   const yyyy = today.getFullYear();
   const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -141,8 +145,7 @@ export default function Dashboard() {
   // State สำหรับ pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
-  const totalPages = Math.ceil(trees.length / itemsPerPage);
-  const pagedTrees = trees.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const [search, setSearch] = useState("");
 
   // Fetch Data
   const fetchTrees = () => {
@@ -177,6 +180,24 @@ export default function Dashboard() {
     return () => { urls.forEach(url => URL.revokeObjectURL(url)); };
   }, [imageFiles]);
 
+  // ฟังก์ชัน filter
+  const filteredTrees = trees.filter(tree => {
+    const q = search.toLowerCase();
+    return (
+      tree.nickname?.toLowerCase().includes(q) ||
+      tree.strain?.name?.toLowerCase().includes(q) ||
+      tree.variety?.toLowerCase().includes(q) ||
+      tree.status?.toLowerCase().includes(q) ||
+      tree.sex?.toLowerCase().includes(q)
+    );
+  });
+
+  const pagedTrees = filteredTrees.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const totalPages = Math.ceil(filteredTrees.length / itemsPerPage);
+  
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages || 1);
+  }, [trees, totalPages]);
   // CRUD
   const handleSubmit = async () => {
     // ตรวจสอบ required fields
@@ -262,6 +283,8 @@ export default function Dashboard() {
       });
       setImageFiles([]);
       fetchTrees();
+      setSuccessMessage("บันทึกข้อมูลสำเร็จ");
+      setTimeout(() => setSuccessMessage(""), 3000);
     } finally {
       setSubmitting(false);
     }
@@ -387,6 +410,8 @@ export default function Dashboard() {
       });
       setImageFiles([]);
       fetchTrees();
+      setSuccessMessage("บันทึกข้อมูลสำเร็จ");
+      setTimeout(() => setSuccessMessage(""), 3000);
     } finally {
       setSubmitting(false);
     }
@@ -409,6 +434,8 @@ export default function Dashboard() {
       setShowDetailModal(false);
       setSelectedTree(null);
       fetchTrees();
+      setSuccessMessage("ลบข้อมูลสำเร็จ");
+      setTimeout(() => setSuccessMessage(""), 3000);
     } finally {
       setSubmitting(false);
     }
@@ -433,6 +460,8 @@ export default function Dashboard() {
       } : null);
       // รีเฟรชข้อมูลต้นไม้ทั้งหมด
       fetchTrees();
+      setSuccessMessage("ลบรูปภาพสำเร็จ");
+      setTimeout(() => setSuccessMessage(""), 3000);
     } finally {
       setSubmitting(false);
     }
@@ -462,6 +491,8 @@ export default function Dashboard() {
       fetchTrees();
       // ปิด modal ยืนยัน
       setShowDeleteAllImagesModal(false);
+      setSuccessMessage("ลบรูปภาพทั้งหมดสำเร็จ");
+      setTimeout(() => setSuccessMessage(""), 3000);
     } finally {
       setSubmitting(false);
     }
@@ -493,6 +524,8 @@ export default function Dashboard() {
       // อัปเดต selectedTree เพื่อให้แสดงผลถูกต้อง
       const updatedTree = await fetch(`http://localhost:8000/api/trees/${selectedTree.id}/`).then(res => res.json());
       setSelectedTree(updatedTree);
+      setSuccessMessage("ลบเอกสารสำเร็จ");
+      setTimeout(() => setSuccessMessage(""), 3000);
     } finally {
       setSubmitting(false);
     }
@@ -563,6 +596,20 @@ export default function Dashboard() {
             🌳 รายการต้นไม้ที่ปลูก
           </h1>
           <DarkThemeToggle className="self-end sm:self-auto" />
+        </div>
+        {/* Search Bar ด้านบน Table */}
+        <div className="flex justify-end mb-4">
+          <TextInput
+            id="search"
+            type="search"
+            icon={HiSearch}
+            value={search}
+            onChange={e => { setSearch(e.target.value); setCurrentPage(1); }}
+            placeholder="ค้นหาต้นไม้..."
+            className="w-full max-w-xs"
+            autoComplete="off"
+            aria-label="ค้นหาต้นไม้"
+          />
         </div>
         {/* TABLE */}
         <Card className="overflow-visible pb-6 w-full rounded-2xl border border-gray-200 shadow-2xl bg-white/70 dark:bg-gray-900/80 dark:border-gray-700">
@@ -676,13 +723,21 @@ export default function Dashboard() {
                               className="object-cover w-10 h-10 rounded-xl border-2 border-gray-300 shadow transition-all hover:scale-105 dark:border-gray-700"
                               tabIndex={0}
                               loading="lazy"
+                              aria-label={`ดูรูปที่ ${idx + 1}`}
                               onClick={e => {
                                 e.stopPropagation();
                                 setSelectedTree(tree);
                                 setLightboxIndex(idx);
                                 setShowImageLightbox(true);
                               }}
-                              aria-label={`ดูรูปที่ ${idx + 1}`}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault();
+                                  setSelectedTree(tree);
+                                  setLightboxIndex(idx);
+                                  setShowImageLightbox(true);
+                                }
+                              }}
                               />
                             ))}
                           </div>
@@ -785,6 +840,7 @@ export default function Dashboard() {
                 value={form.strainUuid}
                 onChange={e => setForm(f => ({ ...f, strainUuid: e.target.value }))}
                 className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                autoFocus
               >
                 <option value="">-- เลือกสายพันธุ์ --</option>
                 {strains.map(strain => (
@@ -1183,7 +1239,8 @@ export default function Dashboard() {
           disabled={submitting}
           aria-label="บันทึกต้นไม้"
         >
-          {submitting ? <Spinner size="sm" /> : "บันทึก"}
+          {submitting ? <Spinner size="sm" className="mr-2" /> : null}
+          บันทึก
         </Button>
           <Button color="gray" size="lg" className="px-8 text-lg font-semibold transition-colors duration-200" onClick={() => setShowAddModal(false)}>
             ยกเลิก
@@ -1456,6 +1513,7 @@ export default function Dashboard() {
                 value={form.strainUuid}
                 onChange={e => setForm(f => ({ ...f, strainUuid: e.target.value }))}
                 className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                autoFocus
               >
                 <option value="">-- เลือกสายพันธุ์ --</option>
                 {strains.map(strain => (
