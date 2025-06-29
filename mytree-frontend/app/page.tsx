@@ -552,12 +552,12 @@ export default function Dashboard() {
           <DarkThemeToggle className="self-end sm:self-auto" />
         </div>
         {/* TABLE */}
-        <Card className="p-0 rounded-2xl border-0 shadow-xl md:p-4 bg-white/90 dark:bg-gray-900/80">
-          <div className="overflow-x-auto rounded-xl border border-gray-100 dark:border-gray-800">
-            <Table hoverable className="min-w-[650px] text-base md:text-lg font-kanit">
-              <TableHead className="bg-green-50 dark:bg-gray-800/50">
+        <Card className="p-0 rounded-2xl border-0 shadow-xl md:p-4 bg-white/90 dark:bg-gray-900/90">
+          <div className="overflow-x-auto rounded-xl border border-gray-100 dark:border-gray-700 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent">
+            <Table hoverable className="min-w-[650px] text-base md:text-lg font-kanit dark:bg-gray-900/80 dark:text-gray-100">
+              <TableHead className="bg-green-50 dark:bg-gray-800/80 dark:text-gray-100">
                 <TableRow>
-                  <TableHeadCell className="text-sm font-bold md:text-base lg:text-lg">สายพันธุ์</TableHeadCell>
+                  <TableHeadCell className="text-sm font-bold md:text-base lg:text-lg dark:text-gray-100">สายพันธุ์</TableHeadCell>
                   <TableHeadCell className="text-sm font-bold md:text-base lg:text-lg">พันธุ์</TableHeadCell>
                   <TableHeadCell className="text-sm font-bold md:text-base lg:text-lg">ชื่อเล่น</TableHeadCell>
                   <TableHeadCell className="text-sm font-bold md:text-base lg:text-lg">เพศ</TableHeadCell>
@@ -611,21 +611,31 @@ export default function Dashboard() {
                   trees.map((tree) => (
                     <TableRow
                       key={tree.id}
-                      className="transition cursor-pointer hover:bg-green-50/40 dark:hover:bg-gray-800/40"
+                      className="transition cursor-pointer hover:bg-green-50/40 dark:hover:bg-gray-700/40"
                       onClick={() => handleShowDetail(tree)}
                     >
-                      <TableCell>{tree.strain?.name || "-"}</TableCell>
+                      <TableCell className="dark:text-gray-200">{tree.strain?.name || "-"}</TableCell>
                       <TableCell>{tree.variety}</TableCell>
                       <TableCell>{tree.nickname}</TableCell>
                       <TableCell>
-                        <Badge color={
-                          tree.sex === 'male' ? 'info' :
-                          tree.sex === 'female' ? 'pink' :
-                          tree.sex === 'bisexual' ? 'success' :
-                          tree.sex === 'mixed' ? 'warning' :
-                          tree.sex === 'monoecious' ? 'blue' :
-                          'gray'
-                        }>
+                        <Badge
+                          color={
+                            tree.sex === 'male' ? 'info'
+                            : tree.sex === 'female' ? 'pink'
+                            : tree.sex === 'bisexual' ? 'success'
+                            : tree.sex === 'mixed' ? 'warning'
+                            : tree.sex === 'monoecious' ? 'blue'
+                            : 'gray'
+                          }
+                          className={`
+                            ${tree.sex === 'female' ? 'dark:bg-pink-400 dark:text-black' : ''}
+                            ${tree.sex === 'male' ? 'dark:bg-sky-400 dark:text-black' : ''}
+                            ${tree.sex === 'bisexual' ? 'dark:bg-green-400 dark:text-black' : ''}
+                            ${tree.sex === 'mixed' ? 'dark:bg-yellow-300 dark:text-black' : ''}
+                            ${tree.sex === 'monoecious' ? 'dark:bg-blue-400 dark:text-black' : ''}
+                            ${tree.sex === 'unknown' ? 'dark:bg-gray-600 dark:text-white' : ''}
+                          `}
+                        >
                           {{
                             "bisexual": "สมบูรณ์เพศ",
                             "male": "ตัวผู้",
@@ -646,12 +656,12 @@ export default function Dashboard() {
                         {tree.images && tree.images.length > 0 ? (
                           <div className="flex gap-1">
                             {tree.images.slice(0, 2).map((img, idx) => (
-                              <img key={idx} src={img.image} alt="" className="object-cover w-10 h-10 rounded shadow" />
+                              <img key={idx} src={img.image} alt="" className="object-cover w-10 h-10 rounded border border-gray-200 shadow dark:border-gray-700" />
                             ))}
                           </div>
-                        ) : (
-                          <span className="text-xs text-gray-400">ไม่มีรูป</span>
-                        )}
+                          ) : (
+                          <span className="text-xs text-gray-400 dark:text-gray-500">ไม่มีรูป</span>
+                          )}
                       </TableCell>
                     </TableRow>
                   ))
@@ -663,7 +673,7 @@ export default function Dashboard() {
         <div className="flex justify-end mt-6">
           <Button
             size="lg"
-            className="px-8 py-3 text-xl bg-gradient-to-br from-green-400 to-blue-600 rounded-full shadow-md hover:from-green-500 hover:to-blue-700 dark:from-green-600 dark:to-blue-800 font-kanit"
+            className="px-8 py-3 text-xl bg-gradient-to-br from-green-400 to-blue-600 rounded-full shadow-md hover:from-green-500 hover:to-blue-700 dark:from-green-700 dark:to-blue-900 dark:text-white font-kanit focus:ring-2 focus:ring-green-400 dark:focus:ring-green-700"
             onClick={() => setShowAddModal(true)}
           >
             <span className="mr-2 text-2xl font-bold">+</span> เพิ่มต้นไม้
@@ -772,7 +782,7 @@ export default function Dashboard() {
 
             {/* กลุ่มที่ 2: ข้อมูลการปลูก */}
             <div className="md:col-span-2">
-              <h3 className="pb-2 mb-3 text-lg font-bold text-blue-700 border-b border-blue-200 dark:text-blue-300 dark:border-blue-700">
+            <h3 className="pb-2 mb-3 text-lg font-bold text-blue-700 border-b border-blue-200 dark:text-blue-300 dark:border-blue-700">
                 🌱 ข้อมูลการปลูก
               </h3>
             </div>
@@ -1039,14 +1049,14 @@ export default function Dashboard() {
               />
               {/* แสดง preview รูปภาพเดิม ถ้ามี */}
               {(selectedTree?.images?.length ?? 0) > 0 && imageFiles.length === 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
+              <div className="flex flex-wrap gap-2 mt-2">
                   {(selectedTree?.images ?? []).map((img, idx) => (
                     <div key={img.id} className="relative group">
-                      <img
+                  <img
                         src={img.image}
-                        alt={`รูปที่ ${idx + 1}`}
+                    alt={`รูปที่ ${idx + 1}`}
                         className="object-cover w-14 h-14 rounded-xl border border-gray-200 shadow"
-                      />
+                  />
                       <Tooltip content="ลบรูปนี้" placement="top">
                         <button
                           type="button"
@@ -1072,7 +1082,7 @@ export default function Dashboard() {
                       ลบทั้งหมด
                     </Button>
                   </Tooltip>
-                </div>
+              </div>
               )}
 
               {/* preview รูปใหม่ที่เลือก */}
@@ -1117,29 +1127,29 @@ export default function Dashboard() {
         show={showDetailModal}
         size="xl"
         onClose={() => setShowDetailModal(false)}
-        className="xl:max-w-2xl"
+        className="rounded-2xl border border-gray-200 shadow-2xl backdrop-blur-lg xl:max-w-2xl dark:border-gray-700"
       >
-        <ModalHeader>
+        <ModalHeader className="rounded-t-2xl border-b border-gray-200 bg-white/80 dark:bg-gray-900/90 dark:border-gray-700">
           <span className="flex gap-2 items-center text-2xl font-extrabold text-green-700 font-kanit sm:text-3xl md:text-4xl dark:text-green-300">
             🌳 รายละเอียดต้นไม้
           </span>
         </ModalHeader>
-        <ModalBody className="rounded-b-2xl bg-slate-50 dark:bg-gray-900">
+        <ModalBody className="px-4 py-6 rounded-b-2xl transition-colors duration-300 bg-slate-50 dark:bg-gray-900/95">
           {selectedTree ? (
             <div className="flex flex-col gap-6 w-full">
               {/* GALLERY */}
               <div className="flex flex-col items-center w-full">
-                <h3 className="flex gap-2 items-center pb-2 mb-2 w-full text-lg font-bold text-gray-700 border-b border-gray-200 dark:text-gray-300 dark:border-gray-700">
+                <h3 className="flex gap-2 items-center pb-2 mb-2 w-full text-lg font-bold text-gray-700 border-b border-gray-200 dark:text-gray-100 dark:border-gray-700">
                   <span className="text-2xl">🖼️</span> รูปภาพ
                 </h3>
                 {selectedTree.images?.length === 0 ? (
-                  <span className="mb-2 text-lg text-gray-400">ไม่มีรูป</span>
+                  <span className="mb-2 text-lg text-gray-400 dark:text-gray-500">ไม่มีรูป</span>
                 ) : (
                   <div className="flex relative justify-center items-center mb-2 w-48 h-48 bg-gray-50 rounded-xl shadow sm:w-60 sm:h-60 md:w-72 md:h-72 dark:bg-gray-800">
                     <img
                       src={selectedTree.images[galleryIndex].image}
                       alt=""
-                      className="object-contain w-full h-full rounded-xl border shadow transition cursor-pointer hover:scale-105"
+                      className="object-contain w-full h-full rounded-xl border border-gray-200 shadow transition cursor-pointer hover:scale-105 dark:border-gray-700"
                       onClick={() => handleOpenLightbox(galleryIndex)}
                     />
                     {/* ปุ่มลบรูปภาพปัจจุบัน */}
@@ -1149,7 +1159,7 @@ export default function Dashboard() {
                         aria-label="ลบรูปภาพนี้"
                         onClick={() => handleDeleteImage(selectedTree.images[galleryIndex].id)}
                         className="absolute top-1.5 right-1.5 w-7 h-7 flex items-center justify-center rounded-full bg-red-500 border-2 border-white shadow-lg hover:scale-110 transition-transform cursor-pointer z-10 p-0"
-                      >
+                        >
                         <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -1199,113 +1209,97 @@ export default function Dashboard() {
               </div>
 
               {/* กลุ่มข้อมูลพื้นฐาน */}
-                <div>
-                <h3 className="flex gap-2 items-center pb-2 mb-3 text-lg font-bold text-green-700 border-b border-green-200 dark:text-green-300 dark:border-green-700">
-                  <span>📋</span> ข้อมูลพื้นฐาน
-                </h3>
-                <div className="grid grid-cols-1 gap-y-2 gap-x-8 w-full text-base sm:text-lg md:grid-cols-2">
-                  <div><span className="font-medium">สายพันธุ์: </span>{selectedTree.strain?.name || "-"}</div>
-                  <div><span className="font-medium">พันธุ์: </span>{selectedTree.variety || "-"}</div>
-                  <div><span className="font-medium">ชุดการปลูก: </span>{selectedTree.batch?.batch_code || "-"}</div>
-                  <div><span className="font-medium">ชื่อเล่น: </span>{selectedTree.nickname || "-"}</div>
-                  <div><span className="font-medium">สถานที่ปลูก: </span>{selectedTree.location || "-"}</div>
-                  <div className="flex gap-2 items-center"><span className="font-medium">สถานะ: </span>
-                    <Badge color={selectedTree.status === 'มีชีวิต' ? 'success' : selectedTree.status === 'ตายแล้ว' ? 'failure' : selectedTree.status === 'ถูกย้าย' ? 'warning' : 'gray'}>
-                      {selectedTree.status}
-                    </Badge>
+                <div className="mb-4">
+                  <h3 className="pb-2 mb-3 text-lg font-bold text-green-700 border-b border-green-200 dark:text-green-300 dark:border-green-700">
+                  📋 ข้อมูลพื้นฐาน
+                  </h3>
+                  <div className="grid grid-cols-1 gap-y-2 gap-x-8 w-full text-base sm:text-lg md:grid-cols-2">
+                    <div className="dark:text-gray-200"><span className="font-medium">สายพันธุ์: </span>{selectedTree.strain?.name || "-"}</div>
+                    <div className="dark:text-gray-200"><span className="font-medium">พันธุ์: </span>{selectedTree.variety || "-"}</div>
+                    <div className="dark:text-gray-200"><span className="font-medium">ชุดการปลูก: </span>{selectedTree.batch?.batch_code || "-"}</div>
+                    <div className="dark:text-gray-200"><span className="font-medium">ชื่อเล่น: </span>{selectedTree.nickname || "-"}</div>
+                    <div className="dark:text-gray-200"><span className="font-medium">สถานที่ปลูก: </span>{selectedTree.location || "-"}</div>
+                    <div className="flex gap-2 items-center dark:text-gray-200"><span className="font-medium">สถานะ: </span>
+                      <Badge color={selectedTree.status === 'มีชีวิต' ? 'success' : selectedTree.status === 'ตายแล้ว' ? 'failure' : selectedTree.status === 'ถูกย้าย' ? 'warning' : 'gray'} className="dark:bg-green-600 dark:text-white">
+                        {selectedTree.status}
+                      </Badge>
                 </div>
-                  <div><span className="font-medium">วันที่ปลูก: </span>{selectedTree.plant_date || "-"}</div>
-                  <div><span className="font-medium">อายุ: </span>{calcAge(selectedTree.plant_date, ageUnit)} {ageUnit === "day" ? "วัน" : ageUnit === "month" ? "เดือน" : "ปี"}</div>
+                    <div className="dark:text-gray-200"><span className="font-medium">วันที่ปลูก: </span>{selectedTree.plant_date || "-"}</div>
+                    <div className="dark:text-gray-200"><span className="font-medium">อายุ: </span>{calcAge(selectedTree.plant_date, ageUnit)} {ageUnit === "day" ? "วัน" : ageUnit === "month" ? "เดือน" : "ปี"}</div>
                 </div>
                 </div>
 
               {/* กลุ่มข้อมูลการปลูก */}
-                <div>
-                <h3 className="flex gap-2 items-center pb-2 mb-3 text-lg font-bold text-blue-700 border-b border-blue-200 dark:text-blue-300 dark:border-blue-700">
-                  <span>🌱</span> ข้อมูลการปลูก
+              <div className="mb-4">
+                <h3 className="pb-2 mb-3 text-lg font-bold text-blue-700 border-b border-blue-200 dark:text-blue-300 dark:border-blue-700">
+                  🌱 ข้อมูลการปลูก
                 </h3>
                 <div className="grid grid-cols-1 gap-y-2 gap-x-8 w-full text-base sm:text-lg md:grid-cols-2">
-                  <div><span className="font-medium">วันที่เมล็ดเริ่มงอก: </span>{selectedTree.germination_date || "-"}</div>
-                  <div><span className="font-medium">ระยะการเจริญเติบโต: </span>{selectedTree.growth_stage || "-"}</div>
-                  <div><span className="font-medium">วันที่เก็บเกี่ยว: </span>{selectedTree.harvest_date || "-"}</div>
+                  <div className="dark:text-gray-200"><span className="font-semibold">วันที่เมล็ดเริ่มงอก: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.germination_date || "-"}</span></div>
+                  <div className="dark:text-gray-200"><span className="font-semibold">ระยะการเจริญเติบโต: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.growth_stage || "-"}</span></div>
+                  <div className="dark:text-gray-200"><span className="font-semibold">วันที่เก็บเกี่ยว: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.harvest_date || "-"}</span></div>
                 </div>
                 </div>
 
               {/* กลุ่มข้อมูลพันธุกรรม */}
-                <div>
-                <h3 className="flex gap-2 items-center pb-2 mb-3 text-lg font-bold text-purple-700 border-b border-purple-200 dark:text-purple-300 dark:border-purple-700">
-                  <span>🧬</span> ข้อมูลพันธุกรรม
+              <div className="mb-4">
+                <h3 className="pb-2 mb-3 text-lg font-bold text-purple-700 border-b border-purple-200 dark:text-purple-300 dark:border-purple-700">
+                  🧬 ข้อมูลพันธุกรรม
                 </h3>
                 <div className="grid grid-cols-1 gap-y-2 gap-x-8 w-full text-base sm:text-lg md:grid-cols-2">
-                  <div className="flex gap-2 items-center"><span className="font-medium">เพศ: </span>
-                    <Badge color={
-                      selectedTree.sex === 'male' ? 'info' :
-                      selectedTree.sex === 'female' ? 'pink' :
-                      selectedTree.sex === 'bisexual' ? 'success' :
-                      selectedTree.sex === 'mixed' ? 'warning' :
-                      selectedTree.sex === 'monoecious' ? 'blue' :
-                      'gray'
-                    }>
-                      {{
-                      "bisexual": "สมบูรณ์เพศ",
-                      "male": "ตัวผู้",
-                      "female": "ตัวเมีย",
-                      "monoecious": "แยกเพศในต้นเดียวกัน",
-                      "mixed": "ผสมหลายเพศ",
-                      "unknown": "ไม่ระบุ/ไม่แน่ใจ"
-                      }[selectedTree.sex] || "-"}
+                  <div className="flex gap-2 items-center dark:text-gray-200"><span className="font-semibold">เพศ: </span>
+                    <Badge color={getSexBadgeColor(selectedTree.sex)} className="text-xs capitalize dark:bg-blue-400 dark:text-black">
+                      {sexLabel(selectedTree.sex)}
                     </Badge>
                 </div>
-                  <div><span className="font-medium">ข้อมูลพันธุกรรม: </span>{selectedTree.genotype || "-"}</div>
-                  <div className="md:col-span-2"><span className="font-medium">ลักษณะเด่น: </span>{selectedTree.phenotype || "-"}</div>
-                  <div><span className="font-medium">ต้นพ่อพันธุ์: </span>{selectedTree.parent_male || "-"}</div>
-                  <div><span className="font-medium">ต้นแม่พันธุ์: </span>{selectedTree.parent_female || "-"}</div>
-                  <div><span className="font-medium">ต้นแม่ที่ใช้ปักชำ: </span>{selectedTree.clone_source || "-"}</div>
-                  <div><span className="font-medium">ต้นที่ใช้ผสมเกสร: </span>{selectedTree.pollinated_by || "-"}</div>
-                  <div><span className="font-medium">วันที่ผสมเกสร: </span>{selectedTree.pollination_date || "-"}</div>
+                  <div className="dark:text-gray-200"><span className="font-semibold">ข้อมูลพันธุกรรม: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.genotype || "-"}</span></div>
+                  <div className="md:col-span-2 dark:text-gray-200"><span className="font-semibold">ลักษณะเด่น: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.phenotype || "-"}</span></div>
+                  <div className="dark:text-gray-200"><span className="font-semibold">ต้นพ่อพันธุ์: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.parent_male || "-"}</span></div>
+                  <div className="dark:text-gray-200"><span className="font-semibold">ต้นแม่พันธุ์: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.parent_female || "-"}</span></div>
+                  <div className="dark:text-gray-200"><span className="font-semibold">ต้นแม่ที่ใช้ปักชำ: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.clone_source || "-"}</span></div>
+                  <div className="dark:text-gray-200"><span className="font-semibold">ต้นที่ใช้ผสมเกสร: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.pollinated_by || "-"}</span></div>
+                  <div className="dark:text-gray-200"><span className="font-semibold">วันที่ผสมเกสร: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.pollination_date || "-"}</span></div>
                 </div>
-              </div>
+                </div>
 
               {/* กลุ่มข้อมูลผลผลิต */}
-                <div>
+              <div className="mb-4">
                 <h3 className="flex gap-2 items-center pb-2 mb-3 text-lg font-bold text-amber-700 border-b border-amber-200 dark:text-amber-300 dark:border-amber-700">
                   <span>🌸</span> ข้อมูลผลผลิต
                 </h3>
                 <div className="grid grid-cols-1 gap-y-2 gap-x-8 w-full text-base sm:text-lg md:grid-cols-2">
-                  <div><span className="font-medium">ปริมาณผลผลิต (กรัม): </span>{selectedTree.yield_amount ?? "-"}</div>
-                  <div><span className="font-medium">จำนวนเมล็ด: </span>{selectedTree.seed_count ?? "-"}</div>
-                  <div><span className="font-medium">วันที่เก็บเมล็ด: </span>{selectedTree.seed_harvest_date || "-"}</div>
-                  <div className="md:col-span-2"><span className="font-medium">คุณภาพ/ลักษณะของดอก: </span>{selectedTree.flower_quality || "-"}</div>
+                  <div className="dark:text-gray-200"><span className="font-semibold">ปริมาณผลผลิต (กรัม): </span><span className="text-white/90 dark:text-gray-100">{selectedTree.yield_amount ?? "-"}</span></div>
+                  <div className="dark:text-gray-200"><span className="font-semibold">จำนวนเมล็ด: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.seed_count ?? "-"}</span></div>
+                  <div className="dark:text-gray-200"><span className="font-semibold">วันที่เก็บเมล็ด: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.seed_harvest_date || "-"}</span></div>
+                  <div className="md:col-span-2 dark:text-gray-200"><span className="font-semibold">คุณภาพ/ลักษณะของดอก: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.flower_quality || "-"}</span></div>
                 </div>
               </div>
 
               {/* กลุ่มข้อมูลสุขภาพ */}
-                <div>
+              <div className="mb-4">
                 <h3 className="flex gap-2 items-center pb-2 mb-3 text-lg font-bold text-cyan-700 border-b border-cyan-200 dark:text-cyan-300 dark:border-cyan-700">
                   <span>🩺</span> ข้อมูลสุขภาพ
                 </h3>
-                <div className="w-full text-base sm:text-lg">
-                  <span className="font-medium">โรค/ศัตรูพืช: </span>{selectedTree.disease_notes || "-"}
+                <div className="w-full text-base sm:text-lg dark:text-gray-200">
+                  <span className="font-semibold">โรค/ศัตรูพืช: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.disease_notes || "-"}</span>
                 </div>
               </div>
 
               {/* กลุ่มข้อมูลไฟล์/หมายเหตุ */}
                 <div>
-                <h3 className="flex gap-2 items-center pb-2 mb-3 text-lg font-bold text-gray-700 border-b border-gray-200 dark:text-gray-300 dark:border-gray-700">
-                  <span>📎</span> ไฟล์และหมายเหตุ
+                <h3 className="pb-2 mb-3 text-lg font-bold text-gray-700 border-b border-gray-200 dark:text-gray-300 dark:border-gray-700">
+                  📎 ไฟล์และหมายเหตุ
                 </h3>
                 <div className="grid grid-cols-1 gap-y-2 gap-x-8 w-full text-base sm:text-lg md:grid-cols-2">
-                  <div className="flex gap-2 items-center">
+                  <div className="flex gap-2 items-center dark:text-gray-200">
                     <span className="font-medium">เอกสาร:</span>
                     {selectedTree.document ? (
                       <div className="flex gap-3 items-center p-2 bg-gray-50 rounded-xl border border-gray-200 shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                        {/* ไอคอนไฟล์ */}
                         <div className="flex justify-center items-center w-8 h-8 bg-red-50 rounded-lg dark:bg-red-900">
                           <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.828A2 2 0 0 0 19.414 7L15 2.586A2 2 0 0 0 13.586 2H6zm7 1.414L18.586 9H15a2 2 0 0 1-2-2V3.414z" />
                           </svg>
                         </div>
-                        {/* ข้อมูลไฟล์ */}
                         <div className="flex flex-col min-w-0">
                           <div className="flex gap-2 items-center">
                             <Tooltip content={getFileName(selectedTree.document)} placement="bottom">
@@ -1318,51 +1312,23 @@ export default function Dashboard() {
                                 {getFileName(selectedTree.document)}
                               </a>
                             </Tooltip>
-                            <Badge color="red" className="text-xs px-2 py-0.5 ml-1">
+                            <Badge color="red" className="text-xs px-2 py-0.5 ml-1 dark:bg-red-500 dark:text-white">
                               PDF
                             </Badge>
-                          </div>
-                          <div className="flex gap-2 mt-1">
-                            <Button
-                              color="blue"
-                              size="xs"
-                              as="a"
-                              href={selectedTree.document}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex gap-1 items-center px-4 py-1 text-xs font-semibold rounded-full shadow transition-transform font-kanit hover:scale-105"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                              </svg>
-                              ดูเอกสาร
-                            </Button>
-                            <Button
-                              color="failure"
-                              size="xs"
-                              outline
-                              onClick={handleShowDeleteDocumentModal}
-                              className="flex gap-1 items-center px-4 py-1 text-xs font-semibold rounded-full shadow transition-transform font-kanit hover:scale-105"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                              ลบเอกสาร
-                            </Button>
                           </div>
                         </div>
                       </div>
                     ) : (
-                      <span className="ml-2 text-gray-400">ไม่มีเอกสาร</span>
+                      <span className="ml-2 text-gray-400 dark:text-gray-500">ไม่มีเอกสาร</span>
                     )}
                   </div>
-                  <div className="md:col-span-2">
+                  <div className="md:col-span-2 dark:text-gray-200">
                   <span className="font-medium">หมายเหตุ: </span>{selectedTree.notes || "-"}
                 </div>
                 </div>
               </div>
 
-              <div className="pt-2 w-full text-xs text-right text-gray-400">
+              <div className="pt-2 w-full text-xs text-right text-gray-400 dark:text-gray-500">
                 เพิ่มเมื่อ: {selectedTree.created_at?.split("T")[0]}
                 {selectedTree.updated_at && selectedTree.updated_at !== selectedTree.created_at &&
                   <>, อัพเดทล่าสุด: {selectedTree.updated_at?.split("T")[0]}</>
@@ -1370,19 +1336,19 @@ export default function Dashboard() {
               </div>
             </div>
           ) : (
-            <div className="text-gray-500">ไม่พบข้อมูล</div>
+            <div className="text-gray-500 dark:text-gray-400">ไม่พบข้อมูล</div>
           )}
         </ModalBody>
-        <ModalFooter className="justify-between">
+        <ModalFooter className="justify-between rounded-b-2xl border-t border-gray-200 transition-colors duration-300 bg-slate-50 dark:bg-gray-900/95 dark:border-gray-700">
           <div className="flex gap-2">
-            <Button color="blue" className="transition-colors duration-200 font-kanit" onClick={handleShowEdit}>
+            <Button color="blue" className="transition-colors duration-200 font-kanit dark:bg-blue-700 dark:text-white dark:hover:bg-blue-800 focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-700" onClick={handleShowEdit}>
               แก้ไข
             </Button>
-            <Button color="red" className="transition-colors duration-200 font-kanit" onClick={handleShowDelete}>
+            <Button color="red" className="transition-colors duration-200 font-kanit dark:bg-red-700 dark:text-white dark:hover:bg-red-800 focus:ring-2 focus:ring-red-400 dark:focus:ring-red-700" onClick={handleShowDelete}>
               ลบ
             </Button>
           </div>
-          <Button color="gray" className="transition-colors duration-200 font-kanit" onClick={() => setShowDetailModal(false)}>
+          <Button color="gray" className="transition-colors duration-200 font-kanit dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-700" onClick={() => setShowDetailModal(false)}>
             ปิด
           </Button>
         </ModalFooter>
@@ -1760,16 +1726,18 @@ export default function Dashboard() {
                         alt={`รูปที่ ${idx + 1}`}
                         className="object-cover w-14 h-14 rounded-xl border border-gray-200 shadow"
                       />
-                      <button
-                        type="button"
-                        aria-label="ลบรูปภาพนี้"
-                        onClick={() => handleDeleteImage(img.id)}
-                        className="absolute top-1.5 right-1.5 w-7 h-7 flex items-center justify-center rounded-full bg-red-500 border-2 border-white shadow-lg hover:scale-110 transition-transform cursor-pointer z-10 p-0"
-                      >
-                        <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
+                      <Tooltip content="ลบรูปนี้" placement="top">
+                        <button
+                          type="button"
+                          aria-label="ลบรูปภาพนี้"
+                          onClick={() => handleDeleteImage(img.id)}
+                          className="absolute top-1.5 right-1.5 w-7 h-7 flex items-center justify-center rounded-full bg-red-500 border-2 border-white shadow-lg hover:scale-110 transition-transform cursor-pointer z-10 p-0"
+                        >
+                          <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </Tooltip>
                     </div>
                   ))}
                   <Tooltip content="ลบรูปภาพทั้งหมด" placement="top">
@@ -1912,7 +1880,7 @@ export default function Dashboard() {
             onClick={handleCloseLightbox}
             className="flex absolute top-4 right-4 z-20 justify-center items-center w-12 h-12 text-white bg-red-500 rounded-full shadow-lg transition hover:bg-red-600 focus:ring-2 focus:ring-red-300"
             aria-label="ปิดดูรูป"
-          >
+      >
             <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -1937,50 +1905,50 @@ export default function Dashboard() {
           )}
           {/* รูปภาพหลัก */}
           {selectedTree && selectedTree.images?.length > 0 && (
-            <img
-              src={selectedTree.images[lightboxIndex].image}
+                <img
+                  src={selectedTree.images[lightboxIndex].image}
               alt={`รูปที่ ${lightboxIndex + 1}`}
               className="object-contain max-w-3xl max-h-[80vh] rounded-2xl shadow-2xl border-4 border-white dark:border-gray-800 transition select-none"
-              draggable={false}
+                  draggable={false}
             />
           )}
 
           {/* ปุ่มเลื่อนขวา */}
           {selectedTree && (selectedTree.images?.length ?? 0) > 1 && (
-            <button
-              onClick={handleLightboxNext}
+                    <button
+                      onClick={handleLightboxNext}
               className="flex absolute right-4 top-1/2 z-20 justify-center items-center w-14 h-14 text-gray-800 rounded-full shadow-lg transition -translate-y-1/2 bg-white/80 hover:bg-white focus:ring-2 focus:ring-blue-300"
               aria-label="ดูรูปถัดไป"
-            >
+                    >
               <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
               </svg>
-            </button>
-          )}
+                    </button>
+                )}
           {/* Thumbnails */}
           <div
             className="flex flex-row flex-nowrap gap-2 justify-center px-4 mt-6 mb-2 max-w-full max-h-[4.5rem] scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent"
           >
             {selectedTree?.images?.map((img, idx) => (
-              <img
-                key={img.id}
-                src={img.image}
+                  <img
+                    key={img.id}
+                    src={img.image}
                 alt={`thumbnail ${idx + 1}`}
                 className={`w-16 h-16 object-cover rounded-xl border-4 transition cursor-pointer select-none ${
                   lightboxIndex === idx
                     ? 'border-blue-500 shadow-lg scale-105'
                     : 'border-white opacity-70 hover:scale-105'
                 }`}
-                onClick={() => setLightboxIndex(idx)}
+                    onClick={() => setLightboxIndex(idx)}
                 draggable={false}
-              />
-            ))}
-          </div>
+                  />
+                ))}
+              </div>
 
           {/* ปุ่มปิด (mobile) */}
           <Button color="gray" className="mt-2 md:hidden" onClick={handleCloseLightbox}>
             ปิดรูป
-          </Button>
+              </Button>
         </ModalBody>
       </Modal>
     </div>
@@ -2013,4 +1981,30 @@ function getFileType(url: string) {
   if (ext === "pdf") return "PDF";
   if (["jpg", "jpeg", "png"].includes(ext || "")) return "Image";
   return "File";
+}
+
+// Helper: แปลง sex เป็นสี badge (Flowbite)
+function getSexBadgeColor(sex: string): string {
+  switch (sex) {
+    case 'male': return 'info'; // ฟ้า
+    case 'female': return 'pink'; // ชมพู
+    case 'bisexual': return 'success'; // เขียว
+    case 'mixed': return 'warning'; // เหลือง
+    case 'monoecious': return 'blue'; // น้ำเงิน
+    case 'unknown': return 'gray'; // เทา
+    default: return 'gray';
+  }
+}
+
+// Helper: แปลง sex เป็น label ภาษาไทย
+function sexLabel(sex: string): string {
+  switch (sex) {
+    case 'bisexual': return 'สมบูรณ์เพศ';
+    case 'male': return 'ตัวผู้';
+    case 'female': return 'ตัวเมีย';
+    case 'monoecious': return 'แยกเพศในต้นเดียวกัน';
+    case 'mixed': return 'ผสมหลายเพศ';
+    case 'unknown': return 'ไม่ระบุ/ไม่แน่ใจ';
+    default: return '-';
+  }
 }
