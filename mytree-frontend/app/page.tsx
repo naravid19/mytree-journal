@@ -199,7 +199,7 @@ export default function Dashboard() {
     if (currentPage > totalPages) setCurrentPage(totalPages || 1);
   }, [trees, totalPages]);
   // CRUD
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     // ตรวจสอบ required fields
     if (!form.strainUuid) {
       setFormError("กรุณาเลือกสายพันธุ์");
@@ -288,7 +288,7 @@ export default function Dashboard() {
     } finally {
       setSubmitting(false);
     }
-  };
+  }, [form, imageFiles]);
 
   const handleShowEdit = () => {
     if (!selectedTree) return;
@@ -323,7 +323,7 @@ export default function Dashboard() {
     setShowEditModal(true);
   };
 
-  const handleEditSubmit = async () => {
+  const handleEditSubmit = useCallback(async () => {
     if (!selectedTree) return;
     
     // ตรวจสอบ required fields
@@ -415,7 +415,7 @@ export default function Dashboard() {
     } finally {
       setSubmitting(false);
     }
-  };
+  }, [form, imageFiles, selectedTree]);
 
   const handleShowDelete = () => setShowDeleteModal(true);
 
@@ -532,37 +532,37 @@ export default function Dashboard() {
   };
 
   // Gallery/Detail/Lightbox
-  const handleShowDetail = (tree: Tree) => {
+  const handleShowDetail = useCallback((tree: Tree) => {
     setSelectedTree(tree);
     setGalleryIndex(0);
     setShowDetailModal(true);
-  };
-  const handlePrevImage = () => {
+  }, []);
+  const handlePrevImage = useCallback(() => {
     if (!selectedTree || selectedTree.images.length === 0) return;
     setGalleryIndex(idx => (idx - 1 + selectedTree.images.length) % selectedTree.images.length);
-  };
-  const handleNextImage = () => {
+  }, [selectedTree]);
+  const handleNextImage = useCallback(() => {
     if (!selectedTree || selectedTree.images.length === 0) return;
     setGalleryIndex(idx => (idx + 1) % selectedTree.images.length);
-  };
-  const handleOpenLightbox = (idx: number) => {
+  }, [selectedTree]);
+  const handleOpenLightbox = useCallback((idx: number) => {
     setLightboxIndex(idx);
     setShowImageLightbox(true);
     setShowDetailModal(false);
-  };
+  }, []);
   const handleCloseLightbox = useCallback(() => {
     setShowImageLightbox(false);
     setGalleryIndex(lightboxIndex);
     setShowDetailModal(true);
   }, [lightboxIndex]);
-  const handleLightboxPrev = () => {
+  const handleLightboxPrev = useCallback(() => {
     if (!selectedTree) return;
     setLightboxIndex(idx => (idx - 1 + selectedTree.images.length) % selectedTree.images.length);
-  };
-  const handleLightboxNext = () => {
+  }, [selectedTree]);
+  const handleLightboxNext = useCallback(() => {
     if (!selectedTree) return;
     setLightboxIndex(idx => (idx + 1) % selectedTree.images.length);
-  };
+  }, [selectedTree]);
   useEffect(() => {
     if (!showImageLightbox) return;
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -573,6 +573,21 @@ export default function Dashboard() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [showImageLightbox, selectedTree, handleCloseLightbox]);
+
+  // Hotkey: submit form with Enter key when modal is open
+  useEffect(() => {
+    if (!showAddModal && !showEditModal) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Enter') return;
+      const tag = (e.target as HTMLElement).tagName;
+      if (tag === 'TEXTAREA') return;
+      e.preventDefault();
+      if (showAddModal) handleSubmit();
+      if (showEditModal) handleEditSubmit();
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [showAddModal, showEditModal, handleSubmit, handleEditSubmit]);
 
   // Skeleton Row Loader (Shimmer)
   const SkeletonRow = () => (
@@ -664,7 +679,7 @@ export default function Dashboard() {
                 ) : pagedTrees.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} className="py-6 text-center text-gray-400">
-                      <span className="block text-lg font-medium md:text-2xl">ไม่มีข้อมูลต้นไม้</span>
+                      <span className="block text-lg font-medium md:text-2xl">🌱 ยังไม่มีข้อมูลต้นไม้</span>
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -818,14 +833,14 @@ export default function Dashboard() {
         <ModalHeader>
           <span className="text-2xl font-extrabold text-green-700 font-kanit sm:text-3xl md:text-4xl dark:text-green-300">เพิ่มต้นไม้ใหม่</span>
         </ModalHeader>
-        <ModalBody className="rounded-b-2xl bg-slate-50 dark:bg-gray-900">
+        <ModalBody className="rounded-b-2xl bg-slate-50 dark:bg-gray-900 max-h-[80vh] overflow-y-auto">
           {/* แสดง error message */}
           {formError && (
             <Alert color="failure" className="mb-4">
               <span className="font-medium">{formError}</span>
             </Alert>
           )}
-          <form className="grid grid-cols-1 gap-y-4 gap-x-8 text-base md:grid-cols-2 sm:text-lg font-kanit">
+          <form onSubmit={e => { e.preventDefault(); handleSubmit(); }} className="grid grid-cols-1 gap-y-4 gap-x-8 text-base md:grid-cols-2 sm:text-lg font-kanit">
             {/* กลุ่มที่ 1: ข้อมูลพื้นฐาน (สำคัญที่สุด) */}
             <div className="md:col-span-2">
               <h3 className="pb-2 mb-3 text-lg font-bold text-green-700 border-b border-green-200 dark:text-green-300 dark:border-green-700">
@@ -1228,6 +1243,7 @@ export default function Dashboard() {
                 onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
               />
             </div>
+            <button type="submit" className="hidden" aria-hidden="true" />
           </form>
         </ModalBody>
         <ModalFooter className="gap-3 justify-end pt-4 rounded-b-2xl bg-slate-50 dark:bg-gray-900">
@@ -1260,7 +1276,7 @@ export default function Dashboard() {
             🌳 รายละเอียดต้นไม้
           </span>
         </ModalHeader>
-        <ModalBody className="px-4 py-6 rounded-b-2xl transition-colors duration-300 bg-slate-50 dark:bg-gray-900/95">
+        <ModalBody className="px-4 py-6 rounded-b-2xl transition-colors duration-300 bg-slate-50 dark:bg-gray-900/95 max-h-[80vh] overflow-y-auto">
           {selectedTree ? (
             <div className="flex flex-col gap-6 w-full">
               {/* GALLERY */}
@@ -1492,14 +1508,14 @@ export default function Dashboard() {
         // modalOverlayClassName="!fixed !inset-0"
       >
         <ModalHeader>แก้ไขต้นไม้</ModalHeader>
-        <ModalBody className="rounded-b-2xl bg-slate-50 dark:bg-gray-900">
+        <ModalBody className="rounded-b-2xl bg-slate-50 dark:bg-gray-900 max-h-[80vh] overflow-y-auto">
           {/* แสดง error message */}
           {formError && (
             <Alert color="failure" className="mb-4">
               <span className="font-medium">{formError}</span>
             </Alert>
           )}
-          <form className="grid grid-cols-1 gap-y-4 gap-x-8 text-base md:grid-cols-2 sm:text-lg font-kanit">
+          <form onSubmit={e => { e.preventDefault(); handleEditSubmit(); }} className="grid grid-cols-1 gap-y-4 gap-x-8 text-base md:grid-cols-2 sm:text-lg font-kanit">
             {/* กลุ่มที่ 1: ข้อมูลพื้นฐาน (สำคัญที่สุด) */}
             <div className="md:col-span-2">
               <h3 className="pb-2 mb-3 text-lg font-bold text-green-700 border-b border-green-200 dark:text-green-300 dark:border-green-700">
@@ -1563,7 +1579,7 @@ export default function Dashboard() {
               />
             </div>
             <div>
-              <Label className="mb-1 font-semibold">สถานะ</Label>
+              <Label className="mb-1 font-semibold">สถานะ <span className="text-red-500">*</span></Label>
               <Select
                 value={form.status}
                 className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -1900,6 +1916,7 @@ export default function Dashboard() {
                 onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
               />
             </div>
+            <button type="submit" className="hidden" aria-hidden="true" />
           </form>
         </ModalBody>
         <ModalFooter className="gap-2 justify-end">
@@ -1928,7 +1945,7 @@ export default function Dashboard() {
         // modalOverlayClassName="!fixed !inset-0"
       >
         <ModalHeader>ยืนยันการลบ</ModalHeader>
-        <ModalBody>
+        <ModalBody className="max-h-[80vh] overflow-y-auto">
           <div className="py-2 text-lg font-semibold text-center text-red-500">
             คุณต้องการลบต้นไม้ "{selectedTree?.strain?.name || ''} ({selectedTree?.nickname})" ใช่หรือไม่?
           </div>
@@ -1951,7 +1968,7 @@ export default function Dashboard() {
         className="xl:max-w-2xl"
       >
         <ModalHeader>ยืนยันการลบรูปภาพทั้งหมด</ModalHeader>
-        <ModalBody>
+        <ModalBody className="max-h-[80vh] overflow-y-auto">
           <div className="py-2 text-lg font-semibold text-center text-red-500">
             คุณต้องการลบรูปภาพทั้งหมด ({selectedTree?.images?.length ?? 0} รูป) ของต้นไม้ "{selectedTree?.strain?.name || ''} ({selectedTree?.nickname})" ใช่หรือไม่?
           </div>
@@ -1977,7 +1994,7 @@ export default function Dashboard() {
         className="xl:max-w-2xl"
       >
         <ModalHeader>ยืนยันการลบเอกสาร</ModalHeader>
-        <ModalBody>
+        <ModalBody className="max-h-[80vh] overflow-y-auto">
           <div className="py-2 text-lg font-semibold text-center text-red-500">
             คุณต้องการลบเอกสารของต้นไม้ "{selectedTree?.strain?.name || ''} ({selectedTree?.nickname})" ใช่หรือไม่?
           </div>
