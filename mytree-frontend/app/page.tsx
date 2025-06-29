@@ -23,6 +23,8 @@ import {
   Tooltip,
   Badge,
   Alert,
+  Pagination,
+  Spinner,
 } from "flowbite-react";
 
 type Image = {
@@ -136,6 +138,12 @@ export default function Dashboard() {
 
   const [ageUnit, setAgeUnit] = useState<"day" | "month" | "year">("day");
 
+  // State สำหรับ pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
+  const totalPages = Math.ceil(trees.length / itemsPerPage);
+  const pagedTrees = trees.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   // Fetch Data
   const fetchTrees = () => {
     setLoading(true);
@@ -163,6 +171,11 @@ export default function Dashboard() {
     fetchBatches();
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    const urls = imageFiles.map(file => URL.createObjectURL(file));
+    return () => { urls.forEach(url => URL.revokeObjectURL(url)); };
+  }, [imageFiles]);
 
   // CRUD
   const handleSubmit = async () => {
@@ -552,7 +565,7 @@ export default function Dashboard() {
           <DarkThemeToggle className="self-end sm:self-auto" />
         </div>
         {/* TABLE */}
-        <Card className="p-0 rounded-2xl border-0 shadow-xl md:p-4 bg-white/90 dark:bg-gray-900/90">
+        <Card className="overflow-visible pb-6 w-full rounded-2xl border border-gray-200 shadow-2xl bg-white/70 dark:bg-gray-900/80 dark:border-gray-700">
           <div className="overflow-x-auto rounded-xl border border-gray-100 dark:border-gray-700 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent">
             <Table hoverable className="min-w-[650px] text-base md:text-lg font-kanit dark:bg-gray-900/80 dark:text-gray-100">
               <TableHead className="bg-green-50 dark:bg-gray-800/80 dark:text-gray-100">
@@ -601,14 +614,14 @@ export default function Dashboard() {
               <TableBody>
                 {loading ? (
                   Array.from({ length: 3 }).map((_, i) => <SkeletonRow key={i} />)
-                ) : trees.length === 0 ? (
+                ) : pagedTrees.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} className="py-6 text-center text-gray-400">
                       <span className="block text-lg font-medium md:text-2xl">ไม่มีข้อมูลต้นไม้</span>
                     </TableCell>
                   </TableRow>
                 ) : (
-                  trees.map((tree) => (
+                  pagedTrees.map((tree) => (
                     <TableRow
                       key={tree.id}
                       className="transition cursor-pointer hover:bg-green-50/40 dark:hover:bg-gray-700/40"
@@ -656,7 +669,21 @@ export default function Dashboard() {
                         {tree.images && tree.images.length > 0 ? (
                           <div className="flex gap-1">
                             {tree.images.slice(0, 2).map((img, idx) => (
-                              <img key={idx} src={img.image} alt="" className="object-cover w-10 h-10 rounded border border-gray-200 shadow dark:border-gray-700" />
+                              <img
+                              key={idx}
+                              src={img.image}
+                              alt={`รูปที่ ${idx + 1}`}
+                              className="object-cover w-10 h-10 rounded-xl border-2 border-gray-300 shadow transition-all hover:scale-105 dark:border-gray-700"
+                              tabIndex={0}
+                              loading="lazy"
+                              onClick={e => {
+                                e.stopPropagation();
+                                setSelectedTree(tree);
+                                setLightboxIndex(idx);
+                                setShowImageLightbox(true);
+                              }}
+                              aria-label={`ดูรูปที่ ${idx + 1}`}
+                              />
                             ))}
                           </div>
                           ) : (
@@ -669,6 +696,47 @@ export default function Dashboard() {
               </TableBody>
             </Table>
           </div>
+          {totalPages > 1 && (
+            <nav aria-label="Page navigation" className="flex justify-center mt-6 w-full">
+              <ul className="flex items-center -space-x-px h-10 text-base">
+                <li>
+                  <button
+                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                    className="flex justify-center items-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 ms-0 border-e-0 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="sr-only">Previous</span>
+                    <svg className="w-3 h-3 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                      <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 1 1 5l4 4"/>
+                    </svg>
+                  </button>
+                </li>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                  <li key={page}>
+                    <button
+                      onClick={() => setCurrentPage(page)}
+                      aria-current={currentPage === page ? "page" : undefined}
+                      className={`flex items-center justify-center px-4 h-10 leading-tight border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white ${currentPage === page ? 'z-10 text-blue-600 border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:bg-gray-700 dark:text-white' : 'bg-white'}`}
+                    >
+                      {page}
+                    </button>
+                  </li>
+                ))}
+                <li>
+                  <button
+                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                    disabled={currentPage === totalPages}
+                    className="flex justify-center items-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="sr-only">Next</span>
+                    <svg className="w-3 h-3 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                      <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 9 4-4-4-4"/>
+                    </svg>
+                  </button>
+                </li>
+              </ul>
+            </nav>
+          )}
         </Card>
         <div className="flex justify-end mt-6">
           <Button
@@ -689,7 +757,7 @@ export default function Dashboard() {
           setShowAddModal(false);
           setFormError(""); // ล้าง error เมื่อปิด modal
         }}
-        className="xl:max-w-2xl"
+        className="rounded-2xl border border-gray-200 shadow-2xl backdrop-blur-lg xl:max-w-2xl dark:border-gray-700"
         // modalOverlayClassName="!fixed !inset-0" // ถ้า overlay ไม่เต็มจอ ให้ uncomment บรรทัดนี้
       >
         <ModalHeader>
@@ -1107,15 +1175,16 @@ export default function Dashboard() {
           </form>
         </ModalBody>
         <ModalFooter className="gap-3 justify-end pt-4 rounded-b-2xl bg-slate-50 dark:bg-gray-900">
-          <Button
-            color="green"
-            size="lg"
-            onClick={handleSubmit}
-            disabled={submitting}
-            className="px-8 text-lg font-semibold transition-colors duration-200"
-          >
-            {submitting ? "กำลังบันทึก..." : "บันทึก"}
-          </Button>
+        <Button
+          color="green"
+          size="lg"
+          className="px-8 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-green-400 dark:focus:ring-green-700 active:scale-95"
+          onClick={handleSubmit}
+          disabled={submitting}
+          aria-label="บันทึกต้นไม้"
+        >
+          {submitting ? <Spinner size="sm" /> : "บันทึก"}
+        </Button>
           <Button color="gray" size="lg" className="px-8 text-lg font-semibold transition-colors duration-200" onClick={() => setShowAddModal(false)}>
             ยกเลิก
           </Button>
@@ -1362,7 +1431,7 @@ export default function Dashboard() {
           setShowEditModal(false);
           setFormError(""); // ล้าง error เมื่อปิด modal
         }}
-        className="xl:max-w-2xl"
+        className="rounded-2xl border border-gray-200 shadow-2xl backdrop-blur-lg xl:max-w-2xl dark:border-gray-700"
         // modalOverlayClassName="!fixed !inset-0"
       >
         <ModalHeader>แก้ไขต้นไม้</ModalHeader>
@@ -1721,11 +1790,11 @@ export default function Dashboard() {
                 <div className="flex flex-wrap gap-2 mt-2">
                   {(selectedTree?.images ?? []).map((img, idx) => (
                     <div key={img.id} className="relative group">
-                      <img
+                  <img
                         src={img.image}
-                        alt={`รูปที่ ${idx + 1}`}
+                    alt={`รูปที่ ${idx + 1}`}
                         className="object-cover w-14 h-14 rounded-xl border border-gray-200 shadow"
-                      />
+                  />
                       <Tooltip content="ลบรูปนี้" placement="top">
                         <button
                           type="button"
@@ -1740,6 +1809,7 @@ export default function Dashboard() {
                       </Tooltip>
                     </div>
                   ))}
+                  {/* ปุ่มลบรูปทั้งหมด */}
                   <Tooltip content="ลบรูปภาพทั้งหมด" placement="top">
                     <Button
                       color="failure"
@@ -1750,7 +1820,7 @@ export default function Dashboard() {
                       ลบทั้งหมด
                     </Button>
                   </Tooltip>
-                </div>
+              </div>
               )}
 
               {/* preview รูปใหม่ที่เลือก */}
