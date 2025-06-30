@@ -23,11 +23,10 @@ import {
   Tooltip,
   Badge,
   Alert,
-  Pagination,
   Spinner,
   Toast,
 } from "flowbite-react";
-import { HiSearch, HiCheckCircle, HiXCircle } from "react-icons/hi";
+import { HiSearch, HiCheckCircle } from "react-icons/hi";
 
 type Image = {
   id: number;
@@ -114,8 +113,6 @@ export default function Dashboard() {
   // เพิ่ม state สำหรับ success message
   const [successMessage, setSuccessMessage] = useState<string>("");
 
-  // เพิ่ม state สำหรับ error message
-  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const today = new Date();
   const yyyy = today.getFullYear();
@@ -2119,12 +2116,6 @@ export default function Dashboard() {
           <Toast className="flex gap-2 items-center text-green-800 bg-green-50 border border-green-300 shadow dark:bg-green-800 dark:text-green-100">
             <HiCheckCircle className="w-5 h-5 text-green-600 dark:text-green-300" />
             <span className="font-semibold">{successMessage}</span>
-          </Toast>
-        )}
-        {errorMessage && (
-          <Toast className="flex gap-2 items-center text-red-800 bg-red-50 border border-red-300 shadow dark:bg-red-800 dark:text-red-100">
-            <HiXCircle className="w-5 h-5 text-red-600 dark:text-red-300" />
-            <span className="font-semibold">{errorMessage}</span>
           </Toast>
         )}
       </div>
