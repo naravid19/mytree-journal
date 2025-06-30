@@ -2138,7 +2138,7 @@ export default function Dashboard() {
               </Button>
         </ModalBody>
       </Modal>
-      <div className="fixed top-4 right-4 z-[10000] space-y-2">
+      <div className="fixed top-4 right-4 z-[10000] space-y-2" aria-live="polite">
         {successMessage && (
           <Toast className="flex gap-2 items-center text-green-800 bg-green-50 border border-green-300 shadow dark:bg-green-800 dark:text-green-100">
             <HiCheckCircle className="w-5 h-5 text-green-600 dark:text-green-300" />
