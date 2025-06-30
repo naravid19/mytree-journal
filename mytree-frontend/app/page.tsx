@@ -572,6 +572,7 @@ export default function Dashboard() {
       fetchTrees();
       setSuccessMessage("ลบรายการที่เลือกสำเร็จ");
       setTimeout(() => setSuccessMessage(""), 2500);
+      setShowBulkDeleteModal(false);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setErrorMessage("ลบรายการไม่สำเร็จ: " + message);
@@ -676,7 +677,7 @@ export default function Dashboard() {
             aria-label="ค้นหาต้นไม้"
           />
         </div>
-        <div className="mb-4 flex items-center gap-3">
+        <div className="flex gap-3 items-center mb-4">
           <span className="text-sm">เลือก {selectedIds.length} รายการ</span>
           {selectedIds.length > 0 && (
             <>
