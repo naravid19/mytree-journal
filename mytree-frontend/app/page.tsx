@@ -692,7 +692,7 @@ export default function Dashboard() {
           />
         </div>
         <div className="flex gap-3 items-center mb-4">
-          <span className="text-sm">เลือก {selectedIds.length} รายการ</span>
+          <span className="text-sm text-gray-700 dark:text-gray-200">เลือก {selectedIds.length} รายการ</span>
           {selectedIds.length > 0 && (
             <>
               <Button color="red" onClick={() => setShowBulkDeleteModal(true)} disabled={submitting}>
@@ -728,7 +728,7 @@ export default function Dashboard() {
                     />
                   </TableHeadCell>
                   <TableHeadCell
-                    className="cursor-pointer select-none text-sm font-bold md:text-base lg:text-lg dark:text-gray-100"
+                    className="text-sm font-bold cursor-pointer select-none md:text-base lg:text-lg dark:text-gray-100"
                     onClick={() => {
                       if (sortKey === "strain") {
                         setSortOrder(sortOrder === "asc" ? "desc" : "asc");
@@ -741,7 +741,7 @@ export default function Dashboard() {
                     สายพันธุ์ {sortKey === "strain" && (sortOrder === "asc" ? "▲" : "▼")}
                   </TableHeadCell>
                   <TableHeadCell
-                    className="cursor-pointer select-none text-sm font-bold md:text-base lg:text-lg"
+                    className="text-sm font-bold cursor-pointer select-none md:text-base lg:text-lg"
                     onClick={() => {
                       if (sortKey === "variety") {
                         setSortOrder(sortOrder === "asc" ? "desc" : "asc");
@@ -754,7 +754,7 @@ export default function Dashboard() {
                     พันธุ์ {sortKey === "variety" && (sortOrder === "asc" ? "▲" : "▼")}
                   </TableHeadCell>
                   <TableHeadCell
-                    className="cursor-pointer select-none text-sm font-bold md:text-base lg:text-lg"
+                    className="text-sm font-bold cursor-pointer select-none md:text-base lg:text-lg"
                     onClick={() => {
                       if (sortKey === "nickname") {
                         setSortOrder(sortOrder === "asc" ? "desc" : "asc");
@@ -767,7 +767,7 @@ export default function Dashboard() {
                     ชื่อเล่น {sortKey === "nickname" && (sortOrder === "asc" ? "▲" : "▼")}
                   </TableHeadCell>
                   <TableHeadCell
-                    className="cursor-pointer select-none text-sm font-bold md:text-base lg:text-lg"
+                    className="text-sm font-bold cursor-pointer select-none md:text-base lg:text-lg"
                     onClick={() => {
                       if (sortKey === "sex") {
                         setSortOrder(sortOrder === "asc" ? "desc" : "asc");
@@ -780,7 +780,7 @@ export default function Dashboard() {
                     เพศ {sortKey === "sex" && (sortOrder === "asc" ? "▲" : "▼")}
                   </TableHeadCell>
                   <TableHeadCell
-                    className="cursor-pointer select-none text-sm font-bold md:text-base lg:text-lg"
+                    className="text-sm font-bold cursor-pointer select-none md:text-base lg:text-lg"
                     onClick={() => {
                       if (sortKey === "plant_date") {
                         setSortOrder(sortOrder === "asc" ? "desc" : "asc");
@@ -825,7 +825,7 @@ export default function Dashboard() {
                     </div>
                   </TableHeadCell>
                   <TableHeadCell
-                    className="cursor-pointer select-none text-sm font-bold md:text-base lg:text-lg"
+                    className="text-sm font-bold cursor-pointer select-none md:text-base lg:text-lg"
                     onClick={() => {
                       if (sortKey === "status") {
                         setSortOrder(sortOrder === "asc" ? "desc" : "asc");
@@ -905,7 +905,23 @@ export default function Dashboard() {
                       </TableCell>
                       <TableCell className="font-mono text-center">{calcAge(tree.plant_date, ageUnit)}</TableCell>
                       <TableCell>
-                        <Badge color={tree.status === 'มีชีวิต' ? 'success' : tree.status === 'ตายแล้ว' ? 'failure' : tree.status === 'ถูกย้าย' ? 'warning' : 'gray'}>
+                        <Badge
+                          color={
+                            tree.status === 'มีชีวิต' ? 'success'
+                            : tree.status === 'ตายแล้ว' ? 'failure'
+                            : tree.status === 'ถูกย้าย' ? 'warning'
+                            : 'gray'
+                          }
+                          className={
+                            tree.status === 'มีชีวิต'
+                              ? 'dark:bg-green-600 dark:text-white'
+                              : tree.status === 'ตายแล้ว'
+                              ? 'dark:bg-red-600 dark:text-white'
+                              : tree.status === 'ถูกย้าย'
+                              ? 'dark:bg-yellow-400 dark:text-black'
+                              : 'dark:bg-gray-700 dark:text-white'
+                          }
+                        >
                           {tree.status}
                         </Badge>
                       </TableCell>
@@ -1583,7 +1599,23 @@ export default function Dashboard() {
                     <div className="dark:text-gray-200"><span className="font-medium">ชื่อเล่น: </span>{selectedTree.nickname || "-"}</div>
                     <div className="dark:text-gray-200"><span className="font-medium">สถานที่ปลูก: </span>{selectedTree.location || "-"}</div>
                     <div className="flex gap-2 items-center dark:text-gray-200"><span className="font-medium">สถานะ: </span>
-                      <Badge color={selectedTree.status === 'มีชีวิต' ? 'success' : selectedTree.status === 'ตายแล้ว' ? 'failure' : selectedTree.status === 'ถูกย้าย' ? 'warning' : 'gray'} className="dark:bg-green-600 dark:text-white">
+                      <Badge
+                        color={
+                          selectedTree.status === 'มีชีวิต' ? 'success'
+                          : selectedTree.status === 'ตายแล้ว' ? 'failure'
+                          : selectedTree.status === 'ถูกย้าย' ? 'warning'
+                          : 'gray'
+                        }
+                        className={
+                          selectedTree.status === 'มีชีวิต'
+                            ? 'dark:bg-green-600 dark:text-white'
+                            : selectedTree.status === 'ตายแล้ว'
+                            ? 'dark:bg-red-600 dark:text-white'
+                            : selectedTree.status === 'ถูกย้าย'
+                            ? 'dark:bg-yellow-400 dark:text-black'
+                            : 'dark:bg-gray-700 dark:text-white'
+                        }
+                      >
                         {selectedTree.status}
                       </Badge>
                 </div>
