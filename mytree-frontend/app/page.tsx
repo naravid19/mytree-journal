@@ -164,7 +164,9 @@ export default function Dashboard() {
   const [ageUnit, setAgeUnit] = useState<"day" | "month" | "year">("day");
 
   // State สำหรับการเรียงลำดับตาราง
-  const [sortKey, setSortKey] = useState<"strain" | "nickname" | "plant_date" | null>(null);
+  const [sortKey, setSortKey] = useState<
+    "strain" | "nickname" | "plant_date" | "variety" | "sex" | "status" | null
+  >(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   // State สำหรับ pagination
@@ -738,7 +740,19 @@ export default function Dashboard() {
                   >
                     สายพันธุ์ {sortKey === "strain" && (sortOrder === "asc" ? "▲" : "▼")}
                   </TableHeadCell>
-                  <TableHeadCell className="text-sm font-bold md:text-base lg:text-lg">พันธุ์</TableHeadCell>
+                  <TableHeadCell
+                    className="cursor-pointer select-none text-sm font-bold md:text-base lg:text-lg"
+                    onClick={() => {
+                      if (sortKey === "variety") {
+                        setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                      } else {
+                        setSortKey("variety");
+                        setSortOrder("asc");
+                      }
+                    }}
+                  >
+                    พันธุ์ {sortKey === "variety" && (sortOrder === "asc" ? "▲" : "▼")}
+                  </TableHeadCell>
                   <TableHeadCell
                     className="cursor-pointer select-none text-sm font-bold md:text-base lg:text-lg"
                     onClick={() => {
@@ -752,7 +766,19 @@ export default function Dashboard() {
                   >
                     ชื่อเล่น {sortKey === "nickname" && (sortOrder === "asc" ? "▲" : "▼")}
                   </TableHeadCell>
-                  <TableHeadCell className="text-sm font-bold md:text-base lg:text-lg">เพศ</TableHeadCell>
+                  <TableHeadCell
+                    className="cursor-pointer select-none text-sm font-bold md:text-base lg:text-lg"
+                    onClick={() => {
+                      if (sortKey === "sex") {
+                        setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                      } else {
+                        setSortKey("sex");
+                        setSortOrder("asc");
+                      }
+                    }}
+                  >
+                    เพศ {sortKey === "sex" && (sortOrder === "asc" ? "▲" : "▼")}
+                  </TableHeadCell>
                   <TableHeadCell
                     className="cursor-pointer select-none text-sm font-bold md:text-base lg:text-lg"
                     onClick={() => {
@@ -798,7 +824,19 @@ export default function Dashboard() {
                       </ButtonGroup>
                     </div>
                   </TableHeadCell>
-                  <TableHeadCell className="text-sm font-bold md:text-base lg:text-lg">สถานะ</TableHeadCell>
+                  <TableHeadCell
+                    className="cursor-pointer select-none text-sm font-bold md:text-base lg:text-lg"
+                    onClick={() => {
+                      if (sortKey === "status") {
+                        setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                      } else {
+                        setSortKey("status");
+                        setSortOrder("asc");
+                      }
+                    }}
+                  >
+                    สถานะ {sortKey === "status" && (sortOrder === "asc" ? "▲" : "▼")}
+                  </TableHeadCell>
                   <TableHeadCell className="text-sm font-bold md:text-base lg:text-lg">รูป</TableHeadCell>
                 </TableRow>
               </TableHead>
@@ -2323,10 +2361,16 @@ function calcAge(plantDate: string, unit: "day" | "month" | "year") {
   return diffDays;
 }
 
-function getSortValue(tree: Tree, key: "strain" | "nickname" | "plant_date") {
+function getSortValue(
+  tree: Tree,
+  key: "strain" | "nickname" | "plant_date" | "variety" | "sex" | "status"
+) {
   if (key === "strain") return tree.strain?.name?.toLowerCase() || "";
   if (key === "nickname") return tree.nickname?.toLowerCase() || "";
   if (key === "plant_date") return tree.plant_date || "";
+  if (key === "variety") return tree.variety?.toLowerCase() || "";
+  if (key === "sex") return tree.sex?.toLowerCase() || "";
+  if (key === "status") return tree.status?.toLowerCase() || "";
   return "";
 }
 
