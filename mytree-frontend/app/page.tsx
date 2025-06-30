@@ -25,6 +25,7 @@ import {
   Alert,
   Pagination,
   Spinner,
+  Toast,
 } from "flowbite-react";
 import { HiSearch } from "react-icons/hi";
 
@@ -102,6 +103,9 @@ export default function Dashboard() {
 
   // เพิ่ม state สำหรับ success message
   const [successMessage, setSuccessMessage] = useState<string>("");
+
+  // เพิ่ม state สำหรับ error message
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const today = new Date();
   const yyyy = today.getFullYear();
@@ -2096,6 +2100,18 @@ export default function Dashboard() {
               </Button>
         </ModalBody>
       </Modal>
+      <div className="fixed top-4 right-4 z-[10000]">
+        {successMessage && (
+          <Toast className="mb-2">
+            <span className="text-green-700 font-bold">{successMessage}</span>
+          </Toast>
+        )}
+        {errorMessage && (
+          <Toast className="mb-2" color="failure">
+            <span className="text-red-700 font-bold">{errorMessage}</span>
+          </Toast>
+        )}
+      </div>
     </div>
   );
 }
