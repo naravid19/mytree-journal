@@ -27,7 +27,7 @@ import {
   Spinner,
   Toast,
 } from "flowbite-react";
-import { HiSearch } from "react-icons/hi";
+import { HiSearch, HiCheckCircle, HiXCircle } from "react-icons/hi";
 
 type Image = {
   id: number;
@@ -2100,15 +2100,17 @@ export default function Dashboard() {
               </Button>
         </ModalBody>
       </Modal>
-      <div className="fixed top-4 right-4 z-[10000]">
+      <div className="fixed top-4 right-4 z-[10000] space-y-2">
         {successMessage && (
-          <Toast className="mb-2">
-            <span className="text-green-700 font-bold">{successMessage}</span>
+          <Toast className="flex gap-2 items-center text-green-800 bg-green-50 border border-green-300 shadow dark:bg-green-800 dark:text-green-100">
+            <HiCheckCircle className="w-5 h-5 text-green-600 dark:text-green-300" />
+            <span className="font-semibold">{successMessage}</span>
           </Toast>
         )}
         {errorMessage && (
-          <Toast className="mb-2" color="failure">
-            <span className="text-red-700 font-bold">{errorMessage}</span>
+          <Toast className="flex gap-2 items-center text-red-800 bg-red-50 border border-red-300 shadow dark:bg-red-800 dark:text-red-100">
+            <HiXCircle className="w-5 h-5 text-red-600 dark:text-red-300" />
+            <span className="font-semibold">{errorMessage}</span>
           </Toast>
         )}
       </div>
