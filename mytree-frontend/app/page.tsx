@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import {
   Table,
   TableBody,
@@ -80,6 +80,16 @@ type Tree = {
   notes: string;
 };
 
+function useDebouncedSearch(callback: (s: string) => void, delay = 300) {
+  const timer = useRef<NodeJS.Timeout>();
+  return (val: string) => {
+    if (timer.current) {
+      clearTimeout(timer.current);
+    }
+    timer.current = setTimeout(() => callback(val), delay);
+  };
+}
+
 export default function Dashboard() {
   const [trees, setTrees] = useState<Tree[]>([]);
   const [strains, setStrains] = useState<Strain[]>([]);
@@ -150,6 +160,10 @@ export default function Dashboard() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedSearch((val: string) => {
+    setSearch(val);
+    setCurrentPage(1);
+  }, 350);
 
   // Fetch Data
   const fetchTrees = () => {
@@ -623,7 +637,7 @@ export default function Dashboard() {
             type="search"
             icon={HiSearch}
             value={search}
-            onChange={e => { setSearch(e.target.value); setCurrentPage(1); }}
+            onChange={e => debouncedSearch(e.target.value)}
             placeholder="ค้นหาต้นไม้..."
             className="w-full max-w-xs"
             autoComplete="off"
