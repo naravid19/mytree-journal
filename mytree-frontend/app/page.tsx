@@ -1962,7 +1962,7 @@ export default function Dashboard() {
         <ModalHeader>ยืนยันการลบ</ModalHeader>
         <ModalBody className="max-h-[80vh] overflow-y-auto">
           <div className="py-2 text-lg font-semibold text-center text-red-500">
-            คุณต้องการลบต้นไม้ "{selectedTree?.strain?.name || ''} ({selectedTree?.nickname})" ใช่หรือไม่?
+            คุณต้องการลบต้นไม้ &quot;{selectedTree?.strain?.name || ''} ({selectedTree?.nickname})&quot; ใช่หรือไม่?
           </div>
         </ModalBody>
         <ModalFooter className="gap-2 justify-end">
@@ -1985,7 +1985,7 @@ export default function Dashboard() {
         <ModalHeader>ยืนยันการลบรูปภาพทั้งหมด</ModalHeader>
         <ModalBody className="max-h-[80vh] overflow-y-auto">
           <div className="py-2 text-lg font-semibold text-center text-red-500">
-            คุณต้องการลบรูปภาพทั้งหมด ({selectedTree?.images?.length ?? 0} รูป) ของต้นไม้ "{selectedTree?.strain?.name || ''} ({selectedTree?.nickname})" ใช่หรือไม่?
+            คุณต้องการลบรูปภาพทั้งหมด ({selectedTree?.images?.length ?? 0} รูป) ของต้นไม้ &quot;{selectedTree?.strain?.name || ''} ({selectedTree?.nickname})&quot; ใช่หรือไม่?
           </div>
           <div className="mt-4 text-sm text-center text-gray-600">
             การดำเนินการนี้ไม่สามารถยกเลิกได้
@@ -2011,7 +2011,7 @@ export default function Dashboard() {
         <ModalHeader>ยืนยันการลบเอกสาร</ModalHeader>
         <ModalBody className="max-h-[80vh] overflow-y-auto">
           <div className="py-2 text-lg font-semibold text-center text-red-500">
-            คุณต้องการลบเอกสารของต้นไม้ "{selectedTree?.strain?.name || ''} ({selectedTree?.nickname})" ใช่หรือไม่?
+            คุณต้องการลบเอกสารของต้นไม้ &quot;{selectedTree?.strain?.name || ''} ({selectedTree?.nickname})&quot; ใช่หรือไม่?
           </div>
           <div className="mt-4 text-sm text-center text-gray-600">
             การดำเนินการนี้ไม่สามารถยกเลิกได้
