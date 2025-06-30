@@ -26,7 +26,7 @@ import {
   Spinner,
   Toast,
 } from "flowbite-react";
-import { HiSearch, HiCheckCircle } from "react-icons/hi";
+import { HiSearch, HiCheckCircle, HiXCircle } from "react-icons/hi";
 import Image from "next/image";
 
 type Image = {
@@ -114,8 +114,14 @@ export default function Dashboard() {
   // เพิ่ม state สำหรับ success message
   const [successMessage, setSuccessMessage] = useState<string>("");
 
+  // แจ้งเตือนข้อผิดพลาดแบบ toast
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
   // เก็บ ID ของต้นไม้ที่ถูกเลือกในตาราง
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
+
+  // modal ยืนยันการลบหลายรายการ
+  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
 
 
   const today = new Date();
@@ -551,18 +557,25 @@ export default function Dashboard() {
   };
 
   // ลบต้นไม้หลายรายการตามที่เลือกในตาราง
-  const handleBulkDelete = async () => {
+  const performBulkDelete = async () => {
     if (selectedIds.length === 0) return;
-    if (!window.confirm(`ต้องการลบต้นไม้ ${selectedIds.length} รายการ ใช่หรือไม่?`)) return;
     setSubmitting(true);
     try {
       for (const id of selectedIds) {
-        await fetch(`http://localhost:8000/api/trees/${id}/`, { method: "DELETE" });
+        const res = await fetch(`http://localhost:8000/api/trees/${id}/`, { method: "DELETE" });
+        if (!res.ok) {
+          const err = await res.text();
+          throw new Error(err);
+        }
       }
       setSelectedIds([]);
       fetchTrees();
       setSuccessMessage("ลบรายการที่เลือกสำเร็จ");
       setTimeout(() => setSuccessMessage(""), 2500);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setErrorMessage("ลบรายการไม่สำเร็จ: " + message);
+      setTimeout(() => setErrorMessage(""), 3000);
     } finally {
       setSubmitting(false);
     }
@@ -663,16 +676,19 @@ export default function Dashboard() {
             aria-label="ค้นหาต้นไม้"
           />
         </div>
-        {selectedIds.length > 0 && (
-          <div className="mb-4 flex items-center gap-3">
-            <Button color="red" onClick={handleBulkDelete} disabled={submitting}>
-              {submitting ? "กำลังลบ..." : `ลบรายการที่เลือก (${selectedIds.length})`}
-            </Button>
-            <Button color="gray" onClick={() => setSelectedIds([])} disabled={submitting}>
-              ยกเลิกเลือก
-            </Button>
-          </div>
-        )}
+        <div className="mb-4 flex items-center gap-3">
+          <span className="text-sm">เลือก {selectedIds.length} รายการ</span>
+          {selectedIds.length > 0 && (
+            <>
+              <Button color="red" onClick={() => setShowBulkDeleteModal(true)} disabled={submitting}>
+                {submitting ? "กำลังลบ..." : "ลบรายการที่เลือก"}
+              </Button>
+              <Button color="gray" onClick={() => setSelectedIds([])} disabled={submitting}>
+                ยกเลิกเลือก
+              </Button>
+            </>
+          )}
+        </div>
         {/* TABLE */}
         <Card className="overflow-visible pb-6 w-full rounded-2xl border border-gray-200 shadow-2xl bg-white/70 dark:bg-gray-900/80 dark:border-gray-700">
           <div className="overflow-x-auto rounded-xl border border-gray-100 dark:border-gray-700 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent">
@@ -1349,6 +1365,32 @@ export default function Dashboard() {
           บันทึก
         </Button>
           <Button color="gray" size="lg" className="px-8 text-lg font-semibold transition-colors duration-200" onClick={() => setShowAddModal(false)}>
+            ยกเลิก
+          </Button>
+        </ModalFooter>
+      </Modal>
+
+      {/* Modal ยืนยันการลบหลายรายการ */}
+      <Modal
+        show={showBulkDeleteModal}
+        size="sm"
+        onClose={() => setShowBulkDeleteModal(false)}
+        className="xl:max-w-2xl"
+      >
+        <ModalHeader>ยืนยันการลบ</ModalHeader>
+        <ModalBody className="max-h-[80vh] overflow-y-auto">
+          <div className="py-2 text-lg font-semibold text-center text-red-500">
+            คุณต้องการลบต้นไม้ {selectedIds.length} รายการ ใช่หรือไม่?
+          </div>
+          <div className="mt-4 text-sm text-center text-gray-600">
+            การดำเนินการนี้ไม่สามารถยกเลิกได้
+          </div>
+        </ModalBody>
+        <ModalFooter className="gap-2 justify-end">
+          <Button color="red" disabled={submitting} onClick={performBulkDelete}>
+            {submitting ? "กำลังลบ..." : "ลบ"}
+          </Button>
+          <Button color="gray" onClick={() => setShowBulkDeleteModal(false)}>
             ยกเลิก
           </Button>
         </ModalFooter>
@@ -2206,6 +2248,12 @@ export default function Dashboard() {
           <Toast className="flex gap-2 items-center text-green-800 bg-green-50 border border-green-300 shadow dark:bg-green-800 dark:text-green-100">
             <HiCheckCircle className="w-5 h-5 text-green-600 dark:text-green-300" />
             <span className="font-semibold">{successMessage}</span>
+          </Toast>
+        )}
+        {errorMessage && (
+          <Toast className="flex gap-2 items-center text-red-800 bg-red-50 border border-red-300 shadow dark:bg-red-800 dark:text-red-100">
+            <HiXCircle className="w-5 h-5 text-red-600 dark:text-red-300" />
+            <span className="font-semibold">{errorMessage}</span>
           </Toast>
         )}
       </div>
