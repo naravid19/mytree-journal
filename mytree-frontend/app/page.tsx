@@ -28,6 +28,7 @@ import {
 } from "flowbite-react";
 import { HiSearch, HiCheckCircle, HiXCircle } from "react-icons/hi";
 import Image from "next/image";
+import Link from "next/link";
 
 type Image = {
   id: number;
@@ -1064,6 +1065,9 @@ export default function Dashboard() {
                   </option>
                 ))}
               </Select>
+              <Link href="/strains" className="text-sm text-blue-600">
+                ไปหน้าจัดการสายพันธุ์
+              </Link>
             </div>
             <div>
               <Label className="mb-1 font-semibold">ชื่อเล่น</Label>
@@ -1791,6 +1795,9 @@ export default function Dashboard() {
                   </option>
                 ))}
               </Select>
+              <Link href="/strains" className="text-sm text-blue-600">
+                ไปหน้าจัดการสายพันธุ์
+              </Link>
             </div>
             <div>
               <Label className="mb-1 font-semibold">ชุดการปลูก</Label>
