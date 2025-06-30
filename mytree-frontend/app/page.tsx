@@ -212,7 +212,7 @@ export default function Dashboard() {
   
   useEffect(() => {
     if (currentPage > totalPages) setCurrentPage(totalPages || 1);
-  }, [trees, totalPages]);
+  }, [trees, totalPages, currentPage]);
   // CRUD
   const handleSubmit = useCallback(async () => {
     // ตรวจสอบ required fields
@@ -303,7 +303,7 @@ export default function Dashboard() {
     } finally {
       setSubmitting(false);
     }
-  }, [form, imageFiles]);
+  }, [form, imageFiles, todayStr]);
 
   const handleShowEdit = () => {
     if (!selectedTree) return;
@@ -430,7 +430,7 @@ export default function Dashboard() {
     } finally {
       setSubmitting(false);
     }
-  }, [form, imageFiles, selectedTree]);
+  }, [form, imageFiles, selectedTree, todayStr]);
 
   const handleShowDelete = () => setShowDeleteModal(true);
 
@@ -587,7 +587,7 @@ export default function Dashboard() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [showImageLightbox, selectedTree, handleCloseLightbox]);
+  }, [showImageLightbox, selectedTree, handleCloseLightbox, handleLightboxPrev, handleLightboxNext]);
 
   // Hotkey: submit form with Enter key when modal is open
   useEffect(() => {
