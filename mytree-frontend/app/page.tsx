@@ -114,6 +114,9 @@ export default function Dashboard() {
   // เพิ่ม state สำหรับ success message
   const [successMessage, setSuccessMessage] = useState<string>("");
 
+  // เก็บ ID ของต้นไม้ที่ถูกเลือกในตาราง
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+
 
   const today = new Date();
   const yyyy = today.getFullYear();
@@ -547,6 +550,24 @@ export default function Dashboard() {
     }
   };
 
+  // ลบต้นไม้หลายรายการตามที่เลือกในตาราง
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) return;
+    if (!window.confirm(`ต้องการลบต้นไม้ ${selectedIds.length} รายการ ใช่หรือไม่?`)) return;
+    setSubmitting(true);
+    try {
+      for (const id of selectedIds) {
+        await fetch(`http://localhost:8000/api/trees/${id}/`, { method: "DELETE" });
+      }
+      setSelectedIds([]);
+      fetchTrees();
+      setSuccessMessage("ลบรายการที่เลือกสำเร็จ");
+      setTimeout(() => setSuccessMessage(""), 2500);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   // Gallery/Detail/Lightbox
   const handleShowDetail = useCallback((tree: Tree) => {
     setSelectedTree(tree);
@@ -608,7 +629,7 @@ export default function Dashboard() {
   // Skeleton Row Loader (Shimmer)
   const SkeletonRow = () => (
     <TableRow>
-      {[...Array(7)].map((_, i) => (
+      {[...Array(8)].map((_, i) => (
         <TableCell key={i}>
           <div className="w-full h-4 bg-gray-200 rounded animate-pulse dark:bg-gray-700" />
         </TableCell>
@@ -642,12 +663,39 @@ export default function Dashboard() {
             aria-label="ค้นหาต้นไม้"
           />
         </div>
+        {selectedIds.length > 0 && (
+          <div className="mb-4 flex items-center gap-3">
+            <Button color="red" onClick={handleBulkDelete} disabled={submitting}>
+              {submitting ? "กำลังลบ..." : `ลบรายการที่เลือก (${selectedIds.length})`}
+            </Button>
+            <Button color="gray" onClick={() => setSelectedIds([])} disabled={submitting}>
+              ยกเลิกเลือก
+            </Button>
+          </div>
+        )}
         {/* TABLE */}
         <Card className="overflow-visible pb-6 w-full rounded-2xl border border-gray-200 shadow-2xl bg-white/70 dark:bg-gray-900/80 dark:border-gray-700">
           <div className="overflow-x-auto rounded-xl border border-gray-100 dark:border-gray-700 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent">
             <Table hoverable className="min-w-[650px] text-base md:text-lg font-kanit dark:bg-gray-900/80 dark:text-gray-100">
               <TableHead className="bg-green-50 dark:bg-gray-800/80 dark:text-gray-100">
                 <TableRow>
+                  <TableHeadCell>
+                    <input
+                      type="checkbox"
+                      checked={pagedTrees.length > 0 && pagedTrees.every(tree => selectedIds.includes(tree.id))}
+                      onChange={e => {
+                        if (e.target.checked) {
+                          setSelectedIds([
+                            ...selectedIds,
+                            ...pagedTrees.filter(tree => !selectedIds.includes(tree.id)).map(tree => tree.id),
+                          ]);
+                        } else {
+                          setSelectedIds(selectedIds.filter(id => !pagedTrees.map(tree => tree.id).includes(id)));
+                        }
+                      }}
+                      aria-label="เลือกต้นไม้ทั้งหมดในหน้านี้"
+                    />
+                  </TableHeadCell>
                   <TableHeadCell className="text-sm font-bold md:text-base lg:text-lg dark:text-gray-100">สายพันธุ์</TableHeadCell>
                   <TableHeadCell className="text-sm font-bold md:text-base lg:text-lg">พันธุ์</TableHeadCell>
                   <TableHeadCell className="text-sm font-bold md:text-base lg:text-lg">ชื่อเล่น</TableHeadCell>
@@ -694,7 +742,7 @@ export default function Dashboard() {
                   Array.from({ length: 3 }).map((_, i) => <SkeletonRow key={i} />)
                 ) : pagedTrees.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="py-6 text-center text-gray-400">
+                    <TableCell colSpan={9} className="py-6 text-center text-gray-400">
                       <span className="block text-lg font-medium md:text-2xl">🌱 ยังไม่มีข้อมูลต้นไม้</span>
                     </TableCell>
                   </TableRow>
@@ -705,6 +753,21 @@ export default function Dashboard() {
                       className="transition cursor-pointer hover:bg-green-50/40 dark:hover:bg-gray-700/40"
                       onClick={() => handleShowDetail(tree)}
                     >
+                      <TableCell>
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(tree.id)}
+                          onChange={e => {
+                            if (e.target.checked) {
+                              setSelectedIds(prev => [...prev, tree.id]);
+                            } else {
+                              setSelectedIds(prev => prev.filter(id => id !== tree.id));
+                            }
+                          }}
+                          onClick={e => e.stopPropagation()}
+                          aria-label={`เลือกต้นไม้: ${tree.nickname}`}
+                        />
+                      </TableCell>
                       <TableCell className="dark:text-gray-200">{tree.strain?.name || "-"}</TableCell>
                       <TableCell>{tree.variety}</TableCell>
                       <TableCell>{tree.nickname}</TableCell>
