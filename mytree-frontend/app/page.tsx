@@ -27,6 +27,7 @@ import {
   Toast,
 } from "flowbite-react";
 import { HiSearch, HiCheckCircle } from "react-icons/hi";
+import Image from "next/image";
 
 type Image = {
   id: number;
@@ -746,28 +747,30 @@ export default function Dashboard() {
                         {tree.images && tree.images.length > 0 ? (
                           <div className="flex gap-1">
                             {tree.images.slice(0, 2).map((img, idx) => (
-                              <img
-                              key={idx}
-                              src={img.image}
-                              alt={`รูปที่ ${idx + 1}`}
-                              className="object-cover w-10 h-10 rounded-xl border-2 border-gray-300 shadow transition-all hover:scale-105 dark:border-gray-700"
-                              tabIndex={0}
-                              loading="lazy"
-                              aria-label={`ดูรูปที่ ${idx + 1}`}
-                              onClick={e => {
-                                e.stopPropagation();
-                                setSelectedTree(tree);
-                                setLightboxIndex(idx);
-                                setShowImageLightbox(true);
-                              }}
-                              onKeyDown={e => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                  e.preventDefault();
+                              <Image
+                                key={idx}
+                                src={img.image}
+                                alt={`รูปที่ ${idx + 1}`}
+                                width={40}
+                                height={40}
+                                className="object-cover w-10 h-10 rounded-xl border-2 border-gray-300 shadow transition-all hover:scale-105 dark:border-gray-700"
+                                tabIndex={0}
+                                loading="lazy"
+                                aria-label={`ดูรูปที่ ${idx + 1}`}
+                                onClick={e => {
+                                  e.stopPropagation();
                                   setSelectedTree(tree);
                                   setLightboxIndex(idx);
                                   setShowImageLightbox(true);
-                                }
-                              }}
+                                }}
+                                onKeyDown={e => {
+                                  if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    setSelectedTree(tree);
+                                    setLightboxIndex(idx);
+                                    setShowImageLightbox(true);
+                                  }
+                                }}
                               />
                             ))}
                           </div>
@@ -1206,10 +1209,12 @@ export default function Dashboard() {
               <div className="flex flex-wrap gap-2 mt-2">
                   {(selectedTree?.images ?? []).map((img, idx) => (
                     <div key={img.id} className="relative group">
-                  <img
-                        src={img.image}
+                  <Image
+                    src={img.image}
                     alt={`รูปที่ ${idx + 1}`}
-                        className="object-cover w-14 h-14 rounded-xl border border-gray-200 shadow"
+                    width={56}
+                    height={56}
+                    className="object-cover w-14 h-14 rounded-xl border border-gray-200 shadow"
                   />
                       <Tooltip content="ลบรูปนี้" placement="top">
                         <button
@@ -1243,7 +1248,14 @@ export default function Dashboard() {
               {imageFiles.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
                   {imageFiles.map((file, idx) => (
-                    <img key={idx} src={URL.createObjectURL(file)} alt={`รูปที่ ${idx + 1}`} className="object-cover w-14 h-14 rounded-xl border border-gray-200 shadow" />
+                    <Image
+                      key={idx}
+                      src={URL.createObjectURL(file)}
+                      alt={`รูปที่ ${idx + 1}`}
+                      width={56}
+                      height={56}
+                      className="object-cover w-14 h-14 rounded-xl border border-gray-200 shadow"
+                    />
                   ))}
                 </div>
               )}
@@ -1303,9 +1315,11 @@ export default function Dashboard() {
                   <span className="mb-2 text-lg text-gray-400 dark:text-gray-500">ไม่มีรูป</span>
                 ) : (
                   <div className="flex relative justify-center items-center mb-2 w-48 h-48 bg-gray-50 rounded-xl shadow sm:w-60 sm:h-60 md:w-72 md:h-72 dark:bg-gray-800">
-                    <img
+                    <Image
                       src={selectedTree.images[galleryIndex].image}
                       alt=""
+                      width={192}
+                      height={192}
                       className="object-contain w-full h-full rounded-xl border border-gray-200 shadow transition cursor-pointer hover:scale-105 dark:border-gray-700"
                       onClick={() => handleOpenLightbox(galleryIndex)}
                     />
@@ -1879,10 +1893,12 @@ export default function Dashboard() {
                 <div className="flex flex-wrap gap-2 mt-2">
                   {(selectedTree?.images ?? []).map((img, idx) => (
                     <div key={img.id} className="relative group">
-                  <img
-                        src={img.image}
+                  <Image
+                    src={img.image}
                     alt={`รูปที่ ${idx + 1}`}
-                        className="object-cover w-14 h-14 rounded-xl border border-gray-200 shadow"
+                    width={56}
+                    height={56}
+                    className="object-cover w-14 h-14 rounded-xl border border-gray-200 shadow"
                   />
                       <Tooltip content="ลบรูปนี้" placement="top">
                         <button
@@ -1916,7 +1932,14 @@ export default function Dashboard() {
               {imageFiles.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
                   {imageFiles.map((file, idx) => (
-                    <img key={idx} src={URL.createObjectURL(file)} alt={`รูปที่ ${idx + 1}`} className="object-cover w-14 h-14 rounded-xl border border-gray-200 shadow" />
+                    <Image
+                      key={idx}
+                      src={URL.createObjectURL(file)}
+                      alt={`รูปที่ ${idx + 1}`}
+                      width={56}
+                      height={56}
+                      className="object-cover w-14 h-14 rounded-xl border border-gray-200 shadow"
+                    />
                   ))}
                 </div>
               )}
@@ -2065,11 +2088,13 @@ export default function Dashboard() {
           )}
           {/* รูปภาพหลัก */}
           {selectedTree && selectedTree.images?.length > 0 && (
-                <img
-                  src={selectedTree.images[lightboxIndex].image}
+            <Image
+              src={selectedTree.images[lightboxIndex].image}
               alt={`รูปที่ ${lightboxIndex + 1}`}
+              width={768}
+              height={768}
               className="object-contain max-w-3xl max-h-[80vh] rounded-2xl shadow-2xl border-4 border-white dark:border-gray-800 transition select-none"
-                  draggable={false}
+              draggable={false}
             />
           )}
 
@@ -2090,19 +2115,21 @@ export default function Dashboard() {
             className="flex flex-row flex-nowrap gap-2 justify-center px-4 mt-6 mb-2 max-w-full max-h-[4.5rem] scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent"
           >
             {selectedTree?.images?.map((img, idx) => (
-                  <img
-                    key={img.id}
-                    src={img.image}
+              <Image
+                key={img.id}
+                src={img.image}
                 alt={`thumbnail ${idx + 1}`}
+                width={64}
+                height={64}
                 className={`w-16 h-16 object-cover rounded-xl border-4 transition cursor-pointer select-none ${
                   lightboxIndex === idx
                     ? 'border-blue-500 shadow-lg scale-105'
                     : 'border-white opacity-70 hover:scale-105'
                 }`}
-                    onClick={() => setLightboxIndex(idx)}
+                onClick={() => setLightboxIndex(idx)}
                 draggable={false}
-                  />
-                ))}
+              />
+            ))}
               </div>
 
           {/* ปุ่มปิด (mobile) */}
