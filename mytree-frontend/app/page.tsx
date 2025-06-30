@@ -163,6 +163,10 @@ export default function Dashboard() {
 
   const [ageUnit, setAgeUnit] = useState<"day" | "month" | "year">("day");
 
+  // State สำหรับการเรียงลำดับตาราง
+  const [sortKey, setSortKey] = useState<"strain" | "nickname" | "plant_date" | null>(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
   // State สำหรับ pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
@@ -217,7 +221,15 @@ export default function Dashboard() {
     );
   });
 
-  const pagedTrees = filteredTrees.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const sortedTrees = [...filteredTrees].sort((a, b) => {
+    if (!sortKey) return 0;
+    const valA = getSortValue(a, sortKey);
+    const valB = getSortValue(b, sortKey);
+    if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+    if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+    return 0;
+  });
+  const pagedTrees = sortedTrees.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
   const totalPages = Math.ceil(filteredTrees.length / itemsPerPage);
   
   useEffect(() => {
@@ -713,38 +725,74 @@ export default function Dashboard() {
                       aria-label="เลือกต้นไม้ทั้งหมดในหน้านี้"
                     />
                   </TableHeadCell>
-                  <TableHeadCell className="text-sm font-bold md:text-base lg:text-lg dark:text-gray-100">สายพันธุ์</TableHeadCell>
+                  <TableHeadCell
+                    className="cursor-pointer select-none text-sm font-bold md:text-base lg:text-lg dark:text-gray-100"
+                    onClick={() => {
+                      if (sortKey === "strain") {
+                        setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                      } else {
+                        setSortKey("strain");
+                        setSortOrder("asc");
+                      }
+                    }}
+                  >
+                    สายพันธุ์ {sortKey === "strain" && (sortOrder === "asc" ? "▲" : "▼")}
+                  </TableHeadCell>
                   <TableHeadCell className="text-sm font-bold md:text-base lg:text-lg">พันธุ์</TableHeadCell>
-                  <TableHeadCell className="text-sm font-bold md:text-base lg:text-lg">ชื่อเล่น</TableHeadCell>
+                  <TableHeadCell
+                    className="cursor-pointer select-none text-sm font-bold md:text-base lg:text-lg"
+                    onClick={() => {
+                      if (sortKey === "nickname") {
+                        setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                      } else {
+                        setSortKey("nickname");
+                        setSortOrder("asc");
+                      }
+                    }}
+                  >
+                    ชื่อเล่น {sortKey === "nickname" && (sortOrder === "asc" ? "▲" : "▼")}
+                  </TableHeadCell>
                   <TableHeadCell className="text-sm font-bold md:text-base lg:text-lg">เพศ</TableHeadCell>
-                  <TableHeadCell className="text-sm font-bold md:text-base lg:text-lg">
+                  <TableHeadCell
+                    className="cursor-pointer select-none text-sm font-bold md:text-base lg:text-lg"
+                    onClick={() => {
+                      if (sortKey === "plant_date") {
+                        setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                      } else {
+                        setSortKey("plant_date");
+                        setSortOrder("asc");
+                      }
+                    }}
+                  >
                     <div className="flex gap-2 items-center">
                       <span className="flex gap-1 items-center">
                         <svg className="w-4 h-4 text-green-700 dark:text-green-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z"/>
                         </svg>
-                        อายุ
+                        <span>
+                          อายุ {sortKey === "plant_date" && (sortOrder === "asc" ? "▲" : "▼")}
+                        </span>
                       </span>
                       <ButtonGroup>
                         <Button
                           color={ageUnit === "day" ? "success" : "gray"}
                           aria-pressed={ageUnit === "day"}
                           size="xs"
-                          onClick={() => setAgeUnit("day")}
+                          onClick={e => { e.stopPropagation(); setAgeUnit("day"); }}
                           className={`transition-all font-kanit ${ageUnit === "day" ? "font-bold" : ""}`}
                         >วัน</Button>
                         <Button
                           color={ageUnit === "month" ? "success" : "gray"}
                           aria-pressed={ageUnit === "month"}
                           size="xs"
-                          onClick={() => setAgeUnit("month")}
+                          onClick={e => { e.stopPropagation(); setAgeUnit("month"); }}
                           className={`transition-all font-kanit ${ageUnit === "month" ? "font-bold" : ""}`}
                         >เดือน</Button>
                         <Button
                           color={ageUnit === "year" ? "success" : "gray"}
                           aria-pressed={ageUnit === "year"}
                           size="xs"
-                          onClick={() => setAgeUnit("year")}
+                          onClick={e => { e.stopPropagation(); setAgeUnit("year"); }}
                           className={`transition-all font-kanit ${ageUnit === "year" ? "font-bold" : ""}`}
                         >ปี</Button>
                       </ButtonGroup>
@@ -2273,6 +2321,13 @@ function calcAge(plantDate: string, unit: "day" | "month" | "year") {
   if (unit === "month") return Math.floor(diffDays / 30);
   if (unit === "year") return Math.floor(diffDays / 365);
   return diffDays;
+}
+
+function getSortValue(tree: Tree, key: "strain" | "nickname" | "plant_date") {
+  if (key === "strain") return tree.strain?.name?.toLowerCase() || "";
+  if (key === "nickname") return tree.nickname?.toLowerCase() || "";
+  if (key === "plant_date") return tree.plant_date || "";
+  return "";
 }
 
 function getFileName(url: string) {
