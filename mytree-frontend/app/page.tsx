@@ -271,14 +271,42 @@ export default function Dashboard() {
     try {
       const formData = new FormData();
       for (const [key, value] of Object.entries(form)) {
-        if (value !== null && value !== "") {
-          if (key === 'strainUuid') {
-            formData.append('strain_id', value.toString());
-          } else if (key === 'batch_id' && value !== null) {
+        if (key === 'strainUuid') {
+          formData.append('strain_id', value ? value.toString() : "");
+        } else if (key === 'batch_id') {
+          if (value === null || value === "") {
+            formData.append('batch_id', "");
+          } else {
             formData.append('batch_id', value.toString());
-          } else if (key !== 'batch_id' || value !== null) {
+          }
+        } else if (key === 'document') {
+          if (value === null) {
+            // ถ้าต้องการลบไฟล์ document ให้ append เป็น "" หรือไม่ส่งเลย (ขึ้นกับ backend)
+            formData.append('document', "");
+          } else if (value instanceof File) {
+            formData.append('document', value);
+          }
+        } else if (
+          ["parent_male", "parent_female", "clone_source", "pollinated_by", "yield_amount", "seed_count"].includes(key)
+        ) {
+          // ถ้าเป็น number field
+          if (value === null || value === "") {
+            formData.append(key, "");
+          } else {
             formData.append(key, value.toString());
           }
+        } else if (
+          ["germination_date", "harvest_date", "pollination_date", "seed_harvest_date", "plant_date"].includes(key)
+        ) {
+          // ถ้าเป็น date field
+          if (value === null || value === "") {
+            formData.append(key, "");
+          } else {
+            formData.append(key, value.toString());
+          }
+        } else {
+          // text field
+          formData.append(key, value === null ? "" : value.toString());
         }
       }
       imageFiles.forEach(file => {
@@ -397,14 +425,42 @@ export default function Dashboard() {
     try {
       const formData = new FormData();
       for (const [key, value] of Object.entries(form)) {
-        if (value !== null && value !== "") {
-          if (key === 'strainUuid') {
-            formData.append('strain_id', value.toString());
-          } else if (key === 'batch_id' && value !== null) {
+        if (key === 'strainUuid') {
+          formData.append('strain_id', value ? value.toString() : "");
+        } else if (key === 'batch_id') {
+          if (value === null || value === "") {
+            formData.append('batch_id', "");
+          } else {
             formData.append('batch_id', value.toString());
-          } else if (key !== 'batch_id' || value !== null) {
+          }
+        } else if (key === 'document') {
+          if (value === null) {
+            // ถ้าต้องการลบไฟล์ document ให้ append เป็น "" หรือไม่ส่งเลย (ขึ้นกับ backend)
+            formData.append('document', "");
+          } else if (value instanceof File) {
+            formData.append('document', value);
+          }
+        } else if (
+          ["parent_male", "parent_female", "clone_source", "pollinated_by", "yield_amount", "seed_count"].includes(key)
+        ) {
+          // ถ้าเป็น number field
+          if (value === null || value === "") {
+            formData.append(key, "");
+          } else {
             formData.append(key, value.toString());
           }
+        } else if (
+          ["germination_date", "harvest_date", "pollination_date", "seed_harvest_date", "plant_date"].includes(key)
+        ) {
+          // ถ้าเป็น date field
+          if (value === null || value === "") {
+            formData.append(key, "");
+          } else {
+            formData.append(key, value.toString());
+          }
+        } else {
+          // text field
+          formData.append(key, value === null ? "" : value.toString());
         }
       }
       imageFiles.forEach(file => {
