@@ -728,6 +728,13 @@ export default function Dashboard() {
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 font-kanit">
+      {/* Overlay Spinner กลางจอ ขณะ loading */}
+      {loading && (
+        <div className="fixed inset-0 z-[20000] flex items-center justify-center bg-black/20 backdrop-blur-sm">
+          <Spinner size="xl" color="success" aria-label="กำลังโหลดข้อมูล..." />
+          <span className="ml-4 text-lg font-bold text-green-700 dark:text-green-300" role="status">กำลังโหลดข้อมูล...</span>
+        </div>
+      )}
       <main className="px-2 py-6 mx-auto w-full max-w-3xl md:max-w-6xl sm:px-4">
         {/* HEADER */}
         <div className="flex flex-col gap-3 mb-6 sm:flex-row sm:items-center sm:justify-between">
@@ -748,16 +755,18 @@ export default function Dashboard() {
             className="w-full max-w-xs"
             autoComplete="off"
             aria-label="ค้นหาต้นไม้"
+            disabled={loading}
+            aria-disabled={loading}
           />
         </div>
         <div className="flex gap-3 items-center mb-4">
           <span className="text-sm text-gray-700 dark:text-gray-200">เลือก {selectedIds.length} รายการ</span>
           {selectedIds.length > 0 && (
             <>
-              <Button color="red" onClick={() => setShowBulkDeleteModal(true)} disabled={submitting}>
+              <Button color="red" onClick={() => setShowBulkDeleteModal(true)} disabled={submitting || loading} aria-disabled={submitting || loading}>
                 {submitting ? "กำลังลบ..." : "ลบรายการที่เลือก"}
               </Button>
-              <Button color="gray" onClick={() => setSelectedIds([])} disabled={submitting}>
+              <Button color="gray" onClick={() => setSelectedIds([])} disabled={submitting || loading} aria-disabled={submitting || loading}>
                 ยกเลิกเลือก
               </Button>
             </>
@@ -765,8 +774,12 @@ export default function Dashboard() {
         </div>
         {/* TABLE */}
         <Card className="overflow-visible pb-6 w-full rounded-2xl border border-gray-200 shadow-2xl bg-white/70 dark:bg-gray-900/80 dark:border-gray-700">
-          <div className="overflow-x-auto rounded-xl border border-gray-100 dark:border-gray-700 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent">
-            <Table hoverable className="min-w-[650px] text-base md:text-lg font-kanit dark:bg-gray-900/80 dark:text-gray-100">
+          <div
+            className="overflow-x-auto rounded-xl border border-gray-100 dark:border-gray-700 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent"
+            aria-busy={loading ? "true" : "false"}
+            role="status"
+          >
+          <Table hoverable className="min-w-[650px] text-base md:text-lg font-kanit dark:bg-gray-900/80 dark:text-gray-100">
               <TableHead className="bg-green-50 dark:bg-gray-800/80 dark:text-gray-100">
                 <TableRow>
                   <TableHeadCell>
@@ -989,7 +1002,7 @@ export default function Dashboard() {
                           <div className="flex gap-1">
                             {tree.images.slice(0, 2).map((img, idx) => (
                               <Image
-                                key={idx}
+                                key={img.id}
                                 src={img.image}
                                 alt={`รูปที่ ${idx + 1}`}
                                 width={40}
@@ -1072,6 +1085,8 @@ export default function Dashboard() {
             size="lg"
             className="px-8 py-3 text-xl bg-gradient-to-br from-green-400 to-blue-600 rounded-full shadow-md hover:from-green-500 hover:to-blue-700 dark:from-green-700 dark:to-blue-900 dark:text-white font-kanit focus:ring-2 focus:ring-green-400 dark:focus:ring-green-700"
             onClick={() => setShowAddModal(true)}
+            disabled={loading || submitting}
+            aria-disabled={loading || submitting}
           >
             <span className="mr-2 text-2xl font-bold">+</span> เพิ่มต้นไม้
           </Button>
@@ -1084,7 +1099,11 @@ export default function Dashboard() {
         size="lg"
         onClose={() => {
           setShowAddModal(false);
-          setFormError(""); // ล้าง error เมื่อปิด modal
+          setFormError("");
+          setSuccessMessage("");
+          setErrorMessage("");
+          setImageFiles([]);
+          setSelectedTree(null);
         }}
         className="rounded-2xl border border-gray-200 shadow-2xl backdrop-blur-lg xl:max-w-2xl dark:border-gray-700"
         // modalOverlayClassName="!fixed !inset-0" // ถ้า overlay ไม่เต็มจอ ให้ uncomment บรรทัดนี้
@@ -1539,7 +1558,14 @@ export default function Dashboard() {
       <Modal
         show={showBulkDeleteModal}
         size="sm"
-        onClose={() => setShowBulkDeleteModal(false)}
+        onClose={() => {
+          setShowBulkDeleteModal(false);
+          setFormError("");
+          setSuccessMessage("");
+          setErrorMessage("");
+          setImageFiles([]);
+          setSelectedTree(null);
+        }}
         className="xl:max-w-2xl"
       >
         <ModalHeader>ยืนยันการลบ</ModalHeader>
@@ -1565,7 +1591,14 @@ export default function Dashboard() {
       <Modal
         show={showDetailModal}
         size="xl"
-        onClose={() => setShowDetailModal(false)}
+        onClose={() => {
+          setShowDetailModal(false);
+          setFormError("");
+          setSuccessMessage("");
+          setErrorMessage("");
+          setImageFiles([]);
+          setSelectedTree(null);
+        }}
         className="rounded-2xl border border-gray-200 shadow-2xl backdrop-blur-lg xl:max-w-2xl dark:border-gray-700"
       >
         <ModalHeader className="rounded-t-2xl border-b border-gray-200 bg-white/80 dark:bg-gray-900/90 dark:border-gray-700">
@@ -1817,7 +1850,11 @@ export default function Dashboard() {
         size="lg"
         onClose={() => {
           setShowEditModal(false);
-          setFormError(""); // ล้าง error เมื่อปิด modal
+          setFormError("");
+          setSuccessMessage("");
+          setErrorMessage("");
+          setImageFiles([]);
+          setSelectedTree(null);
         }}
         className="rounded-2xl border border-gray-200 shadow-2xl backdrop-blur-lg xl:max-w-2xl dark:border-gray-700"
         // modalOverlayClassName="!fixed !inset-0"
@@ -2267,7 +2304,14 @@ export default function Dashboard() {
       <Modal
         show={showDeleteModal}
         size="sm"
-        onClose={() => setShowDeleteModal(false)}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setFormError("");
+          setSuccessMessage("");
+          setErrorMessage("");
+          setImageFiles([]);
+          setSelectedTree(null);
+        }}
         className="xl:max-w-2xl"
         // modalOverlayClassName="!fixed !inset-0"
       >
@@ -2291,7 +2335,14 @@ export default function Dashboard() {
       <Modal
         show={showDeleteAllImagesModal}
         size="sm"
-        onClose={() => setShowDeleteAllImagesModal(false)}
+        onClose={() => {
+          setShowDeleteAllImagesModal(false);
+          setFormError("");
+          setSuccessMessage("");
+          setErrorMessage("");
+          setImageFiles([]);
+          setSelectedTree(null);
+        }}
         className="xl:max-w-2xl"
       >
         <ModalHeader>ยืนยันการลบรูปภาพทั้งหมด</ModalHeader>
@@ -2317,7 +2368,14 @@ export default function Dashboard() {
       <Modal
         show={showDeleteDocumentModal}
         size="sm"
-        onClose={() => setShowDeleteDocumentModal(false)}
+        onClose={() => {
+          setShowDeleteDocumentModal(false);
+          setFormError("");
+          setSuccessMessage("");
+          setErrorMessage("");
+          setImageFiles([]);
+          setSelectedTree(null);
+        }}
         className="xl:max-w-2xl"
       >
         <ModalHeader>ยืนยันการลบเอกสาร</ModalHeader>
@@ -2343,7 +2401,14 @@ export default function Dashboard() {
       <Modal
         show={showImageLightbox}
         size="5xl"
-        onClose={handleCloseLightbox}
+        onClose={() => {
+          handleCloseLightbox();
+          setFormError("");
+          setSuccessMessage("");
+          setErrorMessage("");
+          setImageFiles([]);
+          setSelectedTree(null);
+        }}
         className="z-[9999] xl:max-w-5xl"
       >
         <ModalBody className="bg-black/80 flex flex-col items-center justify-center min-h-[60vh] relative p-0">
@@ -2405,7 +2470,7 @@ export default function Dashboard() {
           >
             {selectedTree?.images?.map((img, idx) => (
               <Image
-                key={img.id}
+                key={img.id ?? idx}
                 src={img.image}
                 alt={`thumbnail ${idx + 1}`}
                 width={64}
@@ -2429,15 +2494,35 @@ export default function Dashboard() {
       </Modal>
       <div className="fixed top-4 right-4 z-[10000] space-y-2" aria-live="polite">
         {successMessage && (
-          <Toast className="flex gap-2 items-center text-green-800 bg-green-50 border border-green-300 shadow dark:bg-green-800 dark:text-green-100">
+          <Toast className="flex relative gap-2 items-center text-green-800 bg-green-50 border border-green-300 shadow dark:bg-green-800 dark:text-green-100">
             <HiCheckCircle className="w-5 h-5 text-green-600 dark:text-green-300" />
             <span className="font-semibold">{successMessage}</span>
+            <button
+              type="button"
+              onClick={() => setSuccessMessage("")}
+              className="absolute top-1 right-1 p-1 rounded-full hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-400 dark:focus:ring-green-700"
+              aria-label="ปิดแจ้งเตือน"
+            >
+              <svg className="w-4 h-4 text-green-700 dark:text-green-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </Toast>
         )}
         {errorMessage && (
-          <Toast className="flex gap-2 items-center text-red-800 bg-red-50 border border-red-300 shadow dark:bg-red-800 dark:text-red-100">
+          <Toast className="flex relative gap-2 items-center text-red-800 bg-red-50 border border-red-300 shadow dark:bg-red-800 dark:text-red-100">
             <HiXCircle className="w-5 h-5 text-red-600 dark:text-red-300" />
             <span className="font-semibold">{errorMessage}</span>
+            <button
+              type="button"
+              onClick={() => setErrorMessage("")}
+              className="absolute top-1 right-1 p-1 rounded-full hover:bg-red-100 dark:hover:bg-red-900 focus:outline-none focus:ring-2 focus:ring-red-400 dark:focus:ring-red-700"
+              aria-label="ปิดแจ้งเตือน"
+            >
+              <svg className="w-4 h-4 text-red-700 dark:text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </Toast>
         )}
       </div>
@@ -2511,3 +2596,17 @@ function sexLabel(sex: string): string {
     default: return '-';
   }
 }
+
+// เพิ่ม useEffect สำหรับ auto-dismiss Toast
+useEffect(() => {
+  if (successMessage) {
+    const timer = setTimeout(() => setSuccessMessage(""), 3500);
+    return () => clearTimeout(timer);
+  }
+}, [successMessage]);
+useEffect(() => {
+  if (errorMessage) {
+    const timer = setTimeout(() => setErrorMessage(""), 4000);
+    return () => clearTimeout(timer);
+  }
+}, [errorMessage]);
