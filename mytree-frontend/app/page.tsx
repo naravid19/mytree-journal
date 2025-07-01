@@ -25,6 +25,7 @@ import {
   Alert,
   Spinner,
   Toast,
+  ToastToggle,
 } from "flowbite-react";
 import { HiSearch, HiCheckCircle, HiXCircle } from "react-icons/hi";
 import Image from "next/image";
@@ -119,6 +120,18 @@ export default function Dashboard() {
 
   // แจ้งเตือนข้อผิดพลาดแบบ toast
   const [errorMessage, setErrorMessage] = useState<string>("");
+
+  useEffect(() => {
+    if (!successMessage) return;
+    const t = setTimeout(() => setSuccessMessage(""), 3000);
+    return () => clearTimeout(t);
+  }, [successMessage]);
+
+  useEffect(() => {
+    if (!errorMessage) return;
+    const t = setTimeout(() => setErrorMessage(""), 3000);
+    return () => clearTimeout(t);
+  }, [errorMessage]);
 
   // เก็บ ID ของต้นไม้ที่ถูกเลือกในตาราง
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -354,7 +367,6 @@ export default function Dashboard() {
       setImageFiles([]);
       fetchTrees();
       setSuccessMessage("บันทึกข้อมูลสำเร็จ");
-      setTimeout(() => setSuccessMessage(""), 3000);
     } finally {
       setSubmitting(false);
     }
@@ -509,7 +521,6 @@ export default function Dashboard() {
       setImageFiles([]);
       fetchTrees();
       setSuccessMessage("บันทึกข้อมูลสำเร็จ");
-      setTimeout(() => setSuccessMessage(""), 3000);
     } finally {
       setSubmitting(false);
     }
@@ -533,7 +544,6 @@ export default function Dashboard() {
       setSelectedTree(null);
       fetchTrees();
       setSuccessMessage("ลบข้อมูลสำเร็จ");
-      setTimeout(() => setSuccessMessage(""), 3000);
     } finally {
       setSubmitting(false);
     }
@@ -559,7 +569,6 @@ export default function Dashboard() {
       // รีเฟรชข้อมูลต้นไม้ทั้งหมด
       fetchTrees();
       setSuccessMessage("ลบรูปภาพสำเร็จ");
-      setTimeout(() => setSuccessMessage(""), 3000);
     } finally {
       setSubmitting(false);
     }
@@ -590,7 +599,6 @@ export default function Dashboard() {
       // ปิด modal ยืนยัน
       setShowDeleteAllImagesModal(false);
       setSuccessMessage("ลบรูปภาพทั้งหมดสำเร็จ");
-      setTimeout(() => setSuccessMessage(""), 3000);
     } finally {
       setSubmitting(false);
     }
@@ -623,7 +631,6 @@ export default function Dashboard() {
       const updatedTree = await fetch(`${API_BASE}/api/trees/${selectedTree.id}/`).then(res => res.json());
       setSelectedTree(updatedTree);
       setSuccessMessage("ลบเอกสารสำเร็จ");
-      setTimeout(() => setSuccessMessage(""), 3000);
     } finally {
       setSubmitting(false);
     }
@@ -644,12 +651,10 @@ export default function Dashboard() {
       setSelectedIds([]);
       fetchTrees();
       setSuccessMessage("ลบรายการที่เลือกสำเร็จ");
-      setTimeout(() => setSuccessMessage(""), 2500);
       setShowBulkDeleteModal(false);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setErrorMessage("ลบรายการไม่สำเร็จ: " + message);
-      setTimeout(() => setErrorMessage(""), 3000);
     } finally {
       setSubmitting(false);
     }
@@ -1114,7 +1119,7 @@ export default function Dashboard() {
         <ModalBody className="rounded-b-2xl bg-slate-50 dark:bg-gray-900 max-h-[80vh] overflow-y-auto">
           {/* แสดง error message */}
           {formError && (
-            <Alert color="failure" className="mb-4">
+            <Alert color="failure" className="mb-4" onDismiss={() => setFormError("")}>
               <span className="font-medium">{formError}</span>
             </Alert>
           )}
@@ -1863,7 +1868,7 @@ export default function Dashboard() {
         <ModalBody className="rounded-b-2xl bg-slate-50 dark:bg-gray-900 max-h-[80vh] overflow-y-auto">
           {/* แสดง error message */}
           {formError && (
-            <Alert color="failure" className="mb-4">
+            <Alert color="failure" className="mb-4" onDismiss={() => setFormError("")}>
               <span className="font-medium">{formError}</span>
             </Alert>
           )}
@@ -2497,12 +2502,14 @@ export default function Dashboard() {
           <Toast className="flex gap-2 items-center text-green-800 bg-green-50 border border-green-300 shadow dark:bg-green-800 dark:text-green-100">
             <HiCheckCircle className="w-5 h-5 text-green-600 dark:text-green-300" />
             <span className="font-semibold">{successMessage}</span>
+            <ToastToggle onDismiss={() => setSuccessMessage("")} />
           </Toast>
         )}
         {errorMessage && (
           <Toast className="flex gap-2 items-center text-red-800 bg-red-50 border border-red-300 shadow dark:bg-red-800 dark:text-red-100">
             <HiXCircle className="w-5 h-5 text-red-600 dark:text-red-300" />
             <span className="font-semibold">{errorMessage}</span>
+            <ToastToggle onDismiss={() => setErrorMessage("")} />
           </Toast>
         )}
       </div>
