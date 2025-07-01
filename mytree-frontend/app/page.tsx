@@ -30,6 +30,8 @@ import { HiSearch, HiCheckCircle, HiXCircle } from "react-icons/hi";
 import Image from "next/image";
 import Link from "next/link";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 type Image = {
   id: number;
   image: string;
@@ -182,20 +184,20 @@ export default function Dashboard() {
   // Fetch Data
   const fetchTrees = () => {
     setLoading(true);
-    fetch("http://localhost:8000/api/trees/")
+    fetch(`${API_BASE}/api/trees/`)
       .then((res) => res.json())
       .then((data) => setTrees(data))
       .finally(() => setLoading(false));
   };
 
   const fetchStrains = () => {
-    fetch("http://localhost:8000/api/strains/")
+    fetch(`${API_BASE}/api/strains/`)
       .then((res) => res.json())
       .then((data) => setStrains(data));
   };
 
   const fetchBatches = () => {
-    fetch("http://localhost:8000/api/batches/")
+    fetch(`${API_BASE}/api/batches/`)
       .then((res) => res.json())
       .then((data) => setBatches(data));
   };
@@ -284,7 +286,7 @@ export default function Dashboard() {
       });
       if (form.document) formData.append('document', form.document);
       if (form.parent_male) formData.append('parent_male', form.parent_male.toString());
-      const res = await fetch("http://localhost:8000/api/trees/", {
+      const res = await fetch(`${API_BASE}/api/trees/`, {
         method: "POST",
         body: formData,
       });
@@ -410,7 +412,7 @@ export default function Dashboard() {
       });
       if (form.document) formData.append('document', form.document);
       if (form.parent_male) formData.append('parent_male', form.parent_male.toString());
-      const res = await fetch(`http://localhost:8000/api/trees/${selectedTree.id}/`, {
+      const res = await fetch(`${API_BASE}/api/trees/${selectedTree.id}/`, {
         method: "PATCH",
         body: formData,
       });
@@ -463,7 +465,7 @@ export default function Dashboard() {
     if (!selectedTree) return;
     setSubmitting(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/trees/${selectedTree.id}/`, {
+      const res = await fetch(`${API_BASE}/api/trees/${selectedTree.id}/`, {
         method: "DELETE",
       });
       if (!res.ok) {
@@ -486,7 +488,7 @@ export default function Dashboard() {
     if (!selectedTree) return;
     setSubmitting(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/images/${id}/`, {
+      const res = await fetch(`${API_BASE}/api/images/${id}/`, {
         method: "DELETE",
       });
       if (!res.ok) {
@@ -514,7 +516,7 @@ export default function Dashboard() {
     try {
       // ลบรูปภาพทีละรูป
       for (const image of selectedTree.images) {
-        const res = await fetch(`http://localhost:8000/api/images/${image.id}/`, {
+        const res = await fetch(`${API_BASE}/api/images/${image.id}/`, {
           method: "DELETE",
         });
         if (!res.ok) {
@@ -551,7 +553,7 @@ export default function Dashboard() {
     if (!selectedTree) return;
     setSubmitting(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/trees/${selectedTree.id}/delete_document/`, {
+      const res = await fetch(`${API_BASE}/api/trees/${selectedTree.id}/delete_document/`, {
         method: "DELETE",
       });
       if (!res.ok) {
@@ -562,7 +564,7 @@ export default function Dashboard() {
       setShowDeleteDocumentModal(false);
       fetchTrees();
       // อัปเดต selectedTree เพื่อให้แสดงผลถูกต้อง
-      const updatedTree = await fetch(`http://localhost:8000/api/trees/${selectedTree.id}/`).then(res => res.json());
+      const updatedTree = await fetch(`${API_BASE}/api/trees/${selectedTree.id}/`).then(res => res.json());
       setSelectedTree(updatedTree);
       setSuccessMessage("ลบเอกสารสำเร็จ");
       setTimeout(() => setSuccessMessage(""), 3000);
@@ -577,7 +579,7 @@ export default function Dashboard() {
     setSubmitting(true);
     try {
       for (const id of selectedIds) {
-        const res = await fetch(`http://localhost:8000/api/trees/${id}/`, { method: "DELETE" });
+        const res = await fetch(`${API_BASE}/api/trees/${id}/`, { method: "DELETE" });
         if (!res.ok) {
           const err = await res.text();
           throw new Error(err);
