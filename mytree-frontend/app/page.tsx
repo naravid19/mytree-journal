@@ -2494,35 +2494,15 @@ export default function Dashboard() {
       </Modal>
       <div className="fixed top-4 right-4 z-[10000] space-y-2" aria-live="polite">
         {successMessage && (
-          <Toast className="flex relative gap-2 items-center text-green-800 bg-green-50 border border-green-300 shadow dark:bg-green-800 dark:text-green-100">
+          <Toast className="flex gap-2 items-center text-green-800 bg-green-50 border border-green-300 shadow dark:bg-green-800 dark:text-green-100">
             <HiCheckCircle className="w-5 h-5 text-green-600 dark:text-green-300" />
             <span className="font-semibold">{successMessage}</span>
-            <button
-              type="button"
-              onClick={() => setSuccessMessage("")}
-              className="absolute top-1 right-1 p-1 rounded-full hover:bg-green-100 dark:hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-400 dark:focus:ring-green-700"
-              aria-label="ปิดแจ้งเตือน"
-            >
-              <svg className="w-4 h-4 text-green-700 dark:text-green-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
           </Toast>
         )}
         {errorMessage && (
-          <Toast className="flex relative gap-2 items-center text-red-800 bg-red-50 border border-red-300 shadow dark:bg-red-800 dark:text-red-100">
+          <Toast className="flex gap-2 items-center text-red-800 bg-red-50 border border-red-300 shadow dark:bg-red-800 dark:text-red-100">
             <HiXCircle className="w-5 h-5 text-red-600 dark:text-red-300" />
             <span className="font-semibold">{errorMessage}</span>
-            <button
-              type="button"
-              onClick={() => setErrorMessage("")}
-              className="absolute top-1 right-1 p-1 rounded-full hover:bg-red-100 dark:hover:bg-red-900 focus:outline-none focus:ring-2 focus:ring-red-400 dark:focus:ring-red-700"
-              aria-label="ปิดแจ้งเตือน"
-            >
-              <svg className="w-4 h-4 text-red-700 dark:text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
           </Toast>
         )}
       </div>
@@ -2596,17 +2576,3 @@ function sexLabel(sex: string): string {
     default: return '-';
   }
 }
-
-// เพิ่ม useEffect สำหรับ auto-dismiss Toast
-useEffect(() => {
-  if (successMessage) {
-    const timer = setTimeout(() => setSuccessMessage(""), 3500);
-    return () => clearTimeout(timer);
-  }
-}, [successMessage]);
-useEffect(() => {
-  if (errorMessage) {
-    const timer = setTimeout(() => setErrorMessage(""), 4000);
-    return () => clearTimeout(timer);
-  }
-}, [errorMessage]);
