@@ -20,6 +20,8 @@ import {
 } from "flowbite-react";
 import { HiCheckCircle, HiXCircle } from "react-icons/hi";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 type Strain = {
   id: number;
   name: string;
@@ -40,7 +42,7 @@ export default function StrainsPage() {
   const [errorMessage, setErrorMessage] = useState("");
 
   const fetchStrains = () => {
-    fetch("http://localhost:8000/api/strains/")
+    fetch(`${API_BASE}/api/strains/`)
       .then((res) => res.json())
       .then(setStrains)
       .catch(() => {
@@ -66,7 +68,7 @@ export default function StrainsPage() {
     }
     setFormError("");
     try {
-      const res = await fetch("http://localhost:8000/api/strains/", {
+      const res = await fetch(`${API_BASE}/api/strains/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: formName, description: formDescription }),
@@ -100,7 +102,7 @@ export default function StrainsPage() {
     setFormError("");
     try {
       const res = await fetch(
-        `http://localhost:8000/api/strains/${selectedStrain.id}/`,
+        `${API_BASE}/api/strains/${selectedStrain.id}/`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -124,7 +126,7 @@ export default function StrainsPage() {
     if (!selectedStrain) return;
     try {
       const res = await fetch(
-        `http://localhost:8000/api/strains/${selectedStrain.id}/`,
+        `${API_BASE}/api/strains/${selectedStrain.id}/`,
         { method: "DELETE" }
       );
       if (!res.ok) throw new Error(await res.text());
@@ -168,7 +170,7 @@ export default function StrainsPage() {
                 </TableCell>
                 <TableCell>{strain.description}</TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-2">
+                  <div className="flex gap-2 items-center">
                     <Button size="xs" onClick={() => handleShowEdit(strain)}>
                       แก้ไข
                     </Button>
@@ -193,11 +195,11 @@ export default function StrainsPage() {
           )}
           <div className="space-y-4">
             <div>
-              <Label htmlFor="name" value="ชื่อสายพันธุ์" />
+              <Label htmlFor="name">ชื่อสายพันธุ์</Label>
               <TextInput id="name" value={formName} onChange={(e) => setFormName(e.target.value)} />
             </div>
             <div>
-              <Label htmlFor="desc" value="รายละเอียด" />
+              <Label htmlFor="desc">รายละเอียด</Label>
               <Textarea id="desc" rows={4} value={formDescription} onChange={(e) => setFormDescription(e.target.value)} />
             </div>
           </div>
@@ -220,11 +222,11 @@ export default function StrainsPage() {
           )}
           <div className="space-y-4">
             <div>
-              <Label htmlFor="nameEdit" value="ชื่อสายพันธุ์" />
+              <Label htmlFor="name">ชื่อสายพันธุ์</Label>
               <TextInput id="nameEdit" value={formName} onChange={(e) => setFormName(e.target.value)} />
             </div>
             <div>
-              <Label htmlFor="descEdit" value="รายละเอียด" />
+              <Label htmlFor="descEdit">รายละเอียด</Label>
               <Textarea id="descEdit" rows={4} value={formDescription} onChange={(e) => setFormDescription(e.target.value)} />
             </div>
           </div>
@@ -247,15 +249,15 @@ export default function StrainsPage() {
           </Button>
         </ModalFooter>
       </Modal>
-      <div className="fixed top-4 right-4 space-y-2 z-50" aria-live="polite">
+      <div className="fixed top-4 right-4 z-50 space-y-2" aria-live="polite">
         {successMessage && (
-          <Toast className="flex items-center gap-2 text-green-800 bg-green-50 border border-green-300 shadow dark:bg-green-800 dark:text-green-100">
+          <Toast className="flex gap-2 items-center text-green-800 bg-green-50 border border-green-300 shadow dark:bg-green-800 dark:text-green-100">
             <HiCheckCircle className="w-5 h-5 text-green-600 dark:text-green-300" />
             <span className="font-semibold">{successMessage}</span>
           </Toast>
         )}
         {errorMessage && (
-          <Toast className="flex items-center gap-2 text-red-800 bg-red-50 border border-red-300 shadow dark:bg-red-800 dark:text-red-100">
+          <Toast className="flex gap-2 items-center text-red-800 bg-red-50 border border-red-300 shadow dark:bg-red-800 dark:text-red-100">
             <HiXCircle className="w-5 h-5 text-red-600 dark:text-red-300" />
             <span className="font-semibold">{errorMessage}</span>
           </Toast>
