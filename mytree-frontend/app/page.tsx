@@ -121,6 +121,12 @@ export default function Dashboard() {
   // แจ้งเตือนข้อผิดพลาดแบบ toast
   const [errorMessage, setErrorMessage] = useState<string>("");
 
+  const [strainsLoading, setStrainsLoading] = useState(false);
+  const [batchesLoading, setBatchesLoading] = useState(false);
+
+  // State สำหรับ loading ข้อมูล detail
+  const [detailLoading, setDetailLoading] = useState(false);
+
   useEffect(() => {
     if (!successMessage) return;
     const t = setTimeout(() => setSuccessMessage(""), 3000);
@@ -204,15 +210,19 @@ export default function Dashboard() {
   };
 
   const fetchStrains = () => {
+    setStrainsLoading(true);
     fetch(`${API_BASE}/api/strains/`)
       .then((res) => res.json())
-      .then((data) => setStrains(data));
+      .then((data) => setStrains(data))
+      .finally(() => setStrainsLoading(false));
   };
 
   const fetchBatches = () => {
+    setBatchesLoading(true);
     fetch(`${API_BASE}/api/batches/`)
       .then((res) => res.json())
-      .then((data) => setBatches(data));
+      .then((data) => setBatches(data))
+      .finally(() => setBatchesLoading(false));
   };
 
   useEffect(() => {
@@ -661,10 +671,16 @@ export default function Dashboard() {
   };
 
   // Gallery/Detail/Lightbox
-  const handleShowDetail = useCallback((tree: Tree) => {
+  const handleShowDetail = useCallback(async (tree: Tree) => {
+    setDetailLoading(true);
+    // ถ้า fetch ข้อมูล detail ใหม่จาก API ให้ใส่ logic ที่นี่
+    // const res = await fetch(`${API_BASE}/api/trees/${tree.id}/`);
+    // const data = await res.json();
+    // setSelectedTree(data);
     setSelectedTree(tree);
     setGalleryIndex(0);
     setShowDetailModal(true);
+    setTimeout(() => setDetailLoading(false), 400); // simulate loading (ลบทิ้งถ้า fetch จริง)
   }, []);
   const handlePrevImage = useCallback(() => {
     if (!selectedTree || selectedTree.images.length === 0) return;
@@ -1102,6 +1118,7 @@ export default function Dashboard() {
       <Modal
         show={showAddModal}
         size="lg"
+        aria-modal="true"
         onClose={() => {
           setShowAddModal(false);
           setFormError("");
@@ -1133,20 +1150,29 @@ export default function Dashboard() {
             {/* สายพันธุ์ (required) */}
             <div>
               <Label className="mb-1 font-semibold">สายพันธุ์ <span className="text-red-500">*</span></Label>
-              <Select
-                required
-                value={form.strainUuid}
-                onChange={e => setForm(f => ({ ...f, strainUuid: e.target.value }))}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                autoFocus
-              >
-                <option value="">-- เลือกสายพันธุ์ --</option>
-                {strains.map(strain => (
-                  <option key={strain.id} value={strain.id.toString()}>
-                    {strain.name}
-                  </option>
-                ))}
-              </Select>
+              <div className="relative">
+                <Select
+                  required
+                  value={form.strainUuid}
+                  onChange={e => setForm(f => ({ ...f, strainUuid: e.target.value }))}
+                  className="pr-10 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  autoFocus
+                  disabled={strainsLoading}
+                  aria-disabled={strainsLoading}
+                >
+                  <option value="">-- เลือกสายพันธุ์ --</option>
+                  {strains.map(strain => (
+                    <option key={strain.id} value={strain.id.toString()}>
+                      {strain.name}
+                    </option>
+                  ))}
+                </Select>
+                {strainsLoading && (
+                  <div className="flex absolute top-2 right-3 items-center">
+                    <Spinner size="sm" color="info" aria-label="กำลังโหลดสายพันธุ์..." />
+                  </div>
+                )}
+              </div>
               <Link href="/strains" className="text-sm text-blue-600">
                 ไปหน้าจัดการสายพันธุ์
               </Link>
@@ -1161,18 +1187,27 @@ export default function Dashboard() {
             </div>
             <div>
               <Label className="mb-1 font-semibold">ชุดการปลูก</Label>
-              <Select
-                value={form.batch_id ?? ""}
-                onChange={e => setForm(f => ({ ...f, batch_id: e.target.value ? Number(e.target.value) : null }))}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                <option value="">-- เลือกชุดการปลูก --</option>
-                {batches.map(batch => (
-                  <option key={batch.id} value={batch.id}>
-                    {batch.batch_code}
-                  </option>
-                ))}
-              </Select>
+              <div className="relative">
+                <Select
+                  value={form.batch_id ?? ""}
+                  onChange={e => setForm(f => ({ ...f, batch_id: e.target.value ? Number(e.target.value) : null }))}
+                  className="pr-10 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  disabled={batchesLoading}
+                  aria-disabled={batchesLoading}
+                >
+                  <option value="">-- เลือกชุดการปลูก --</option>
+                  {batches.map(batch => (
+                    <option key={batch.id} value={batch.id}>
+                      {batch.batch_code}
+                    </option>
+                  ))}
+                </Select>
+                {batchesLoading && (
+                  <div className="flex absolute top-2 right-3 items-center">
+                    <Spinner size="sm" color="info" aria-label="กำลังโหลดชุดการปลูก..." />
+                  </div>
+                )}
+              </div>
             </div>
             <div>
               <Label className="mb-1 font-semibold">พันธุ์</Label>
@@ -1563,6 +1598,7 @@ export default function Dashboard() {
       <Modal
         show={showBulkDeleteModal}
         size="sm"
+        aria-modal="true"
         onClose={() => {
           setShowBulkDeleteModal(false);
           setFormError("");
@@ -1596,6 +1632,7 @@ export default function Dashboard() {
       <Modal
         show={showDetailModal}
         size="xl"
+        aria-modal="true"
         onClose={() => {
           setShowDetailModal(false);
           setFormError("");
@@ -1603,6 +1640,7 @@ export default function Dashboard() {
           setErrorMessage("");
           setImageFiles([]);
           setSelectedTree(null);
+          setDetailLoading(false);
         }}
         className="rounded-2xl border border-gray-200 shadow-2xl backdrop-blur-lg xl:max-w-2xl dark:border-gray-700"
       >
@@ -1612,7 +1650,18 @@ export default function Dashboard() {
           </span>
         </ModalHeader>
         <ModalBody className="px-4 py-6 rounded-b-2xl transition-colors duration-300 bg-slate-50 dark:bg-gray-900/95 max-h-[80vh] overflow-y-auto">
-          {selectedTree ? (
+          {detailLoading ? (
+            <div className="flex flex-col gap-6 w-full animate-pulse">
+              <div className="w-full h-48 bg-gray-200 rounded-xl dark:bg-gray-700" />
+              <div className="w-1/2 h-6 bg-gray-200 rounded dark:bg-gray-700" />
+              <div className="w-2/3 h-4 bg-gray-200 rounded dark:bg-gray-700" />
+              <div className="w-1/3 h-4 bg-gray-200 rounded dark:bg-gray-700" />
+              <div className="w-1/4 h-4 bg-gray-200 rounded dark:bg-gray-700" />
+              <div className="w-1/2 h-4 bg-gray-200 rounded dark:bg-gray-700" />
+              <div className="w-1/3 h-4 bg-gray-200 rounded dark:bg-gray-700" />
+              <div className="w-1/4 h-4 bg-gray-200 rounded dark:bg-gray-700" />
+            </div>
+          ) : selectedTree ? (
             <div className="flex flex-col gap-6 w-full">
               {/* GALLERY */}
               <div className="flex flex-col items-center w-full">
@@ -1853,6 +1902,7 @@ export default function Dashboard() {
       <Modal
         show={showEditModal}
         size="lg"
+        aria-modal="true"
         onClose={() => {
           setShowEditModal(false);
           setFormError("");
@@ -1881,38 +1931,56 @@ export default function Dashboard() {
             </div>
             <div>
               <Label className="mb-1 font-semibold">สายพันธุ์ <span className="text-red-500">*</span></Label>
-              <Select
-                required
-                value={form.strainUuid}
-                onChange={e => setForm(f => ({ ...f, strainUuid: e.target.value }))}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                autoFocus
-              >
-                <option value="">-- เลือกสายพันธุ์ --</option>
-                {strains.map(strain => (
-                  <option key={strain.id} value={strain.id.toString()}>
-                    {strain.name}
-                  </option>
-                ))}
-              </Select>
+              <div className="relative">
+                <Select
+                  required
+                  value={form.strainUuid}
+                  onChange={e => setForm(f => ({ ...f, strainUuid: e.target.value }))}
+                  className="pr-10 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  autoFocus
+                  disabled={strainsLoading}
+                  aria-disabled={strainsLoading}
+                >
+                  <option value="">-- เลือกสายพันธุ์ --</option>
+                  {strains.map(strain => (
+                    <option key={strain.id} value={strain.id.toString()}>
+                      {strain.name}
+                    </option>
+                  ))}
+                </Select>
+                {strainsLoading && (
+                  <div className="flex absolute top-2 right-3 items-center">
+                    <Spinner size="sm" color="info" aria-label="กำลังโหลดสายพันธุ์..." />
+                  </div>
+                )}
+              </div>
               <Link href="/strains" className="text-sm text-blue-600">
                 ไปหน้าจัดการสายพันธุ์
               </Link>
             </div>
             <div>
               <Label className="mb-1 font-semibold">ชุดการปลูก</Label>
-              <Select
-                value={form.batch_id ?? ""}
-                onChange={e => setForm(f => ({ ...f, batch_id: e.target.value ? Number(e.target.value) : null }))}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                <option value="">-- เลือกชุดการปลูก --</option>
-                {batches.map(batch => (
-                  <option key={batch.id} value={batch.id}>
-                    {batch.batch_code}
-                  </option>
-                ))}
-              </Select>
+              <div className="relative">
+                <Select
+                  value={form.batch_id ?? ""}
+                  onChange={e => setForm(f => ({ ...f, batch_id: e.target.value ? Number(e.target.value) : null }))}
+                  className="pr-10 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  disabled={batchesLoading}
+                  aria-disabled={batchesLoading}
+                >
+                  <option value="">-- เลือกชุดการปลูก --</option>
+                  {batches.map(batch => (
+                    <option key={batch.id} value={batch.id}>
+                      {batch.batch_code}
+                    </option>
+                  ))}
+                </Select>
+                {batchesLoading && (
+                  <div className="flex absolute top-2 right-3 items-center">
+                    <Spinner size="sm" color="info" aria-label="กำลังโหลดชุดการปลูก..." />
+                  </div>
+                )}
+              </div>
             </div>
             <div>
               <Label className="mb-1 font-semibold">พันธุ์</Label>
@@ -2309,6 +2377,7 @@ export default function Dashboard() {
       <Modal
         show={showDeleteModal}
         size="sm"
+        aria-modal="true"
         onClose={() => {
           setShowDeleteModal(false);
           setFormError("");
@@ -2340,6 +2409,7 @@ export default function Dashboard() {
       <Modal
         show={showDeleteAllImagesModal}
         size="sm"
+        aria-modal="true"
         onClose={() => {
           setShowDeleteAllImagesModal(false);
           setFormError("");
@@ -2373,6 +2443,7 @@ export default function Dashboard() {
       <Modal
         show={showDeleteDocumentModal}
         size="sm"
+        aria-modal="true"
         onClose={() => {
           setShowDeleteDocumentModal(false);
           setFormError("");
@@ -2406,6 +2477,7 @@ export default function Dashboard() {
       <Modal
         show={showImageLightbox}
         size="5xl"
+        aria-modal="true"
         onClose={() => {
           handleCloseLightbox();
           setFormError("");
@@ -2501,14 +2573,14 @@ export default function Dashboard() {
         {successMessage && (
           <Toast className="flex gap-2 items-center text-green-800 bg-green-50 border border-green-300 shadow dark:bg-green-800 dark:text-green-100">
             <HiCheckCircle className="w-5 h-5 text-green-600 dark:text-green-300" />
-            <span className="font-semibold">{successMessage}</span>
+            <span className="font-semibold" aria-live="polite">{successMessage}</span>
             <ToastToggle onDismiss={() => setSuccessMessage("")} />
           </Toast>
         )}
         {errorMessage && (
           <Toast className="flex gap-2 items-center text-red-800 bg-red-50 border border-red-300 shadow dark:bg-red-800 dark:text-red-100">
             <HiXCircle className="w-5 h-5 text-red-600 dark:text-red-300" />
-            <span className="font-semibold">{errorMessage}</span>
+            <span className="font-semibold" aria-live="polite">{errorMessage}</span>
             <ToastToggle onDismiss={() => setErrorMessage("")} />
           </Toast>
         )}
