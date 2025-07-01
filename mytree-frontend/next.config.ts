@@ -2,42 +2,39 @@ import type { NextConfig } from "next";
 import withFlowbiteReact from "flowbite-react/plugin/nextjs";
 import type { RemotePattern } from "next/dist/shared/lib/image-config";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
-const url = new URL(apiUrl);
+// env for production
+const frontendOrigin = process.env.NEXT_PUBLIC_FRONTEND_ORIGIN || "http://localhost:3000";
+const backendOrigin = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+const backendHost = new URL(backendOrigin).hostname;
 
 const remotePatterns: RemotePattern[] = [
   {
-    protocol: url.protocol.replace(":", "") as "http" | "https",
-    hostname: url.hostname,
-    ...(url.port ? { port: url.port } : {}),
+    protocol: "https",
+    hostname: backendHost,
     pathname: "/media/**",
   },
-];
-
-// dev local fallback
-if (url.hostname !== "localhost") {
-  remotePatterns.push({
+  {
+    protocol: "http",
+    hostname: backendHost,
+    pathname: "/media/**",
+  },
+  {
     protocol: "http",
     hostname: "localhost",
     port: "8000",
     pathname: "/media/**",
-  });
-}
-
-// fallback: allow both http/https for prod domain
-if (url.protocol === "https:") {
-  remotePatterns.push({
-    protocol: "http",
-    hostname: url.hostname,
-    ...(url.port ? { port: url.port } : {}),
-    pathname: "/media/**",
-  });
-}
+  },
+];
 
 const nextConfig: NextConfig = {
-  images: {
-    remotePatterns,
-  },
+  images: { remotePatterns },
+  // **จุดสำคัญ**
+  allowedDevOrigins: [
+    frontendOrigin,
+    backendOrigin,
+    "http://localhost:3000", // dev local
+    "http://localhost:8000", // dev local
+  ],
 };
 
 export default withFlowbiteReact(nextConfig);
