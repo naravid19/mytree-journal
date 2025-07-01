@@ -19,6 +19,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.http import HttpResponse
+from django.views.generic import RedirectView
 
 def home(request):
     return HttpResponse("MyTree API is running. (This is backend API only.)")
@@ -27,5 +28,8 @@ urlpatterns = [
     path('', home),
     path('admin/', admin.site.urls),
     path('api/', include('trees.urls')),
+    path('favicon.ico', RedirectView.as_view(
+        url='/static/icon/favicon.ico', permanent=True)),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
