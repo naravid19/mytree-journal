@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Table,
   TableHead,
@@ -40,6 +40,9 @@ export default function StrainsPage() {
   const [formError, setFormError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+
+  const addNameRef = useRef<HTMLInputElement>(null);
+  const editNameRef = useRef<HTMLInputElement>(null);
 
   const fetchStrains = () => {
     fetch(`${API_BASE}/api/strains/`)
@@ -185,18 +188,18 @@ export default function StrainsPage() {
         </Table>
       </main>
       {/* Add Modal */}
-      <Modal show={showAddModal} onClose={() => setShowAddModal(false)}>
+      <Modal show={showAddModal} onClose={() => setShowAddModal(false)} initialFocus={addNameRef}>
         <ModalHeader>เพิ่มสายพันธุ์</ModalHeader>
         <ModalBody>
           {formError && (
-            <Alert color="failure" className="mb-4">
+            <Alert id="strainAddError" color="failure" className="mb-4">
               <span className="font-medium">{formError}</span>
             </Alert>
           )}
           <div className="space-y-4">
             <div>
               <Label htmlFor="name">ชื่อสายพันธุ์</Label>
-              <TextInput id="name" value={formName} onChange={(e) => setFormName(e.target.value)} />
+              <TextInput ref={addNameRef} id="name" value={formName} onChange={(e) => setFormName(e.target.value)} aria-describedby={formError ? 'strainAddError' : undefined} />
             </div>
             <div>
               <Label htmlFor="desc">รายละเอียด</Label>
@@ -212,18 +215,18 @@ export default function StrainsPage() {
         </ModalFooter>
       </Modal>
       {/* Edit Modal */}
-      <Modal show={showEditModal} onClose={() => setShowEditModal(false)}>
+      <Modal show={showEditModal} onClose={() => setShowEditModal(false)} initialFocus={editNameRef}>
         <ModalHeader>แก้ไขสายพันธุ์</ModalHeader>
         <ModalBody>
           {formError && (
-            <Alert color="failure" className="mb-4">
+            <Alert id="strainEditError" color="failure" className="mb-4">
               <span className="font-medium">{formError}</span>
             </Alert>
           )}
           <div className="space-y-4">
             <div>
               <Label htmlFor="name">ชื่อสายพันธุ์</Label>
-              <TextInput id="nameEdit" value={formName} onChange={(e) => setFormName(e.target.value)} />
+              <TextInput ref={editNameRef} id="nameEdit" value={formName} onChange={(e) => setFormName(e.target.value)} aria-describedby={formError ? 'strainEditError' : undefined} />
             </div>
             <div>
               <Label htmlFor="descEdit">รายละเอียด</Label>
