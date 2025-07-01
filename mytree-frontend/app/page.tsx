@@ -112,6 +112,14 @@ export default function Dashboard() {
   const [showDeleteAllImagesModal, setShowDeleteAllImagesModal] = useState(false);
   const [showDeleteDocumentModal, setShowDeleteDocumentModal] = useState(false);
 
+  const deleteConfirmRef = useRef<HTMLButtonElement>(null);
+  const deleteImagesConfirmRef = useRef<HTMLButtonElement>(null);
+  const deleteDocConfirmRef = useRef<HTMLButtonElement>(null);
+
+  // initial focus targets for modals
+  const addInitialRef = useRef<HTMLSelectElement>(null);
+  const editInitialRef = useRef<HTMLSelectElement>(null);
+
   // เพิ่ม state สำหรับ form error
   const [formError, setFormError] = useState<string>("");
 
@@ -206,6 +214,7 @@ export default function Dashboard() {
     fetch(`${API_BASE}/api/trees/`)
       .then((res) => res.json())
       .then((data) => setTrees(data))
+      .catch(() => setErrorMessage("โหลดข้อมูลไม่สำเร็จ"))
       .finally(() => setLoading(false));
   };
 
@@ -214,6 +223,7 @@ export default function Dashboard() {
     fetch(`${API_BASE}/api/strains/`)
       .then((res) => res.json())
       .then((data) => setStrains(data))
+      .catch(() => setErrorMessage("โหลดสายพันธุ์ไม่สำเร็จ"))
       .finally(() => setStrainsLoading(false));
   };
 
@@ -222,6 +232,7 @@ export default function Dashboard() {
     fetch(`${API_BASE}/api/batches/`)
       .then((res) => res.json())
       .then((data) => setBatches(data))
+      .catch(() => setErrorMessage("โหลดชุดการปลูกไม่สำเร็จ"))
       .finally(() => setBatchesLoading(false));
   };
 
@@ -377,6 +388,9 @@ export default function Dashboard() {
       setImageFiles([]);
       fetchTrees();
       setSuccessMessage("บันทึกข้อมูลสำเร็จ");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setFormError("บันทึกข้อมูลไม่สำเร็จ: " + message);
     } finally {
       setSubmitting(false);
     }
@@ -531,6 +545,9 @@ export default function Dashboard() {
       setImageFiles([]);
       fetchTrees();
       setSuccessMessage("บันทึกข้อมูลสำเร็จ");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setFormError("แก้ไขข้อมูลไม่สำเร็จ: " + message);
     } finally {
       setSubmitting(false);
     }
@@ -554,6 +571,9 @@ export default function Dashboard() {
       setSelectedTree(null);
       fetchTrees();
       setSuccessMessage("ลบข้อมูลสำเร็จ");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setErrorMessage("ลบข้อมูลไม่สำเร็จ: " + message);
     } finally {
       setSubmitting(false);
     }
@@ -579,6 +599,9 @@ export default function Dashboard() {
       // รีเฟรชข้อมูลต้นไม้ทั้งหมด
       fetchTrees();
       setSuccessMessage("ลบรูปภาพสำเร็จ");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setErrorMessage("ลบรูปภาพไม่สำเร็จ: " + message);
     } finally {
       setSubmitting(false);
     }
@@ -609,6 +632,9 @@ export default function Dashboard() {
       // ปิด modal ยืนยัน
       setShowDeleteAllImagesModal(false);
       setSuccessMessage("ลบรูปภาพทั้งหมดสำเร็จ");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setErrorMessage("ลบรูปภาพทั้งหมดไม่สำเร็จ: " + message);
     } finally {
       setSubmitting(false);
     }
@@ -641,6 +667,9 @@ export default function Dashboard() {
       const updatedTree = await fetch(`${API_BASE}/api/trees/${selectedTree.id}/`).then(res => res.json());
       setSelectedTree(updatedTree);
       setSuccessMessage("ลบเอกสารสำเร็จ");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setErrorMessage("ลบเอกสารไม่สำเร็จ: " + message);
     } finally {
       setSubmitting(false);
     }
@@ -1119,6 +1148,7 @@ export default function Dashboard() {
         show={showAddModal}
         size="lg"
         aria-modal="true"
+        initialFocus={addInitialRef}
         onClose={() => {
           setShowAddModal(false);
           setFormError("");
@@ -1136,11 +1166,18 @@ export default function Dashboard() {
         <ModalBody className="rounded-b-2xl bg-slate-50 dark:bg-gray-900 max-h-[80vh] overflow-y-auto">
           {/* แสดง error message */}
           {formError && (
-            <Alert color="failure" className="mb-4" onDismiss={() => setFormError("")}>
+            <Alert id="addFormError" color="failure" className="mb-4" onDismiss={() => setFormError("")}> 
               <span className="font-medium">{formError}</span>
             </Alert>
           )}
-          <form onSubmit={e => { e.preventDefault(); handleSubmit(); }} className="grid grid-cols-1 gap-y-4 gap-x-8 text-base md:grid-cols-2 sm:text-lg font-kanit">
+          <form
+            aria-describedby={formError ? "addFormError" : undefined}
+            onSubmit={e => {
+              e.preventDefault();
+              handleSubmit();
+            }}
+            className="grid grid-cols-1 gap-y-4 gap-x-8 text-base md:grid-cols-2 sm:text-lg font-kanit"
+          >
             {/* กลุ่มที่ 1: ข้อมูลพื้นฐาน (สำคัญที่สุด) */}
             <div className="md:col-span-2">
               <h3 className="pb-2 mb-3 text-lg font-bold text-green-700 border-b border-green-200 dark:text-green-300 dark:border-green-700">
@@ -1152,6 +1189,7 @@ export default function Dashboard() {
               <Label className="mb-1 font-semibold">สายพันธุ์ <span className="text-red-500">*</span></Label>
               <div className="relative">
                 <Select
+                  ref={addInitialRef}
                   required
                   value={form.strainUuid}
                   onChange={e => setForm(f => ({ ...f, strainUuid: e.target.value }))}
@@ -1903,6 +1941,7 @@ export default function Dashboard() {
         show={showEditModal}
         size="lg"
         aria-modal="true"
+        initialFocus={editInitialRef}
         onClose={() => {
           setShowEditModal(false);
           setFormError("");
@@ -1918,11 +1957,15 @@ export default function Dashboard() {
         <ModalBody className="rounded-b-2xl bg-slate-50 dark:bg-gray-900 max-h-[80vh] overflow-y-auto">
           {/* แสดง error message */}
           {formError && (
-            <Alert color="failure" className="mb-4" onDismiss={() => setFormError("")}>
+            <Alert id="editFormError" color="failure" className="mb-4" onDismiss={() => setFormError("")}> 
               <span className="font-medium">{formError}</span>
             </Alert>
           )}
-          <form onSubmit={e => { e.preventDefault(); handleEditSubmit(); }} className="grid grid-cols-1 gap-y-4 gap-x-8 text-base md:grid-cols-2 sm:text-lg font-kanit">
+          <form
+            aria-describedby={formError ? "editFormError" : undefined}
+            onSubmit={e => { e.preventDefault(); handleEditSubmit(); }}
+            className="grid grid-cols-1 gap-y-4 gap-x-8 text-base md:grid-cols-2 sm:text-lg font-kanit"
+          >
             {/* กลุ่มที่ 1: ข้อมูลพื้นฐาน (สำคัญที่สุด) */}
             <div className="md:col-span-2">
               <h3 className="pb-2 mb-3 text-lg font-bold text-green-700 border-b border-green-200 dark:text-green-300 dark:border-green-700">
@@ -1933,6 +1976,7 @@ export default function Dashboard() {
               <Label className="mb-1 font-semibold">สายพันธุ์ <span className="text-red-500">*</span></Label>
               <div className="relative">
                 <Select
+                  ref={editInitialRef}
                   required
                   value={form.strainUuid}
                   onChange={e => setForm(f => ({ ...f, strainUuid: e.target.value }))}
@@ -2378,6 +2422,7 @@ export default function Dashboard() {
         show={showDeleteModal}
         size="sm"
         aria-modal="true"
+        initialFocus={deleteConfirmRef}
         onClose={() => {
           setShowDeleteModal(false);
           setFormError("");
@@ -2396,7 +2441,7 @@ export default function Dashboard() {
           </div>
         </ModalBody>
         <ModalFooter className="gap-2 justify-end">
-          <Button color="red" disabled={submitting} onClick={handleDelete}>
+          <Button ref={deleteConfirmRef} color="red" disabled={submitting} onClick={handleDelete}>
             {submitting ? "กำลังลบ..." : "ลบ"}
           </Button>
           <Button color="gray" onClick={() => setShowDeleteModal(false)}>
@@ -2410,6 +2455,7 @@ export default function Dashboard() {
         show={showDeleteAllImagesModal}
         size="sm"
         aria-modal="true"
+        initialFocus={deleteImagesConfirmRef}
         onClose={() => {
           setShowDeleteAllImagesModal(false);
           setFormError("");
@@ -2430,7 +2476,7 @@ export default function Dashboard() {
           </div>
         </ModalBody>
         <ModalFooter className="gap-2 justify-end">
-          <Button color="red" disabled={submitting} onClick={handleDeleteAllImages}>
+          <Button ref={deleteImagesConfirmRef} color="red" disabled={submitting} onClick={handleDeleteAllImages}>
             {submitting ? "กำลังลบ..." : "ลบรูปภาพทั้งหมด"}
           </Button>
           <Button color="gray" onClick={() => setShowDeleteAllImagesModal(false)}>
@@ -2444,6 +2490,7 @@ export default function Dashboard() {
         show={showDeleteDocumentModal}
         size="sm"
         aria-modal="true"
+        initialFocus={deleteDocConfirmRef}
         onClose={() => {
           setShowDeleteDocumentModal(false);
           setFormError("");
@@ -2464,7 +2511,7 @@ export default function Dashboard() {
           </div>
         </ModalBody>
         <ModalFooter className="gap-2 justify-end">
-          <Button color="red" disabled={submitting} onClick={handleDeleteDocument}>
+          <Button ref={deleteDocConfirmRef} color="red" disabled={submitting} onClick={handleDeleteDocument}>
             {submitting ? "กำลังลบ..." : "ลบเอกสาร"}
           </Button>
           <Button color="gray" onClick={() => setShowDeleteDocumentModal(false)}>
