@@ -34,7 +34,10 @@ const nextConfig: NextConfig = {
     backendOrigin,
     "http://localhost:3000", // dev local
     "http://localhost:8000", // dev local
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:8000',
   ],
 };
+
 
 export default withFlowbiteReact(nextConfig);
