@@ -1,4 +1,7 @@
 from django.db import models
+from PIL import Image as PilImage, ImageOps
+from io import BytesIO
+from django.core.files.base import ContentFile
 import os
 
 SEX_CHOICES = [
@@ -47,16 +50,37 @@ class Image(models.Model):
         upload_to='tree_images/',
         help_text="ไฟล์รูปภาพของต้นไม้"
     )
+    thumbnail = models.ImageField(
+        upload_to='tree_images/thumbnails/',
+        null=True, blank=True, editable=False,
+        help_text="รูปขนาดย่อ (สร้างอัตโนมัติหลังอัปโหลด)"
+    )
     uploaded_at = models.DateTimeField(
         auto_now_add=True,
         help_text="วัน-เวลาที่อัปโหลดรูปภาพ"
     )
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.image and not self.thumbnail:
+            self.make_thumbnail()
+
+    def make_thumbnail(self, size=(400, 300)):
+        img = PilImage.open(self.image.path)
+        img = ImageOps.exif_transpose(img)
+        img.thumbnail(size, PilImage.LANCZOS)
+        thumb_io = BytesIO()
+        img.save(thumb_io, format='JPEG', quality=85)
+        base, ext = os.path.splitext(os.path.basename(self.image.name))
+        thumbnail_filename = f"{base}_thumb.jpg"
+        self.thumbnail.save(thumbnail_filename, ContentFile(thumb_io.getvalue()), save=False)
+        super().save(update_fields=['thumbnail'])
 
     def delete(self, *args, **kwargs):
-        # ลบไฟล์จริงก่อนลบ object จากฐานข้อมูล
-        if self.image:
-            if os.path.isfile(self.image.path):
-                os.remove(self.image.path)
+        if self.image and os.path.isfile(self.image.path):
+            os.remove(self.image.path)
+        if self.thumbnail and os.path.isfile(self.thumbnail.path):
+            os.remove(self.thumbnail.path)
         super().delete(*args, **kwargs)
 
     def __str__(self):
