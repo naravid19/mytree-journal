@@ -1318,6 +1318,16 @@ export default function Dashboard() {
               />
             </div>
             <div>
+              <Label className="mb-1 font-semibold">รุ่น (Generation)</Label>
+              <TextInput
+                value={form.generation || ""}
+                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                onChange={e => setForm(f => ({ ...f, generation: e.target.value }))}
+                placeholder="เช่น F1, F2 ฯลฯ"
+                aria-label="รุ่นของต้นไม้"
+              />
+            </div>
+            <div>
               <Label className="mb-1 font-semibold">สถานที่ปลูก</Label>
               <TextInput
                 value={form.location}
@@ -1682,16 +1692,6 @@ export default function Dashboard() {
                 onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
               />
             </div>
-            <div>
-              <Label className="mb-1 font-semibold">รุ่น (Generation)</Label>
-              <TextInput
-                value={form.generation || ""}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={e => setForm(f => ({ ...f, generation: e.target.value }))}
-                placeholder="เช่น F1, F2 ฯลฯ"
-                aria-label="รุ่นของต้นไม้"
-              />
-            </div>
             <button type="submit" className="hidden" aria-hidden="true" />
           </form>
         </ModalBody>
@@ -1885,6 +1885,7 @@ export default function Dashboard() {
                     <div className="dark:text-gray-200"><span className="font-medium">สายพันธุ์: </span>{selectedTree.strain?.name || "-"}</div>
                     <div className="dark:text-gray-200"><span className="font-medium">พันธุ์: </span>{selectedTree.variety || "-"}</div>
                     <div className="dark:text-gray-200"><span className="font-medium">ชุดการปลูก: </span>{selectedTree.batch?.batch_code || "-"}</div>
+                    <div className="dark:text-gray-200"><span className="font-medium">รุ่น: </span>{selectedTree.generation || "-"}</div>
                     <div className="dark:text-gray-200"><span className="font-medium">ชื่อเล่น: </span>{selectedTree.nickname || "-"}</div>
                     <div className="dark:text-gray-200"><span className="font-medium">สถานที่ปลูก: </span>{selectedTree.location || "-"}</div>
                     <div className="flex gap-2 items-center dark:text-gray-200"><span className="font-medium">สถานะ: </span>
@@ -1910,9 +1911,6 @@ export default function Dashboard() {
                 </div>
                     <div className="dark:text-gray-200"><span className="font-medium">วันที่ปลูก: </span>{selectedTree.plant_date || "-"}</div>
                     <div className="dark:text-gray-200"><span className="font-medium">อายุ: </span>{calcAge(selectedTree.plant_date, ageUnit)} {ageUnit === "day" ? "วัน" : ageUnit === "month" ? "เดือน" : "ปี"}</div>
-                    <div className="dark:text-gray-200">
-                      <span className="font-medium">รุ่น: </span>{selectedTree.generation || "-"}
-                    </div>
                 </div>
                 </div>
 
@@ -2138,6 +2136,16 @@ export default function Dashboard() {
                 value={form.variety}
                 className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 onChange={e => setForm(f => ({ ...f, variety: e.target.value }))}
+              />
+            </div>
+            <div>
+              <Label className="mb-1 font-semibold">รุ่น (Generation)</Label>
+              <TextInput
+                value={form.generation || ""}
+                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                onChange={e => setForm(f => ({ ...f, generation: e.target.value }))}
+                placeholder="เช่น F1, F2 ฯลฯ"
+                aria-label="รุ่นของต้นไม้"
               />
             </div>
             <div>
@@ -2508,16 +2516,6 @@ export default function Dashboard() {
                 placeholder="หมายเหตุเพิ่มเติม"
                 className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-              />
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">รุ่น (Generation)</Label>
-              <TextInput
-                value={form.generation || ""}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={e => setForm(f => ({ ...f, generation: e.target.value }))}
-                placeholder="เช่น F1, F2 ฯลฯ"
-                aria-label="รุ่นของต้นไม้"
               />
             </div>
             <button type="submit" className="hidden" aria-hidden="true" />
