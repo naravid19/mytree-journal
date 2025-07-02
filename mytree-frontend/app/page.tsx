@@ -1308,6 +1308,9 @@ export default function Dashboard() {
                   </div>
                 )}
               </div>
+              <Link href="/batches" className="text-sm text-blue-600">
+                ไปหน้าจัดการชุดการปลูก
+              </Link>
             </div>
             <div>
               <Label className="mb-1 font-semibold">พันธุ์</Label>
@@ -2129,6 +2132,9 @@ export default function Dashboard() {
                   </div>
                 )}
               </div>
+              <Link href="/batches" className="text-sm text-blue-600">
+                ไปหน้าจัดการชุดการปลูก
+              </Link>
             </div>
             <div>
               <Label className="mb-1 font-semibold">พันธุ์</Label>
