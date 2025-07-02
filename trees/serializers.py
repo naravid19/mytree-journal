@@ -47,7 +47,7 @@ class TreeSerializer(serializers.ModelSerializer):
             'harvest_date', 'sex', 'genotype', 'phenotype', 'parent_male', 'parent_female',
             'clone_source', 'pollination_date', 'pollinated_by', 'yield_amount',
             'flower_quality', 'seed_count', 'seed_harvest_date', 'disease_notes',
-            'document', 'images', 'notes', 'uploaded_images'
+            'document', 'images', 'notes', 'uploaded_images', 'generation'
         ]
 
     def create(self, validated_data):
