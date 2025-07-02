@@ -4,7 +4,6 @@ import type { RemotePattern } from "next/dist/shared/lib/image-config";
 
 // อ่าน env ที่ต้องใช้
 const FRONTEND_ORIGIN = process.env.NEXT_PUBLIC_FRONTEND_ORIGIN || "http://localhost:3000";
-const FRONTEND_DOMAIN = process.env.NEXT_PUBLIC_FRONTEND_DOMAIN || "localhost";
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 const MEDIA_DOMAIN = process.env.NEXT_PUBLIC_MEDIA_DOMAIN || "localhost";
 
