@@ -100,6 +100,10 @@ class Tree(models.Model):
         max_length=100, blank=True,
         help_text="ชื่อพันธุ์ย่อย/ชื่อทางการค้า (ถ้ามี)"
     )
+    generation = models.CharField(
+        max_length=50, blank=True, null=True,
+        help_text="รุ่นของต้นไม้"
+    )
     batch = models.ForeignKey(
         Batch, on_delete=models.PROTECT, null=True, blank=True,
         help_text="ชุดหรือรอบการปลูก/เพาะพันธุ์ (ต้องเลือกเสมอ)"
