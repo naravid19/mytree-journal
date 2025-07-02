@@ -4,7 +4,7 @@ from .models import Tree, Image, Strain, Batch, SEX_CHOICES
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Image
-        fields = ['id', 'image', 'uploaded_at']
+        fields = ['id', 'image', 'thumbnail', 'uploaded_at']
 
 class StrainSerializer(serializers.ModelSerializer):
     class Meta:
