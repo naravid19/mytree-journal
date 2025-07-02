@@ -83,6 +83,7 @@ type Tree = {
   document: string | null;
   images: Image[];
   notes: string;
+  generation?: string;
 };
 
 function useDebouncedSearch(callback: (s: string) => void, delay = 300) {
@@ -121,6 +122,7 @@ const getDefaultForm = (todayStr = new Date().toISOString().split('T')[0]) => ({
   disease_notes: "",
   document: null as File | null,
   notes: "",
+  generation: "",
 });
 
 export default function Dashboard() {
@@ -218,6 +220,7 @@ export default function Dashboard() {
     disease_notes: "",
     document: null as File | null,
     notes: "",
+    generation: "",
   });
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -417,6 +420,7 @@ export default function Dashboard() {
         disease_notes: "",
         document: null as File | null,
         notes: "",
+        generation: "",
       });
       setImageFiles([]);
       fetchTrees();
@@ -458,6 +462,7 @@ export default function Dashboard() {
       disease_notes: selectedTree.disease_notes || "",
       document: null as File | null,
       notes: selectedTree.notes || "",
+      generation: selectedTree.generation || "",
     });
     setImageFiles([]);
     setShowEditModal(true);
@@ -576,6 +581,7 @@ export default function Dashboard() {
         disease_notes: "",
         document: null as File | null,
         notes: "",
+        generation: selectedTree.generation || "",
       });
       setImageFiles([]);
       fetchTrees();
@@ -1676,6 +1682,16 @@ export default function Dashboard() {
                 onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
               />
             </div>
+            <div>
+              <Label className="mb-1 font-semibold">รุ่น (Generation)</Label>
+              <TextInput
+                value={form.generation || ""}
+                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                onChange={e => setForm(f => ({ ...f, generation: e.target.value }))}
+                placeholder="เช่น F1, F2, S1, ฯลฯ"
+                aria-label="รุ่นของต้นไม้"
+              />
+            </div>
             <button type="submit" className="hidden" aria-hidden="true" />
           </form>
         </ModalBody>
@@ -1894,6 +1910,9 @@ export default function Dashboard() {
                 </div>
                     <div className="dark:text-gray-200"><span className="font-medium">วันที่ปลูก: </span>{selectedTree.plant_date || "-"}</div>
                     <div className="dark:text-gray-200"><span className="font-medium">อายุ: </span>{calcAge(selectedTree.plant_date, ageUnit)} {ageUnit === "day" ? "วัน" : ageUnit === "month" ? "เดือน" : "ปี"}</div>
+                    <div className="dark:text-gray-200">
+                      <span className="font-medium">รุ่น: </span>{selectedTree.generation || "-"}
+                    </div>
                 </div>
                 </div>
 
@@ -2489,6 +2508,16 @@ export default function Dashboard() {
                 placeholder="หมายเหตุเพิ่มเติม"
                 className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
+              />
+            </div>
+            <div>
+              <Label className="mb-1 font-semibold">รุ่น (Generation)</Label>
+              <TextInput
+                value={form.generation || ""}
+                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                onChange={e => setForm(f => ({ ...f, generation: e.target.value }))}
+                placeholder="เช่น F1, F2, S1, ฯลฯ"
+                aria-label="รุ่นของต้นไม้"
               />
             </div>
             <button type="submit" className="hidden" aria-hidden="true" />
