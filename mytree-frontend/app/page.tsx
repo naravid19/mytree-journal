@@ -1688,7 +1688,7 @@ export default function Dashboard() {
                 value={form.generation || ""}
                 className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 onChange={e => setForm(f => ({ ...f, generation: e.target.value }))}
-                placeholder="เช่น F1, F2, S1, ฯลฯ"
+                placeholder="เช่น F1, F2 ฯลฯ"
                 aria-label="รุ่นของต้นไม้"
               />
             </div>
@@ -2516,7 +2516,7 @@ export default function Dashboard() {
                 value={form.generation || ""}
                 className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 onChange={e => setForm(f => ({ ...f, generation: e.target.value }))}
-                placeholder="เช่น F1, F2, S1, ฯลฯ"
+                placeholder="เช่น F1, F2 ฯลฯ"
                 aria-label="รุ่นของต้นไม้"
               />
             </div>
