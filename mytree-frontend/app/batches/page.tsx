@@ -18,8 +18,12 @@ import {
   Datepicker,
   Alert,
   Toast,
+  Tooltip,
+  DarkThemeToggle,
+  Card,
 } from "flowbite-react";
-import { HiCheckCircle, HiXCircle } from "react-icons/hi";
+import { HiCheckCircle, HiXCircle, HiTrash, HiArrowLeft } from "react-icons/hi";
+import { useRouter } from "next/navigation";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -39,13 +43,15 @@ export default function BatchesPage() {
 
   const [formCode, setFormCode] = useState("");
   const [formDescription, setFormDescription] = useState("");
-  const [formStartedDate, setFormStartedDate] = useState<string>("");
+  const [formStartedDate, setFormStartedDate] = useState<Date | null>(null);
   const [formError, setFormError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
   const addCodeRef = useRef<HTMLInputElement>(null);
   const editCodeRef = useRef<HTMLInputElement>(null);
+
+  const router = useRouter();
 
   const fetchBatches = () => {
     fetch(`${API_BASE}/api/batches/`)
@@ -64,7 +70,7 @@ export default function BatchesPage() {
   const resetForm = () => {
     setFormCode("");
     setFormDescription("");
-    setFormStartedDate("");
+    setFormStartedDate(null);
     setFormError("");
   };
 
@@ -75,13 +81,16 @@ export default function BatchesPage() {
     }
     setFormError("");
     try {
+      const started_date_str = formStartedDate
+        ? formStartedDate.toISOString().split('T')[0]
+        : "";
       const res = await fetch(`${API_BASE}/api/batches/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           batch_code: formCode,
           description: formDescription,
-          started_date: formStartedDate || null,
+          started_date: started_date_str,
         }),
       });
       if (!res.ok) throw new Error(await res.text());
@@ -101,7 +110,7 @@ export default function BatchesPage() {
     setSelectedBatch(batch);
     setFormCode(batch.batch_code);
     setFormDescription(batch.description || "");
-    setFormStartedDate(batch.started_date || "");
+    setFormStartedDate(batch.started_date ? new Date(batch.started_date) : null);
     setShowEditModal(true);
   };
 
@@ -113,6 +122,9 @@ export default function BatchesPage() {
     }
     setFormError("");
     try {
+      const started_date_str = formStartedDate
+        ? formStartedDate.toISOString().split('T')[0]
+        : "";
       const res = await fetch(
         `${API_BASE}/api/batches/${selectedBatch.id}/`,
         {
@@ -121,7 +133,7 @@ export default function BatchesPage() {
           body: JSON.stringify({
             batch_code: formCode,
             description: formDescription,
-            started_date: formStartedDate || null,
+            started_date: started_date_str,
           }),
         }
       );
@@ -159,6 +171,12 @@ export default function BatchesPage() {
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 font-kanit">
+      {/* ปุ่มเปลี่ยนโหมดแสง/มืด (Floating) */}
+      <div className="fixed top-4 right-4 z-[20001]">
+        <Tooltip content="เปลี่ยนโหมดแสง/มืด" placement="left">
+          <DarkThemeToggle className="rounded-full shadow-lg border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 hover:scale-110 transition-all w-12 h-12 flex items-center justify-center" />
+        </Tooltip>
+      </div>
       <main className="px-2 py-6 mx-auto w-full max-w-3xl md:max-w-4xl">
         <div className="flex flex-col gap-3 mb-6 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-2xl font-extrabold tracking-tight text-green-800 md:text-3xl lg:text-4xl dark:text-green-300">
@@ -168,39 +186,50 @@ export default function BatchesPage() {
             เพิ่มชุดการปลูก
           </Button>
         </div>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeadCell>รหัสชุด</TableHeadCell>
-              <TableHeadCell>รายละเอียด</TableHeadCell>
-              <TableHeadCell>เริ่มเมื่อ</TableHeadCell>
-              <TableHeadCell>
-                <span className="sr-only">Actions</span>
-              </TableHeadCell>
-            </TableRow>
-          </TableHead>
-          <TableBody className="divide-y">
-            {batches.map((batch) => (
-              <TableRow key={batch.id} className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                <TableCell className="font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                  {batch.batch_code}
-                </TableCell>
-                <TableCell>{batch.description}</TableCell>
-                <TableCell>{batch.started_date}</TableCell>
-                <TableCell>
-                  <div className="flex gap-2 items-center">
-                    <Button size="xs" onClick={() => handleShowEdit(batch)}>
-                      แก้ไข
-                    </Button>
-                    <Button color="failure" size="xs" onClick={() => { setSelectedBatch(batch); setShowDeleteModal(true); }}>
-                      ลบ
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <Button color="gray" size="sm" className="flex items-center gap-2 mb-4" onClick={() => router.push('/')}>
+          <HiArrowLeft className="w-4 h-4" />
+          กลับหน้ารายการต้นไม้
+        </Button>
+        <Card className="w-full rounded-2xl border border-gray-200 shadow-2xl bg-white/80 dark:bg-gray-900/90 dark:border-gray-700">
+          <div className="overflow-x-auto rounded-xl">
+            <Table hoverable className="min-w-[650px] text-base font-kanit dark:bg-gray-900/80 dark:text-gray-100">
+              <TableHead className="bg-blue-50 dark:bg-gray-800/80 dark:text-gray-100">
+                <TableRow>
+                  <TableHeadCell>รหัสชุด</TableHeadCell>
+                  <TableHeadCell>รายละเอียด</TableHeadCell>
+                  <TableHeadCell>เริ่มเมื่อ</TableHeadCell>
+                  <TableHeadCell>
+                    <span className="sr-only">Actions</span>
+                  </TableHeadCell>
+                </TableRow>
+              </TableHead>
+              <TableBody className="divide-y">
+                {batches.map((batch) => (
+                  <TableRow key={batch.id} className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                    <TableCell className="font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                      {batch.batch_code}
+                    </TableCell>
+                    <TableCell>{batch.description}</TableCell>
+                    <TableCell>{batch.started_date}</TableCell>
+                    <TableCell>
+                      <div className="flex gap-2 items-center">
+                        <Button size="xs" onClick={() => handleShowEdit(batch)}>
+                          แก้ไข
+                        </Button>
+                        <Tooltip content="ลบ">
+                          <Button color="failure" size="xs" className="flex items-center gap-1 px-3 py-1 rounded-lg shadow hover:scale-105 transition" onClick={() => { setSelectedBatch(batch); setShowDeleteModal(true); }}>
+                            <HiTrash className="w-4 h-4" />
+                            <span className="sr-only">ลบ</span>
+                          </Button>
+                        </Tooltip>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </Card>
       </main>
       {/* Add Modal */}
       <Modal show={showAddModal} onClose={() => setShowAddModal(false)} initialFocus={addCodeRef}>
@@ -221,8 +250,46 @@ export default function BatchesPage() {
               <Textarea id="desc" rows={4} value={formDescription} onChange={(e) => setFormDescription(e.target.value)} />
             </div>
             <div>
-              <Label htmlFor="started">วันที่เริ่มต้น</Label>
-              <Datepicker id="started" value={formStartedDate} onSelectedDateChanged={(d) => setFormStartedDate(d?.toISOString().split('T')[0] ?? "")} />
+              <Label htmlFor="started" className="font-semibold">วันที่เริ่มต้น</Label>
+              <Datepicker
+                id="started"
+                value={formStartedDate}
+                onChange={(date: Date | null) => setFormStartedDate(date)}
+                placeholder="เลือกวันที่เริ่มต้น"
+                className="mt-1 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700 text-base font-kanit transition-all"
+                aria-label="เลือกวันที่เริ่มต้นชุดการปลูก"
+                required
+                disabled={false}
+                showClearButton={true}
+                weekStart={0}
+                autoHide={true}
+                theme={{
+                  popup: {
+                    base: "z-[10000] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl p-4",
+                    title: "text-lg font-bold text-gray-800 dark:text-gray-100",
+                    selectors: {
+                      base: "flex items-center justify-between gap-2 mt-2",
+                      button: {
+                        base: "rounded-lg p-1 text-gray-700 dark:text-gray-200 hover:bg-blue-100 dark:hover:bg-gray-700 transition",
+                        prev: "mr-2",
+                        next: "ml-2",
+                        view: "font-bold text-blue-700 dark:text-blue-300"
+                      }
+                    }
+                  },
+                  input: {
+                    base: "w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700 text-base font-kanit transition-all",
+                    icon: "text-gray-400 dark:text-gray-500"
+                  }
+                }}
+                popperProps={{
+                  strategy: "fixed"
+                }}
+              />
+              {/* error state */}
+              {formError && (
+                <span className="text-xs text-red-500 mt-1 block">{formError}</span>
+              )}
             </div>
           </div>
         </ModalBody>
@@ -253,7 +320,11 @@ export default function BatchesPage() {
             </div>
             <div>
               <Label htmlFor="startedEdit">วันที่เริ่มต้น</Label>
-              <Datepicker id="startedEdit" value={formStartedDate} onSelectedDateChanged={(d) => setFormStartedDate(d?.toISOString().split('T')[0] ?? "")} />
+              <Datepicker
+                id="startedEdit"
+                value={formStartedDate}
+                onChange={(d: Date | null) => setFormStartedDate(d)}
+              />
             </div>
           </div>
         </ModalBody>
