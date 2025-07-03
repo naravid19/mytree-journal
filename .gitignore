@@ -185,3 +185,5 @@ cython_debug/
 docs/
 
 nginx/
+.env
+mytree-frontend/.env.local
