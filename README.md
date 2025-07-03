@@ -89,7 +89,6 @@ These instructions will get your copy of the project up and running locally for 
    ```bash
    git clone https://github.com/naravid19/mytree-journal.git
    cd mytree-journal
-````
 
 2. **Install Python dependencies**
 
@@ -222,4 +221,3 @@ Project Link: [https://github.com/naravid19/mytree-journal](https://github.com/n
 [FlowbiteReact-badge]: https://img.shields.io/badge/Flowbite%20React-0.11.8-0EA5E9?style=for-the-badge&logo=react
 [FlowbiteReact-url]: https://flowbite-react.com/
 [product-screenshot]: images/screenshot.png
-
