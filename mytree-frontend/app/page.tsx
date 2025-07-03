@@ -27,7 +27,7 @@ import {
   Toast,
   ToastToggle,
 } from "flowbite-react";
-import { HiSearch, HiCheckCircle, HiXCircle } from "react-icons/hi";
+import { HiSearch, HiCheckCircle, HiXCircle, HiCollection, HiOutlineBeaker, HiMoon, HiSun } from "react-icons/hi";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -820,6 +820,12 @@ export default function Dashboard() {
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 font-kanit">
+      {/* ปุ่มเปลี่ยนโหมดแสง/มืด (Floating) */}
+      <div className="fixed top-4 right-4 z-[20001]">
+        <Tooltip content="เปลี่ยนโหมดแสง/มืด" placement="left">
+          <DarkThemeToggle className="rounded-full shadow-lg border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 hover:scale-110 transition-all w-12 h-12 flex items-center justify-center" />
+        </Tooltip>
+      </div>
       {/* Overlay Spinner กลางจอ ขณะ loading */}
       {loading && (
         <div className="fixed inset-0 z-[20000] flex items-center justify-center bg-black/20 backdrop-blur-sm">
@@ -833,7 +839,24 @@ export default function Dashboard() {
           <h1 className="text-2xl font-extrabold tracking-tight text-green-800 md:text-3xl lg:text-4xl dark:text-green-300 font-kanit">
             🌳 รายการต้นไม้ที่ปลูก
           </h1>
-          <DarkThemeToggle className="self-end sm:self-auto" />
+          <div className="flex gap-2 items-center self-end sm:self-auto">
+            <Tooltip content="ไปหน้าจัดการสายพันธุ์">
+              <Link href="/strains">
+                <Button color="blue" size="sm" className="flex items-center gap-2 font-kanit shadow hover:scale-105 transition">
+                  <HiCollection className="w-5 h-5" />
+                  สายพันธุ์
+                </Button>
+              </Link>
+            </Tooltip>
+            <Tooltip content="ไปหน้าจัดการชุดการปลูก">
+              <Link href="/batches">
+                <Button color="indigo" size="sm" className="flex items-center gap-2 font-kanit shadow hover:scale-105 transition">
+                  <HiOutlineBeaker className="w-5 h-5" />
+                  ชุดการปลูก
+                </Button>
+              </Link>
+            </Tooltip>
+          </div>
         </div>
         {/* Search Bar ด้านบน Table */}
         <div className="flex justify-end mb-4">
@@ -1102,6 +1125,7 @@ export default function Dashboard() {
                                   className="object-cover w-10 h-10 rounded-xl border-2 border-gray-300 shadow transition-all hover:scale-105 dark:border-gray-700"
                                   tabIndex={0}
                                   loading="lazy"
+                                  unoptimized={true}
                                   aria-label={`ดูรูปที่ ${idx + 1}`}
                                   onClick={e => {
                                     e.stopPropagation();
@@ -1116,6 +1140,18 @@ export default function Dashboard() {
                                       setLightboxIndex(idx);
                                       setShowImageLightbox(true);
                                     }
+                                  }}
+                                  onError={(e) => {
+                                    // Fallback to img tag if Next.js Image fails
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = 'none';
+                                    const fallbackImg = document.createElement('img');
+                                    fallbackImg.src = img.thumbnail || img.image;
+                                    fallbackImg.alt = `รูปที่ ${idx + 1}`;
+                                    fallbackImg.className = target.className;
+                                    fallbackImg.onclick = target.onclick as any;
+                                    fallbackImg.onkeydown = target.onkeydown as any;
+                                    target.parentNode?.appendChild(fallbackImg);
                                   }}
                                 />
                                 {/* ปุ่มดูภาพต้นฉบับ */}
@@ -1801,6 +1837,17 @@ export default function Dashboard() {
                       height={192}
                       className="object-contain w-full h-full rounded-xl border border-gray-200 shadow transition cursor-pointer hover:scale-105 dark:border-gray-700"
                       onClick={() => handleOpenLightbox(galleryIndex)}
+                      unoptimized={true}
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const fallbackImg = document.createElement('img');
+                        fallbackImg.src = selectedTree.images[galleryIndex].thumbnail || selectedTree.images[galleryIndex].image;
+                        fallbackImg.alt = "";
+                        fallbackImg.className = target.className;
+                        fallbackImg.onclick = target.onclick as any;
+                        target.parentNode?.appendChild(fallbackImg);
+                      }}
                     />
                     {/* ปุ่มลบรูปภาพปัจจุบัน */}
                     {selectedTree.images && (selectedTree.images?.length ?? 0) > 0 && (
@@ -2700,6 +2747,17 @@ export default function Dashboard() {
               height={768}
               className="object-contain max-w-3xl max-h-[80vh] rounded-2xl shadow-2xl border-4 border-white dark:border-gray-800 transition select-none"
               draggable={false}
+              unoptimized={true}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                const fallbackImg = document.createElement('img');
+                fallbackImg.src = selectedTree.images[lightboxIndex].image;
+                fallbackImg.alt = `รูปที่ ${lightboxIndex + 1}`;
+                fallbackImg.className = target.className;
+                fallbackImg.draggable = false;
+                target.parentNode?.appendChild(fallbackImg);
+              }}
             />
           )}
           
@@ -2766,6 +2824,17 @@ export default function Dashboard() {
                 }`}
                 onClick={() => setLightboxIndex(idx)}
                 draggable={false}
+                unoptimized={true}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const fallbackImg = document.createElement('img');
+                  fallbackImg.src = img.thumbnail || img.image;
+                  fallbackImg.alt = `thumbnail ${idx + 1}`;
+                  fallbackImg.className = target.className;
+                  fallbackImg.onclick = target.onclick as any;
+                  target.parentNode?.appendChild(fallbackImg);
+                }}
               />
             ))}
               </div>
