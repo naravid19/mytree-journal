@@ -891,7 +891,7 @@ export default function Dashboard() {
         <Card className="overflow-visible pb-6 w-full rounded-2xl border border-gray-200 shadow-2xl bg-white/70 dark:bg-gray-900/80 dark:border-gray-700">
           <div
             className="overflow-x-auto rounded-xl border border-gray-100 dark:border-gray-700 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent"
-            aria-busy={loading ? "true" : "false"}
+            aria-busy={loading}
             role="status"
           >
           <Table hoverable className="min-w-[650px] text-base md:text-lg font-kanit dark:bg-gray-900/80 dark:text-gray-100">
@@ -1090,7 +1090,7 @@ export default function Dashboard() {
                           }[tree.sex] || "-"}
                         </Badge>
                       </TableCell>
-                      <TableCell className="font-mono text-center">{calcAge(tree.plant_date, ageUnit)}</TableCell>
+                      <TableCell className="font-mono text-center">{calcAge(tree, ageUnit)}</TableCell>
                       <TableCell>
                         <Badge
                           color={
@@ -1960,7 +1960,7 @@ export default function Dashboard() {
                       </Badge>
                 </div>
                     <div className="dark:text-gray-200"><span className="font-medium">วันที่ปลูก: </span>{selectedTree.plant_date || "-"}</div>
-                    <div className="dark:text-gray-200"><span className="font-medium">อายุ: </span>{calcAge(selectedTree.plant_date, ageUnit)} {ageUnit === "day" ? "วัน" : ageUnit === "month" ? "เดือน" : "ปี"}</div>
+                    <div className="dark:text-gray-200"><span className="font-medium">อายุ: </span>{calcAge(selectedTree, ageUnit)} {ageUnit === "day" ? "วัน" : ageUnit === "month" ? "เดือน" : "ปี"}</div>
                 </div>
                 </div>
 
@@ -2877,12 +2877,16 @@ export default function Dashboard() {
   );
 }
 
-function calcAge(plantDate: string, unit: "day" | "month" | "year") {
-  if (!plantDate) return "-";
-  const today = new Date();
-  const plant = new Date(plantDate);
-  if (isNaN(plant.getTime()) || plant > today) return "-";
-  const diffTime = today.getTime() - plant.getTime();
+function calcAge(tree: Tree, unit: "day" | "month" | "year") {
+  if (!tree.plant_date) return "-";
+  const plant = new Date(tree.plant_date);
+  if (isNaN(plant.getTime())) return "-";
+  let endDate = new Date();
+  if (tree.status === "ตายแล้ว" && tree.updated_at) {
+    endDate = new Date(tree.updated_at);
+  }
+  if (plant > endDate) return "-";
+  const diffTime = endDate.getTime() - plant.getTime();
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
   if (unit === "day") return diffDays;
   if (unit === "month") return Math.floor(diffDays / 30);
