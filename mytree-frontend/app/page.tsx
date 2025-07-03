@@ -19,6 +19,7 @@ import {
   TextInput,
   Textarea,
   FileInput,
+  HelperText,
   Select,
   Tooltip,
   Badge,
@@ -32,6 +33,17 @@ import Image from "next/image";
 import Link from "next/link";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+const ALLOWED_DOC_TYPES = ["application/pdf", "image/jpeg", "image/png"];
+const MAX_DOC_SIZE_MB = 5;
+
+const ALLOWED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+];
+const MAX_IMAGE_SIZE_MB = 5;
 
 type Image = {
   id: number;
@@ -309,6 +321,38 @@ export default function Dashboard() {
   useEffect(() => {
     if (currentPage > totalPages) setCurrentPage(totalPages || 1);
   }, [trees, totalPages, currentPage]);
+
+  const handleDocumentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (
+        !ALLOWED_DOC_TYPES.includes(file.type) ||
+        file.size > MAX_DOC_SIZE_MB * 1024 * 1024
+      ) {
+        setErrorMessage("รองรับเฉพาะไฟล์ PDF, JPG, PNG ขนาดไม่เกิน 5MB");
+        e.target.value = "";
+        setForm((f) => ({ ...f, document: null }));
+        return;
+      }
+    }
+    setForm((f) => ({ ...f, document: file || null }));
+  };
+
+  const handleImageFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    const invalid = files.some(
+      (f) =>
+        !ALLOWED_IMAGE_TYPES.includes(f.type) ||
+        f.size > MAX_IMAGE_SIZE_MB * 1024 * 1024
+    );
+    if (invalid) {
+      setErrorMessage("รองรับเฉพาะไฟล์ JPG, PNG, WEBP, GIF ขนาดไม่เกิน 5MB");
+      e.target.value = "";
+      setImageFiles([]);
+      return;
+    }
+    setImageFiles(files);
+  };
   // CRUD
   const handleSubmit = useCallback(async () => {
     // ตรวจสอบ required fields
@@ -1602,9 +1646,12 @@ export default function Dashboard() {
               <Label className="mb-1 font-semibold">เอกสาร (PDF, JPG, PNG)</Label>
               <FileInput
                 accept=".pdf,.jpg,.jpeg,.png"
-                onChange={e => setForm(f => ({ ...f, document: e.target.files?.[0] || null }))}
+                onChange={handleDocumentChange}
                 className="mt-1"
               />
+              <HelperText className="mt-1">
+                รองรับไฟล์ PDF, JPG, PNG ขนาดไม่เกิน {MAX_DOC_SIZE_MB}MB
+              </HelperText>
               {/* แสดง preview เอกสารเดิม ถ้ามี */}
               {selectedTree?.document && !form.document && (
                 <div className="flex justify-between items-center p-4 mt-2 rounded-xl border border-gray-200 shadow bg-white/80 dark:bg-gray-800 dark:border-gray-700">
@@ -1653,9 +1700,13 @@ export default function Dashboard() {
               <Label className="mb-1 font-semibold">รูปภาพ (เลือกได้หลายไฟล์)</Label>
               <FileInput
                 multiple
-                onChange={e => setImageFiles(e.target.files ? Array.from(e.target.files) : [])}
+                accept="image/*"
+                onChange={handleImageFilesChange}
                 className="mt-1"
               />
+              <HelperText className="mt-1">
+                รองรับไฟล์ JPG, PNG, WEBP, GIF ขนาดไม่เกิน {MAX_IMAGE_SIZE_MB}MB
+              </HelperText>
               {/* แสดง preview รูปภาพเดิม ถ้ามี */}
               {(selectedTree?.images?.length ?? 0) > 0 && imageFiles.length === 0 && (
               <div className="flex flex-wrap gap-2 mt-2">
@@ -2444,9 +2495,12 @@ export default function Dashboard() {
               <Label className="mb-1 font-semibold">เอกสาร (PDF, JPG, PNG)</Label>
               <FileInput
                 accept=".pdf,.jpg,.jpeg,.png"
-                onChange={e => setForm(f => ({ ...f, document: e.target.files?.[0] || null }))}
+                onChange={handleDocumentChange}
                 className="mt-1"
               />
+              <HelperText className="mt-1">
+                รองรับไฟล์ PDF, JPG, PNG ขนาดไม่เกิน {MAX_DOC_SIZE_MB}MB
+              </HelperText>
               {/* แสดง preview เอกสารเดิม ถ้ามี */}
               {selectedTree?.document && !form.document && (
                 <div className="flex justify-between items-center p-4 mt-2 rounded-xl border border-gray-200 shadow bg-white/80 dark:bg-gray-800 dark:border-gray-700">
@@ -2495,9 +2549,13 @@ export default function Dashboard() {
               <Label className="mb-1 font-semibold">รูปภาพ (เลือกได้หลายไฟล์)</Label>
               <FileInput
                 multiple
-                onChange={e => setImageFiles(e.target.files ? Array.from(e.target.files) : [])}
+                accept="image/*"
+                onChange={handleImageFilesChange}
                 className="mt-1"
               />
+              <HelperText className="mt-1">
+                รองรับไฟล์ JPG, PNG, WEBP, GIF ขนาดไม่เกิน {MAX_IMAGE_SIZE_MB}MB
+              </HelperText>
               {/* แสดง preview รูปภาพเดิม ถ้ามี */}
               {(selectedTree?.images?.length ?? 0) > 0 && imageFiles.length === 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
