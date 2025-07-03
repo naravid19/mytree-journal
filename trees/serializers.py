@@ -39,6 +39,10 @@ class TreeSerializer(serializers.ModelSerializer):
     )
     sex = serializers.ChoiceField(choices=SEX_CHOICES, default="unknown")
 
+    MAX_FILE_SIZE = 20 * 1024 * 1024  # 20MB
+    IMAGE_TYPES = ["image/jpeg", "image/png", "image/jpg", "image/webp"]
+    DOCUMENT_TYPES = ["application/pdf", *IMAGE_TYPES]
+
     class Meta:
         model = Tree
         fields = [
@@ -71,3 +75,19 @@ class TreeSerializer(serializers.ModelSerializer):
             instance.images.add(img_obj)
         
         return instance
+
+    def validate_document(self, value):
+        if value:
+            if value.size > self.MAX_FILE_SIZE:
+                raise serializers.ValidationError("ขนาดเอกสารต้องไม่เกิน 20MB")
+            if value.content_type not in self.DOCUMENT_TYPES:
+                raise serializers.ValidationError("รองรับเฉพาะไฟล์ PDF, JPG, PNG หรือ WEBP")
+        return value
+
+    def validate_uploaded_images(self, value):
+        for img in value:
+            if img.size > self.MAX_FILE_SIZE:
+                raise serializers.ValidationError("ขนาดไฟล์ภาพต้องไม่เกิน 20MB")
+            if img.content_type not in self.IMAGE_TYPES:
+                raise serializers.ValidationError("รองรับเฉพาะไฟล์ภาพ JPG, PNG หรือ WEBP")
+        return value

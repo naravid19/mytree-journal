@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import {
   Table,
   TableBody,
@@ -27,11 +27,23 @@ import {
   Toast,
   ToastToggle,
 } from "flowbite-react";
-import { HiSearch, HiCheckCircle, HiXCircle, HiCollection, HiOutlineBeaker, HiMoon, HiSun } from "react-icons/hi";
+import { HiSearch, HiCheckCircle, HiXCircle, HiCollection, HiOutlineBeaker } from "react-icons/hi";
 import Image from "next/image";
 import Link from "next/link";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
+const ACCEPTED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/jpg",
+  "image/webp",
+];
+const ACCEPTED_DOCUMENT_TYPES = [
+  "application/pdf",
+  ...ACCEPTED_IMAGE_TYPES,
+];
 
 type Image = {
   id: number;
@@ -223,6 +235,38 @@ export default function Dashboard() {
     generation: "",
   });
   const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const handleImageFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    const valid: File[] = [];
+    for (const file of files) {
+      if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+        setFormError("รองรับเฉพาะไฟล์ JPG, PNG หรือ WEBP");
+        continue;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        setFormError("ขนาดไฟล์ต้องไม่เกิน 20MB");
+        continue;
+      }
+      valid.push(file);
+    }
+    if (valid.length === files.length) setFormError("");
+    setImageFiles(valid);
+  };
+  const handleDocumentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    if (file) {
+      if (!ACCEPTED_DOCUMENT_TYPES.includes(file.type)) {
+        setFormError("เอกสารต้องเป็น PDF หรือภาพ JPG, PNG, WEBP");
+        return;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        setFormError("ขนาดเอกสารต้องไม่เกิน 20MB");
+        return;
+      }
+    }
+    setFormError("");
+    setForm(f => ({ ...f, document: file }));
+  };
   const [submitting, setSubmitting] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -1149,7 +1193,9 @@ export default function Dashboard() {
                                     fallbackImg.src = img.thumbnail || img.image;
                                     fallbackImg.alt = `รูปที่ ${idx + 1}`;
                                     fallbackImg.className = target.className;
+                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                     fallbackImg.onclick = target.onclick as any;
+                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                     fallbackImg.onkeydown = target.onkeydown as any;
                                     target.parentNode?.appendChild(fallbackImg);
                                   }}
@@ -1601,8 +1647,8 @@ export default function Dashboard() {
             <div className="md:col-span-2">
               <Label className="mb-1 font-semibold">เอกสาร (PDF, JPG, PNG)</Label>
               <FileInput
-                accept=".pdf,.jpg,.jpeg,.png"
-                onChange={e => setForm(f => ({ ...f, document: e.target.files?.[0] || null }))}
+                accept=".pdf,.jpg,.jpeg,.png,.webp"
+                onChange={handleDocumentChange}
                 className="mt-1"
               />
               {/* แสดง preview เอกสารเดิม ถ้ามี */}
@@ -1653,7 +1699,8 @@ export default function Dashboard() {
               <Label className="mb-1 font-semibold">รูปภาพ (เลือกได้หลายไฟล์)</Label>
               <FileInput
                 multiple
-                onChange={e => setImageFiles(e.target.files ? Array.from(e.target.files) : [])}
+                accept="image/jpeg,image/png,image/jpg,image/webp"
+                onChange={handleImageFilesChange}
                 className="mt-1"
               />
               {/* แสดง preview รูปภาพเดิม ถ้ามี */}
@@ -1845,6 +1892,7 @@ export default function Dashboard() {
                         fallbackImg.src = selectedTree.images[galleryIndex].thumbnail || selectedTree.images[galleryIndex].image;
                         fallbackImg.alt = "";
                         fallbackImg.className = target.className;
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         fallbackImg.onclick = target.onclick as any;
                         target.parentNode?.appendChild(fallbackImg);
                       }}
@@ -2443,8 +2491,8 @@ export default function Dashboard() {
             <div className="md:col-span-2">
               <Label className="mb-1 font-semibold">เอกสาร (PDF, JPG, PNG)</Label>
               <FileInput
-                accept=".pdf,.jpg,.jpeg,.png"
-                onChange={e => setForm(f => ({ ...f, document: e.target.files?.[0] || null }))}
+                accept=".pdf,.jpg,.jpeg,.png,.webp"
+                onChange={handleDocumentChange}
                 className="mt-1"
               />
               {/* แสดง preview เอกสารเดิม ถ้ามี */}
@@ -2495,7 +2543,8 @@ export default function Dashboard() {
               <Label className="mb-1 font-semibold">รูปภาพ (เลือกได้หลายไฟล์)</Label>
               <FileInput
                 multiple
-                onChange={e => setImageFiles(e.target.files ? Array.from(e.target.files) : [])}
+                accept="image/jpeg,image/png,image/jpg,image/webp"
+                onChange={handleImageFilesChange}
                 className="mt-1"
               />
               {/* แสดง preview รูปภาพเดิม ถ้ามี */}
@@ -2832,6 +2881,7 @@ export default function Dashboard() {
                   fallbackImg.src = img.thumbnail || img.image;
                   fallbackImg.alt = `thumbnail ${idx + 1}`;
                   fallbackImg.className = target.className;
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   fallbackImg.onclick = target.onclick as any;
                   target.parentNode?.appendChild(fallbackImg);
                 }}
