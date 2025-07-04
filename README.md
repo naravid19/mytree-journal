@@ -338,7 +338,3 @@ Project Link: [https://github.com/example/mytree-journal](https://github.com/exa
 [FlowbiteReact-badge]: https://img.shields.io/badge/Flowbite%20React-0.11.8-0EA5E9?style=for-the-badge&logo=react
 [FlowbiteReact-url]: https://flowbite-react.com/
 [product-screenshot]: images/screenshot.png
-
----
-
-ถ้าต้องการรายละเอียดเชิงเทคนิคหรืออธิบายแต่ละไฟล์ย่อยเพิ่มเติม แจ้งได้เลยครับ!
