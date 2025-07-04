@@ -69,14 +69,15 @@ MyTree Journal คือระบบบันทึกข้อมูลต้�
 
 ### Built With
 
-- [Django 5.2.3][Django-url]
-- [DRF 3.16.0][DRF-url]
-- [Next.js 15][Next.js-url]
-- [React 19][React-url]
-- [Tailwind CSS 4.1][Tailwind-url]
-- [Flowbite 3.1.2][Flowbite-url]
-- [Flowbite React 0.11.8][FlowbiteReact-url]
-- [Nginx 1.25+][https://nginx.org/]
+- [![Django][Django-badge]][Django-url]
+- [![DRF][DRF-badge]][DRF-url]
+- [![Next.js][Next.js-badge]][Next.js-url]
+- [![React][React-badge]][React-url]
+- [![Tailwind CSS][Tailwind-badge]][Tailwind-url]
+- [![Flowbite][Flowbite-badge]][Flowbite-url]
+- [![Flowbite React][FlowbiteReact-badge]][FlowbiteReact-url]
+- [![Flowbite React][FlowbiteReact-badge]][FlowbiteReact-url]
+- [![Nginx][Nginx-badge]][Nginx-url]
 
 ---
 
@@ -313,16 +314,16 @@ Project Link: [https://github.com/example/mytree-journal](https://github.com/exa
 
 <!-- MARKDOWN LINKS & IMAGES -->
 
-[contributors-shield]: https://img.shields.io/github/contributors/example/mytree-journal.svg?style=for-the-badge
-[contributors-url]: https://github.com/example/mytree-journal/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/example/mytree-journal.svg?style=for-the-badge
-[forks-url]: https://github.com/example/mytree-journal/network/members
-[stars-shield]: https://img.shields.io/github/stars/example/mytree-journal.svg?style=for-the-badge
-[stars-url]: https://github.com/example/mytree-journal/stargazers
-[issues-shield]: https://img.shields.io/github/issues/example/mytree-journal.svg?style=for-the-badge
-[issues-url]: https://github.com/example/mytree-journal/issues
-[license-shield]: https://img.shields.io/github/license/example/mytree-journal.svg?style=for-the-badge
-[license-url]: https://github.com/example/mytree-journal/blob/main/LICENSE
+[contributors-shield]: https://img.shields.io/github/contributors/naravid19/mytree-journal.svg?style=for-the-badge
+[contributors-url]: https://github.com/naravid19/mytree-journal/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/naravid19/mytree-journal.svg?style=for-the-badge
+[forks-url]: https://github.com/naravid19/mytree-journal/network/members
+[stars-shield]: https://img.shields.io/github/stars/naravid19/mytree-journal.svg?style=for-the-badge
+[stars-url]: https://github.com/naravid19/mytree-journal/stargazers
+[issues-shield]: https://img.shields.io/github/issues/naravid19/mytree-journal.svg?style=for-the-badge
+[issues-url]: https://github.com/naravid19/mytree-journal/issues
+[license-shield]: https://img.shields.io/github/license/naravid19/mytree-journal.svg?style=for-the-badge
+[license-url]: https://github.com/naravid19/mytree-journal/blob/main/LICENSE
 [Django-badge]: https://img.shields.io/badge/Django-5.2.3-blue?style=for-the-badge&logo=django&logoColor=white
 [Django-url]: https://www.djangoproject.com/
 [DRF-badge]: https://img.shields.io/badge/DRF-3.16.0-blue?style=for-the-badge
@@ -337,4 +338,6 @@ Project Link: [https://github.com/example/mytree-journal](https://github.com/exa
 [Flowbite-url]: https://flowbite.com/
 [FlowbiteReact-badge]: https://img.shields.io/badge/Flowbite%20React-0.11.8-0EA5E9?style=for-the-badge&logo=react
 [FlowbiteReact-url]: https://flowbite-react.com/
+[Nginx-badge]: https://img.shields.io/badge/Nginx-%23009639?style=flat&logo=nginx&logoColor=white
+[Nginx-url]: https://nginx.org/
 [product-screenshot]: images/screenshot.png
