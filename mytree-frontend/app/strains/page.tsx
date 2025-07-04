@@ -44,6 +44,8 @@ export default function StrainsPage() {
   const [formError, setFormError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [formStrainName, setFormStrainName] = useState("");
+  const [strainDuplicateError, setStrainDuplicateError] = useState("");
 
   const addNameRef = useRef<HTMLInputElement>(null);
   const editNameRef = useRef<HTMLInputElement>(null);
@@ -71,6 +73,10 @@ export default function StrainsPage() {
   };
 
   const handleAddSubmit = async () => {
+    if (checkDuplicateStrainName(formStrainName, selectedStrain?.id)) {
+      setStrainDuplicateError("ชื่อสายพันธุ์นี้ถูกใช้แล้ว");
+      return;
+    }
     if (!formName.trim()) {
       setFormError("กรุณากรอกชื่อสายพันธุ์");
       return;
@@ -104,6 +110,10 @@ export default function StrainsPage() {
 
   const handleEditSubmit = async () => {
     if (!selectedStrain) return;
+    if (checkDuplicateStrainName(formStrainName, selectedStrain.id)) {
+      setStrainDuplicateError("ชื่อสายพันธุ์นี้ถูกใช้แล้ว");
+      return;
+    }
     if (!formName.trim()) {
       setFormError("กรุณากรอกชื่อสายพันธุ์");
       return;
@@ -150,12 +160,20 @@ export default function StrainsPage() {
     }
   };
 
+  function checkDuplicateStrainName(name: string, editingId?: number) {
+    if (!name.trim()) return "";
+    const found = strains.find(
+      (s) => s.name.trim() === name.trim() && s.id !== editingId
+    );
+    return found ? "ชื่อสายพันธุ์นี้ถูกใช้แล้ว" : "";
+  }
+
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 font-kanit">
       {/* ปุ่มเปลี่ยนโหมดแสง/มืด (Floating) */}
       <div className="fixed top-4 right-4 z-[20001]">
         <Tooltip content="เปลี่ยนโหมดแสง/มืด" placement="left">
-          <DarkThemeToggle className="rounded-full shadow-lg border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 hover:scale-110 transition-all w-12 h-12 flex items-center justify-center" />
+          <DarkThemeToggle className="flex justify-center items-center w-12 h-12 rounded-full border border-gray-200 shadow-lg transition-all dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 hover:scale-110" />
         </Tooltip>
       </div>
       <main className="px-2 py-6 mx-auto w-full max-w-3xl md:max-w-4xl">
@@ -167,7 +185,7 @@ export default function StrainsPage() {
             เพิ่มสายพันธุ์
           </Button>
         </div>
-        <Button color="gray" size="sm" className="flex items-center gap-2 mb-4" onClick={() => router.push('/')}> 
+        <Button color="gray" size="sm" className="flex gap-2 items-center mb-4" onClick={() => router.push('/')}> 
           <HiArrowLeft className="w-4 h-4" />
           กลับหน้ารายการต้นไม้
         </Button>
@@ -185,7 +203,7 @@ export default function StrainsPage() {
               </TableHead>
               <TableBody className="divide-y">
                 {strains.map((strain) => (
-                  <TableRow key={strain.id} className="bg-white dark:border-gray-700 dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-gray-800 transition">
+                  <TableRow key={strain.id} className="bg-white transition dark:border-gray-700 dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-gray-800">
                     <TableCell className="font-medium text-gray-900 whitespace-nowrap dark:text-white">
                       {strain.name}
                     </TableCell>
@@ -196,7 +214,7 @@ export default function StrainsPage() {
                           แก้ไข
                         </Button>
                         <Tooltip content="ลบ">
-                          <Button color="failure" size="xs" className="flex items-center gap-1 px-3 py-1 rounded-lg shadow hover:scale-105 transition" onClick={() => { setSelectedStrain(strain); setShowDeleteModal(true); }}>
+                          <Button color="failure" size="xs" className="flex gap-1 items-center px-3 py-1 rounded-lg shadow transition hover:scale-105" onClick={() => { setSelectedStrain(strain); setShowDeleteModal(true); }}>
                             <HiTrash className="w-4 h-4" />
                             <span className="sr-only">ลบ</span>
                           </Button>
@@ -219,10 +237,24 @@ export default function StrainsPage() {
               <span className="font-medium">{formError}</span>
             </Alert>
           )}
+          {strainDuplicateError && (
+            <Alert color="failure" className="mb-4">
+              <span className="font-medium">{strainDuplicateError}</span>
+            </Alert>
+          )}
           <div className="space-y-4">
             <div>
               <Label htmlFor="name">ชื่อสายพันธุ์</Label>
-              <TextInput ref={addNameRef} id="name" value={formName} onChange={(e) => setFormName(e.target.value)} aria-describedby={formError ? 'strainAddError' : undefined} />
+              <TextInput
+                ref={addNameRef}
+                id="name"
+                value={formName}
+                onChange={(e) => {
+                  setFormName(e.target.value);
+                  setStrainDuplicateError(checkDuplicateStrainName(e.target.value));
+                }}
+                aria-describedby={strainDuplicateError ? 'strainNameError' : undefined}
+              />
             </div>
             <div>
               <Label htmlFor="desc">รายละเอียด</Label>
@@ -231,7 +263,7 @@ export default function StrainsPage() {
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button onClick={handleAddSubmit}>บันทึก</Button>
+          <Button onClick={handleAddSubmit} disabled={!!strainDuplicateError || !formName.trim()}>บันทึก</Button>
           <Button color="gray" onClick={() => setShowAddModal(false)}>
             ยกเลิก
           </Button>
@@ -246,10 +278,24 @@ export default function StrainsPage() {
               <span className="font-medium">{formError}</span>
             </Alert>
           )}
+          {strainDuplicateError && (
+            <Alert color="failure" className="mb-4">
+              <span className="font-medium">{strainDuplicateError}</span>
+            </Alert>
+          )}
           <div className="space-y-4">
             <div>
               <Label htmlFor="name">ชื่อสายพันธุ์</Label>
-              <TextInput ref={editNameRef} id="nameEdit" value={formName} onChange={(e) => setFormName(e.target.value)} aria-describedby={formError ? 'strainEditError' : undefined} />
+              <TextInput
+                ref={editNameRef}
+                id="nameEdit"
+                value={formName}
+                onChange={(e) => {
+                  setFormName(e.target.value);
+                  setStrainDuplicateError(checkDuplicateStrainName(e.target.value, selectedStrain?.id));
+                }}
+                aria-describedby={strainDuplicateError ? 'strainNameError' : undefined}
+              />
             </div>
             <div>
               <Label htmlFor="descEdit">รายละเอียด</Label>
@@ -258,7 +304,7 @@ export default function StrainsPage() {
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button onClick={handleEditSubmit}>บันทึก</Button>
+          <Button onClick={handleEditSubmit} disabled={!!strainDuplicateError || !formName.trim()}>บันทึก</Button>
           <Button color="gray" onClick={() => setShowEditModal(false)}>
             ยกเลิก
           </Button>
