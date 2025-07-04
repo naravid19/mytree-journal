@@ -44,7 +44,6 @@ export default function StrainsPage() {
   const [formError, setFormError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [formStrainName, setFormStrainName] = useState("");
   const [strainDuplicateError, setStrainDuplicateError] = useState("");
 
   const addNameRef = useRef<HTMLInputElement>(null);
@@ -73,7 +72,7 @@ export default function StrainsPage() {
   };
 
   const handleAddSubmit = async () => {
-    if (checkDuplicateStrainName(formStrainName, selectedStrain?.id)) {
+    if (checkDuplicateStrainName(formName, selectedStrain?.id)) {
       setStrainDuplicateError("ชื่อสายพันธุ์นี้ถูกใช้แล้ว");
       return;
     }
@@ -110,7 +109,7 @@ export default function StrainsPage() {
 
   const handleEditSubmit = async () => {
     if (!selectedStrain) return;
-    if (checkDuplicateStrainName(formStrainName, selectedStrain.id)) {
+    if (checkDuplicateStrainName(formName, selectedStrain.id)) {
       setStrainDuplicateError("ชื่อสายพันธุ์นี้ถูกใช้แล้ว");
       return;
     }
