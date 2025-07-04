@@ -34,6 +34,15 @@ type Batch = {
   started_date: string;
 };
 
+function formatDateLocal(date: Date | null): string {
+  if (!date) return "";
+  // เอาวันที่แบบ local จริงๆ
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 export default function BatchesPage() {
   const [batches, setBatches] = useState<Batch[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -47,6 +56,7 @@ export default function BatchesPage() {
   const [formError, setFormError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [duplicateError, setDuplicateError] = useState("");
 
   const addCodeRef = useRef<HTMLInputElement>(null);
   const editCodeRef = useRef<HTMLInputElement>(null);
@@ -74,16 +84,26 @@ export default function BatchesPage() {
     setFormError("");
   };
 
+  const checkDuplicateBatchCode = (code: string, editingId?: number) => {
+    if (!code.trim()) return "";
+    const found = batches.find(
+      (b) => b.batch_code.trim() === code.trim() && b.id !== editingId
+    );
+    return found ? "รหัสชุดการปลูกนี้ถูกใช้แล้ว" : "";
+  };
+
   const handleAddSubmit = async () => {
     if (!formCode.trim()) {
       setFormError("กรุณากรอกรหัสชุดการปลูก");
       return;
     }
+    if (checkDuplicateBatchCode(formCode, selectedBatch?.id)) {
+      setDuplicateError("รหัสชุดการปลูกนี้ถูกใช้แล้ว");
+      return;
+    }
     setFormError("");
     try {
-      const started_date_str = formStartedDate
-        ? formStartedDate.toISOString().split('T')[0]
-        : "";
+      const started_date_str = formatDateLocal(formStartedDate);
       const res = await fetch(`${API_BASE}/api/batches/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -120,11 +140,13 @@ export default function BatchesPage() {
       setFormError("กรุณากรอกรหัสชุดการปลูก");
       return;
     }
+    if (checkDuplicateBatchCode(formCode, selectedBatch.id)) {
+      setDuplicateError("รหัสชุดการปลูกนี้ถูกใช้แล้ว");
+      return;
+    }
     setFormError("");
     try {
-      const started_date_str = formStartedDate
-        ? formStartedDate.toISOString().split('T')[0]
-        : "";
+      const started_date_str = formatDateLocal(formStartedDate);
       const res = await fetch(
         `${API_BASE}/api/batches/${selectedBatch.id}/`,
         {
@@ -174,7 +196,7 @@ export default function BatchesPage() {
       {/* ปุ่มเปลี่ยนโหมดแสง/มืด (Floating) */}
       <div className="fixed top-4 right-4 z-[20001]">
         <Tooltip content="เปลี่ยนโหมดแสง/มืด" placement="left">
-          <DarkThemeToggle className="rounded-full shadow-lg border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 hover:scale-110 transition-all w-12 h-12 flex items-center justify-center" />
+          <DarkThemeToggle className="flex justify-center items-center w-12 h-12 rounded-full border border-gray-200 shadow-lg transition-all dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 hover:scale-110" />
         </Tooltip>
       </div>
       <main className="px-2 py-6 mx-auto w-full max-w-3xl md:max-w-4xl">
@@ -186,7 +208,7 @@ export default function BatchesPage() {
             เพิ่มชุดการปลูก
           </Button>
         </div>
-        <Button color="gray" size="sm" className="flex items-center gap-2 mb-4" onClick={() => router.push('/')}>
+        <Button color="gray" size="sm" className="flex gap-2 items-center mb-4" onClick={() => router.push('/')}>
           <HiArrowLeft className="w-4 h-4" />
           กลับหน้ารายการต้นไม้
         </Button>
@@ -217,7 +239,7 @@ export default function BatchesPage() {
                           แก้ไข
                         </Button>
                         <Tooltip content="ลบ">
-                          <Button color="failure" size="xs" className="flex items-center gap-1 px-3 py-1 rounded-lg shadow hover:scale-105 transition" onClick={() => { setSelectedBatch(batch); setShowDeleteModal(true); }}>
+                          <Button color="failure" size="xs" className="flex gap-1 items-center px-3 py-1 rounded-lg shadow transition hover:scale-105" onClick={() => { setSelectedBatch(batch); setShowDeleteModal(true); }}>
                             <HiTrash className="w-4 h-4" />
                             <span className="sr-only">ลบ</span>
                           </Button>
@@ -240,10 +262,24 @@ export default function BatchesPage() {
               <span className="font-medium">{formError}</span>
             </Alert>
           )}
+          {duplicateError && (
+            <Alert id="batchAddError" color="failure" className="mb-4">
+              <span className="font-medium">{duplicateError}</span>
+            </Alert>
+          )}
           <div className="space-y-4">
             <div>
               <Label htmlFor="code">รหัสชุดการปลูก</Label>
-              <TextInput ref={addCodeRef} id="code" value={formCode} onChange={(e) => setFormCode(e.target.value)} aria-describedby={formError ? 'batchAddError' : undefined} />
+              <TextInput
+                ref={addCodeRef}
+                id="code"
+                value={formCode}
+                onChange={(e) => {
+                  setFormCode(e.target.value);
+                  setDuplicateError(checkDuplicateBatchCode(e.target.value));
+                }}
+                aria-describedby={formError || duplicateError ? 'batchAddError' : undefined}
+              />
             </div>
             <div>
               <Label htmlFor="desc">รายละเอียด</Label>
@@ -256,7 +292,7 @@ export default function BatchesPage() {
                 value={formStartedDate}
                 onChange={(date: Date | null) => setFormStartedDate(date)}
                 placeholder="เลือกวันที่เริ่มต้น"
-                className="mt-1 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700 text-base font-kanit transition-all"
+                className="mt-1 w-full text-base rounded-lg border border-gray-300 transition-all focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700 font-kanit"
                 aria-label="เลือกวันที่เริ่มต้นชุดการปลูก"
                 required
                 disabled={false}
@@ -265,36 +301,27 @@ export default function BatchesPage() {
                 autoHide={true}
                 theme={{
                   popup: {
-                    base: "z-[10000] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl p-4",
-                    title: "text-lg font-bold text-gray-800 dark:text-gray-100",
-                    selectors: {
-                      base: "flex items-center justify-between gap-2 mt-2",
-                      button: {
-                        base: "rounded-lg p-1 text-gray-700 dark:text-gray-200 hover:bg-blue-100 dark:hover:bg-gray-700 transition",
-                        prev: "mr-2",
-                        next: "ml-2",
-                        view: "font-bold text-blue-700 dark:text-blue-300"
-                      }
+                    header: {
+                      base: "z-[10000] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl p-4 flex items-center justify-between gap-2 mt-2"
+                    },
+                    view: {
+                      base: ""
+                    },
+                    footer: {
+                      base: ""
                     }
-                  },
-                  input: {
-                    base: "w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700 text-base font-kanit transition-all",
-                    icon: "text-gray-400 dark:text-gray-500"
                   }
-                }}
-                popperProps={{
-                  strategy: "fixed"
                 }}
               />
               {/* error state */}
               {formError && (
-                <span className="text-xs text-red-500 mt-1 block">{formError}</span>
+                <span className="block mt-1 text-xs text-red-500">{formError}</span>
               )}
             </div>
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button onClick={handleAddSubmit}>บันทึก</Button>
+          <Button onClick={handleAddSubmit} disabled={!!duplicateError || !!formError}>บันทึก</Button>
           <Button color="gray" onClick={() => setShowAddModal(false)}>
             ยกเลิก
           </Button>
@@ -309,10 +336,24 @@ export default function BatchesPage() {
               <span className="font-medium">{formError}</span>
             </Alert>
           )}
+          {duplicateError && (
+            <Alert id="batchEditError" color="failure" className="mb-4">
+              <span className="font-medium">{duplicateError}</span>
+            </Alert>
+          )}
           <div className="space-y-4">
             <div>
               <Label htmlFor="codeEdit">รหัสชุดการปลูก</Label>
-              <TextInput ref={editCodeRef} id="codeEdit" value={formCode} onChange={(e) => setFormCode(e.target.value)} aria-describedby={formError ? 'batchEditError' : undefined} />
+              <TextInput
+                ref={editCodeRef}
+                id="codeEdit"
+                value={formCode}
+                onChange={(e) => {
+                  setFormCode(e.target.value);
+                  setDuplicateError(checkDuplicateBatchCode(e.target.value, selectedBatch?.id));
+                }}
+                aria-describedby={formError || duplicateError ? 'batchEditError' : undefined}
+              />
             </div>
             <div>
               <Label htmlFor="descEdit">รายละเอียด</Label>
@@ -329,7 +370,7 @@ export default function BatchesPage() {
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button onClick={handleEditSubmit}>บันทึก</Button>
+          <Button onClick={handleEditSubmit} disabled={!!duplicateError || !!formError}>บันทึก</Button>
           <Button color="gray" onClick={() => setShowEditModal(false)}>
             ยกเลิก
           </Button>
