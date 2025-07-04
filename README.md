@@ -79,7 +79,7 @@ MyTree Journal คือระบบบันทึกข้อมูลต้�
 - [![Flowbite React][FlowbiteReact-badge]][FlowbiteReact-url]
 - [![Nginx][Nginx-badge]][Nginx-url]
 
----
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Project Structure
 
@@ -118,7 +118,7 @@ mytree-journal/
 └── README.md               # This file
 ```
 
----
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Getting Started
 
@@ -177,7 +177,7 @@ cd mytree-frontend
 npm run dev
 ```
 
----
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Usage
 
@@ -203,7 +203,7 @@ npm run dev
 - รองรับ Dark Mode (ปุ่ม toggle มุมขวาบน)
 - ฟอร์มมี validation ทั้ง client/server (แจ้งเตือนซ้ำ, ข้อมูลไม่ครบ ฯลฯ)
 
----
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Nginx Deployment
 
@@ -267,7 +267,7 @@ server {
 - รองรับ static/media, API, และ SSR frontend ใน server เดียว
 - สามารถเพิ่ม HTTPS config ได้ตามต้องการ
 
----
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Roadmap
 
@@ -279,7 +279,7 @@ server {
 
 ดูรายการเต็มที่ [open issues](https://github.com/example/mytree-journal/issues)
 
----
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Contributing
 
@@ -291,19 +291,19 @@ Contributions make the open-source community amazing! Any contribution is **grea
 4. Push to the branch (`git push origin feature/FeatureName`)
 5. Open a Pull Request
 
----
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## License
 
 Distributed under the MIT License. See [`LICENSE`](LICENSE) for details.
 
----
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Contact
 
 Project Link: [https://github.com/example/mytree-journal](https://github.com/example/mytree-journal)
 
----
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Acknowledgments
 
@@ -338,6 +338,6 @@ Project Link: [https://github.com/example/mytree-journal](https://github.com/exa
 [Flowbite-url]: https://flowbite.com/
 [FlowbiteReact-badge]: https://img.shields.io/badge/Flowbite%20React-0.11.8-0EA5E9?style=for-the-badge&logo=react
 [FlowbiteReact-url]: https://flowbite-react.com/
-[Nginx-badge]: https://img.shields.io/badge/Nginx-%23009639?style=flat&logo=nginx&logoColor=white
+[Nginx-badge]: https://img.shields.io/badge/nginx-1.29.0-009639?style=for-the-badge&logo=nginx&logoColor=white
 [Nginx-url]: https://nginx.org/
 [product-screenshot]: images/screenshot.png
