@@ -8,7 +8,9 @@ from .models import Tree, Image, Strain, Batch
 from .serializers import TreeSerializer, ImageSerializer, StrainSerializer, BatchSerializer
 
 class TreeViewSet(viewsets.ModelViewSet):
-    queryset = Tree.objects.all().order_by('-created_at')
+    queryset = Tree.objects.all().select_related(
+        'strain', 'batch', 'parent_male', 'parent_female', 'clone_source', 'pollinated_by'
+    ).prefetch_related('images').order_by('-created_at')
     serializer_class = TreeSerializer
 
     @action(detail=True, methods=['delete'])
