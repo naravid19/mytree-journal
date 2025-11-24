@@ -30,6 +30,11 @@ import {
 import { HiSearch, HiCheckCircle, HiXCircle, HiCollection, HiOutlineBeaker } from "react-icons/hi";
 import Image from "next/image";
 import Link from "next/link";
+import { Tree, Strain, Batch } from "./types";
+import { calcAge, getSortValue, getFileName, getFileType, getSexBadgeColor, sexLabel } from "./utils";
+import { TreeCard } from "../components/TreeCard";
+import { TreeTable } from "../components/TreeTable";
+import { FilterBar } from "../components/FilterBar";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -45,58 +50,7 @@ const ACCEPTED_DOCUMENT_TYPES = [
   ...ACCEPTED_IMAGE_TYPES,
 ];
 
-type Image = {
-  id: number;
-  image: string;
-  thumbnail: string;
-  uploaded_at: string;
-};
 
-type Strain = {
-  id: number;
-  name: string;
-  description: string;
-};
-
-type Batch = {
-  id: number;
-  batch_code: string;
-  description: string;
-  started_date: string;
-};
-
-type Tree = {
-  id: number;
-  nickname: string;
-  strain: Strain | null;
-  variety: string;
-  batch: Batch | null;
-  location: string;
-  status: string;
-  created_at: string;
-  updated_at: string;
-  germination_date: string;
-  plant_date: string;
-  growth_stage: string;
-  harvest_date: string;
-  sex: string;
-  genotype: string;
-  phenotype: string;
-  parent_male: number | null;
-  parent_female: number | null;
-  clone_source: number | null;
-  pollination_date: string;
-  pollinated_by: number | null;
-  yield_amount: number | null;
-  flower_quality: string;
-  seed_count: number | null;
-  seed_harvest_date: string;
-  disease_notes: string;
-  document: string | null;
-  images: Image[];
-  notes: string;
-  generation?: string;
-};
 
 function useDebouncedSearch(callback: (s: string) => void, delay = 300) {
   const timer = useRef<NodeJS.Timeout | null>(null);
@@ -282,6 +236,7 @@ export default function Dashboard() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
   const [search, setSearch] = useState("");
+  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
   const debouncedSearch = useDebouncedSearch((val: string) => {
     setSearch(val);
     setCurrentPage(1);
@@ -902,372 +857,116 @@ export default function Dashboard() {
             </Tooltip>
           </div>
         </div>
-        {/* Search Bar ด้านบน Table */}
-        <div className="flex justify-end mb-4">
-          <TextInput
-            id="search"
-            type="search"
-            icon={HiSearch}
-            value={search}
-            onChange={e => debouncedSearch(e.target.value)}
-            placeholder="ค้นหาต้นไม้..."
-            className="w-full max-w-xs"
-            autoComplete="off"
-            aria-label="ค้นหาต้นไม้"
-            disabled={loading}
-            aria-disabled={loading}
-          />
-        </div>
-        <div className="flex gap-3 items-center mb-4">
-          <span className="text-sm text-gray-700 dark:text-gray-200">เลือก {selectedIds.length} รายการ</span>
-          {selectedIds.length > 0 && (
-            <>
-              <Button color="red" onClick={() => setShowBulkDeleteModal(true)} disabled={submitting || loading} aria-disabled={submitting || loading}>
-                {submitting ? "กำลังลบ..." : "ลบรายการที่เลือก"}
-              </Button>
-              <Button color="gray" onClick={() => setSelectedIds([])} disabled={submitting || loading} aria-disabled={submitting || loading}>
-                ยกเลิกเลือก
-              </Button>
-            </>
-          )}
-        </div>
-        {/* TABLE */}
-        <Card className="overflow-visible pb-6 w-full rounded-2xl border border-gray-200 shadow-2xl bg-white/70 dark:bg-gray-900/80 dark:border-gray-700">
-          <div
-            className="overflow-x-auto rounded-xl border border-gray-100 dark:border-gray-700 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent"
-            aria-busy={loading}
-            role="status"
-          >
-          <Table hoverable className="min-w-[650px] text-base md:text-lg font-kanit dark:bg-gray-900/80 dark:text-gray-100">
-              <TableHead className="bg-green-50 dark:bg-gray-800/80 dark:text-gray-100">
-                <TableRow>
-                  <TableHeadCell>
-                    <input
-                      type="checkbox"
-                      checked={pagedTrees.length > 0 && pagedTrees.every(tree => selectedIds.includes(tree.id))}
-                      onChange={e => {
-                        if (e.target.checked) {
-                          setSelectedIds([
-                            ...selectedIds,
-                            ...pagedTrees.filter(tree => !selectedIds.includes(tree.id)).map(tree => tree.id),
-                          ]);
-                        } else {
-                          setSelectedIds(selectedIds.filter(id => !pagedTrees.map(tree => tree.id).includes(id)));
-                        }
-                      }}
-                      aria-label="เลือกต้นไม้ทั้งหมดในหน้านี้"
-                    />
-                  </TableHeadCell>
-                  <TableHeadCell
-                    className="text-sm font-bold cursor-pointer select-none md:text-base lg:text-lg dark:text-gray-100"
-                    onClick={() => {
-                      if (sortKey === "strain") {
-                        setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                      } else {
-                        setSortKey("strain");
-                        setSortOrder("asc");
-                      }
-                    }}
-                  >
-                    สายพันธุ์ {sortKey === "strain" && (sortOrder === "asc" ? "▲" : "▼")}
-                  </TableHeadCell>
-                  <TableHeadCell
-                    className="text-sm font-bold cursor-pointer select-none md:text-base lg:text-lg"
-                    onClick={() => {
-                      if (sortKey === "variety") {
-                        setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                      } else {
-                        setSortKey("variety");
-                        setSortOrder("asc");
-                      }
-                    }}
-                  >
-                    พันธุ์ {sortKey === "variety" && (sortOrder === "asc" ? "▲" : "▼")}
-                  </TableHeadCell>
-                  <TableHeadCell
-                    className="text-sm font-bold cursor-pointer select-none md:text-base lg:text-lg"
-                    onClick={() => {
-                      if (sortKey === "nickname") {
-                        setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                      } else {
-                        setSortKey("nickname");
-                        setSortOrder("asc");
-                      }
-                    }}
-                  >
-                    ชื่อเล่น {sortKey === "nickname" && (sortOrder === "asc" ? "▲" : "▼")}
-                  </TableHeadCell>
-                  <TableHeadCell
-                    className="text-sm font-bold cursor-pointer select-none md:text-base lg:text-lg"
-                    onClick={() => {
-                      if (sortKey === "sex") {
-                        setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                      } else {
-                        setSortKey("sex");
-                        setSortOrder("asc");
-                      }
-                    }}
-                  >
-                    เพศ {sortKey === "sex" && (sortOrder === "asc" ? "▲" : "▼")}
-                  </TableHeadCell>
-                  <TableHeadCell
-                    className="text-sm font-bold cursor-pointer select-none md:text-base lg:text-lg"
-                    onClick={() => {
-                      if (sortKey === "plant_date") {
-                        setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                      } else {
-                        setSortKey("plant_date");
-                        setSortOrder("asc");
-                      }
-                    }}
-                  >
-                    <div className="flex gap-2 items-center">
-                      <span className="flex gap-1 items-center">
-                        <svg className="w-4 h-4 text-green-700 dark:text-green-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z"/>
-                        </svg>
-                        <span>
-                          อายุ {sortKey === "plant_date" && (sortOrder === "asc" ? "▲" : "▼")}
-                        </span>
-                      </span>
-                      <ButtonGroup>
-                        <Button
-                          color={ageUnit === "day" ? "success" : "gray"}
-                          aria-pressed={ageUnit === "day"}
-                          size="xs"
-                          onClick={e => { e.stopPropagation(); setAgeUnit("day"); }}
-                          className={`transition-all font-kanit ${ageUnit === "day" ? "font-bold" : ""}`}
-                        >วัน</Button>
-                        <Button
-                          color={ageUnit === "month" ? "success" : "gray"}
-                          aria-pressed={ageUnit === "month"}
-                          size="xs"
-                          onClick={e => { e.stopPropagation(); setAgeUnit("month"); }}
-                          className={`transition-all font-kanit ${ageUnit === "month" ? "font-bold" : ""}`}
-                        >เดือน</Button>
-                        <Button
-                          color={ageUnit === "year" ? "success" : "gray"}
-                          aria-pressed={ageUnit === "year"}
-                          size="xs"
-                          onClick={e => { e.stopPropagation(); setAgeUnit("year"); }}
-                          className={`transition-all font-kanit ${ageUnit === "year" ? "font-bold" : ""}`}
-                        >ปี</Button>
-                      </ButtonGroup>
-                    </div>
-                  </TableHeadCell>
-                  <TableHeadCell
-                    className="text-sm font-bold cursor-pointer select-none md:text-base lg:text-lg"
-                    onClick={() => {
-                      if (sortKey === "status") {
-                        setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                      } else {
-                        setSortKey("status");
-                        setSortOrder("asc");
-                      }
-                    }}
-                  >
-                    สถานะ {sortKey === "status" && (sortOrder === "asc" ? "▲" : "▼")}
-                  </TableHeadCell>
-                  <TableHeadCell className="text-sm font-bold md:text-base lg:text-lg">รูป</TableHeadCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {loading ? (
-                  Array.from({ length: 3 }).map((_, i) => <SkeletonRow key={i} />)
-                ) : pagedTrees.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={9} className="py-6 text-center text-gray-400">
-                      <span className="block text-lg font-medium md:text-2xl">🌱 ยังไม่มีข้อมูลต้นไม้</span>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  pagedTrees.map((tree) => (
-                    <TableRow
-                      key={tree.id}
-                      className="transition cursor-pointer hover:bg-green-50/40 dark:hover:bg-gray-700/40"
-                      onClick={() => handleShowDetail(tree)}
-                    >
-                      <TableCell>
-                        <input
-                          type="checkbox"
-                          checked={selectedIds.includes(tree.id)}
-                          onChange={e => {
-                            if (e.target.checked) {
-                              setSelectedIds(prev => [...prev, tree.id]);
-                            } else {
-                              setSelectedIds(prev => prev.filter(id => id !== tree.id));
-                            }
-                          }}
-                          onClick={e => e.stopPropagation()}
-                          aria-label={`เลือกต้นไม้: ${tree.nickname}`}
-                        />
-                      </TableCell>
-                      <TableCell className="dark:text-gray-200">{tree.strain?.name || "-"}</TableCell>
-                      <TableCell>{tree.variety}</TableCell>
-                      <TableCell>{tree.nickname}</TableCell>
-                      <TableCell>
-                        <Badge
-                          color={
-                            tree.sex === 'male' ? 'info'
-                            : tree.sex === 'female' ? 'pink'
-                            : tree.sex === 'bisexual' ? 'success'
-                            : tree.sex === 'mixed' ? 'warning'
-                            : tree.sex === 'monoecious' ? 'blue'
-                            : 'gray'
-                          }
-                          className={`
-                            ${tree.sex === 'female' ? 'dark:bg-pink-400 dark:text-black' : ''}
-                            ${tree.sex === 'male' ? 'dark:bg-sky-400 dark:text-black' : ''}
-                            ${tree.sex === 'bisexual' ? 'dark:bg-green-400 dark:text-black' : ''}
-                            ${tree.sex === 'mixed' ? 'dark:bg-yellow-300 dark:text-black' : ''}
-                            ${tree.sex === 'monoecious' ? 'dark:bg-blue-400 dark:text-black' : ''}
-                            ${tree.sex === 'unknown' ? 'dark:bg-gray-600 dark:text-white' : ''}
-                          `}
-                        >
-                          {{
-                            "bisexual": "สมบูรณ์เพศ",
-                            "male": "ตัวผู้",
-                            "female": "ตัวเมีย",
-                            "monoecious": "แยกเพศในต้นเดียวกัน",
-                            "mixed": "ผสมหลายเพศ",
-                            "unknown": "ไม่ระบุ/ไม่แน่ใจ"
-                          }[tree.sex] || "-"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="font-mono text-center">{calcAge(tree, ageUnit)}</TableCell>
-                      <TableCell>
-                        <Badge
-                          color={
-                            tree.status === 'มีชีวิต' ? 'success'
-                            : tree.status === 'ตายแล้ว' ? 'failure'
-                            : tree.status === 'ถูกย้าย' ? 'warning'
-                            : 'gray'
-                          }
-                          className={
-                            tree.status === 'มีชีวิต'
-                              ? 'dark:bg-green-600 dark:text-white'
-                              : tree.status === 'ตายแล้ว'
-                              ? 'dark:bg-red-600 dark:text-white'
-                              : tree.status === 'ถูกย้าย'
-                              ? 'dark:bg-yellow-400 dark:text-black'
-                              : 'dark:bg-gray-700 dark:text-white'
-                          }
-                        >
-                          {tree.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {tree.images && tree.images.length > 0 ? (
-                          <div className="flex gap-1">
-                            {tree.images.slice(0, 2).map((img, idx) => (
-                              <div key={img.id} className="relative group">
-                                <Image
-                                  src={img.thumbnail || img.image}
-                                  alt={`รูปที่ ${idx + 1}`}
-                                  width={40}
-                                  height={40}
-                                  className="object-cover w-10 h-10 rounded-xl border-2 border-gray-300 shadow transition-all hover:scale-105 dark:border-gray-700"
-                                  tabIndex={0}
-                                  loading="lazy"
-                                  unoptimized={true}
-                                  aria-label={`ดูรูปที่ ${idx + 1}`}
-                                  onClick={e => {
-                                    e.stopPropagation();
-                                    setSelectedTree(tree);
-                                    setLightboxIndex(idx);
-                                    setShowImageLightbox(true);
-                                  }}
-                                  onKeyDown={e => {
-                                    if (e.key === 'Enter' || e.key === ' ') {
-                                      e.preventDefault();
-                                      setSelectedTree(tree);
-                                      setLightboxIndex(idx);
-                                      setShowImageLightbox(true);
-                                    }
-                                  }}
-                                  onError={(e) => {
-                                    // Fallback to img tag if Next.js Image fails
-                                    const target = e.target as HTMLImageElement;
-                                    target.style.display = 'none';
-                                    const fallbackImg = document.createElement('img');
-                                    fallbackImg.src = img.thumbnail || img.image;
-                                    fallbackImg.alt = `รูปที่ ${idx + 1}`;
-                                    fallbackImg.className = target.className;
-                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                    fallbackImg.onclick = target.onclick as any;
-                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                    fallbackImg.onkeydown = target.onkeydown as any;
-                                    target.parentNode?.appendChild(fallbackImg);
-                                  }}
-                                />
-                                {/* ปุ่มดูภาพต้นฉบับ */}
-                                  <a
-                                    href={img.image}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center bg-blue-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity text-xs hover:bg-blue-600"
-                                    onClick={e => e.stopPropagation()}
-                                    aria-label="ดูภาพต้นฉบับ"
-                                  >
-                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                    </svg>
-                                  </a>
-                              </div>
-                            ))}
-                          </div>
-                          ) : (
-                          <span className="text-xs text-gray-400 dark:text-gray-500">ไม่มีรูป</span>
-                          )}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
-          {totalPages > 1 && (
-            <nav aria-label="Page navigation" className="flex justify-center mt-6 w-full">
-              <ul className="flex items-center -space-x-px h-10 text-base">
-                <li>
-                  <button
-                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                    disabled={currentPage === 1}
-                    className="flex justify-center items-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 ms-0 border-e-0 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <span className="sr-only">Previous</span>
-                    <svg className="w-3 h-3 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                      <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 1 1 5l4 4"/>
-                    </svg>
-                  </button>
-                </li>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                  <li key={page}>
+        {/* Filter Bar & View Toggle */}
+        <FilterBar
+          search={search}
+          onSearchChange={debouncedSearch}
+          selectedCount={selectedIds.length}
+          onBulkDelete={() => setShowBulkDeleteModal(true)}
+          onClearSelection={() => setSelectedIds([])}
+          loading={loading}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+        />
+
+        {/* CONTENT */}
+        {viewMode === "table" ? (
+          <Card className="overflow-visible pb-6 w-full rounded-2xl border border-gray-200 shadow-2xl bg-white/70 dark:bg-gray-900/80 dark:border-gray-700">
+            <TreeTable
+              trees={pagedTrees}
+              loading={loading}
+              selectedIds={selectedIds}
+              onSelect={(id, checked) => {
+                if (checked) setSelectedIds(prev => [...prev, id]);
+                else setSelectedIds(prev => prev.filter(pid => pid !== id));
+              }}
+              onSelectAll={(checked, ids) => {
+                if (checked) setSelectedIds(prev => [...new Set([...prev, ...ids])]);
+                else setSelectedIds(prev => prev.filter(id => !ids.includes(id)));
+              }}
+              sortKey={sortKey}
+              sortOrder={sortOrder}
+              onSort={(key) => {
+                if (sortKey === key) {
+                  setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                } else {
+                  setSortKey(key as any);
+                  setSortOrder("asc");
+                }
+              }}
+              onRowClick={handleShowDetail}
+              ageUnit={ageUnit}
+              setAgeUnit={setAgeUnit}
+              calcAge={calcAge}
+            />
+            {totalPages > 1 && (
+              <nav aria-label="Page navigation" className="flex justify-center mt-6 w-full">
+                <ul className="flex items-center -space-x-px h-10 text-base">
+                  <li>
                     <button
-                      onClick={() => setCurrentPage(page)}
-                      aria-current={currentPage === page ? "page" : undefined}
-                      className={`flex items-center justify-center px-4 h-10 leading-tight border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white ${currentPage === page ? 'z-10 text-blue-600 border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:bg-gray-700 dark:text-white' : 'bg-white'}`}
+                      onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                      disabled={currentPage === 1}
+                      className="flex justify-center items-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 ms-0 border-e-0 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {page}
+                      <span className="sr-only">Previous</span>
+                      <svg className="w-3 h-3 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 1 1 5l4 4"/>
+                      </svg>
                     </button>
                   </li>
-                ))}
-                <li>
-                  <button
-                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                    disabled={currentPage === totalPages}
-                    className="flex justify-center items-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <span className="sr-only">Next</span>
-                    <svg className="w-3 h-3 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                      <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 9 4-4-4-4"/>
-                    </svg>
-                  </button>
-                </li>
-              </ul>
-            </nav>
-          )}
-        </Card>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                    <li key={page}>
+                      <button
+                        onClick={() => setCurrentPage(page)}
+                        aria-current={currentPage === page ? "page" : undefined}
+                        className={`flex items-center justify-center px-4 h-10 leading-tight border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white ${currentPage === page ? 'z-10 text-blue-600 border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:bg-gray-700 dark:text-white' : 'bg-white'}`}
+                      >
+                        {page}
+                      </button>
+                    </li>
+                  ))}
+                  <li>
+                    <button
+                      onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                      disabled={currentPage === totalPages}
+                      className="flex justify-center items-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <span className="sr-only">Next</span>
+                      <svg className="w-3 h-3 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 9 4-4-4-4"/>
+                      </svg>
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            )}
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {loading ? (
+              Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="h-64 bg-gray-200 rounded-2xl animate-pulse dark:bg-gray-700" />
+              ))
+            ) : pagedTrees.length === 0 ? (
+              <div className="col-span-full py-12 text-center text-gray-400">
+                <span className="text-xl font-medium">🌱 ยังไม่มีข้อมูลต้นไม้</span>
+              </div>
+            ) : (
+              pagedTrees.map((tree) => (
+                <TreeCard
+                  key={tree.id}
+                  tree={tree}
+                  onEdit={handleShowEdit} // Note: handleShowEdit currently uses selectedTree state, need to fix
+                  onDelete={(t) => {
+                    setSelectedTree(t);
+                    setShowDeleteModal(true);
+                  }}
+                  onView={handleShowDetail}
+                />
+              ))
+            )}
+          </div>
+        )}
         <div className="flex justify-end mt-6">
           <Button
             size="lg"
@@ -2927,73 +2626,4 @@ export default function Dashboard() {
   );
 }
 
-function calcAge(tree: Tree, unit: "day" | "month" | "year") {
-  if (!tree.plant_date) return "-";
-  const plant = new Date(tree.plant_date);
-  if (isNaN(plant.getTime())) return "-";
-  let endDate = new Date();
-  if (tree.status === "ตายแล้ว" && tree.updated_at) {
-    endDate = new Date(tree.updated_at);
-  }
-  if (plant > endDate) return "-";
-  const diffTime = endDate.getTime() - plant.getTime();
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-  if (unit === "day") return diffDays;
-  if (unit === "month") return Math.floor(diffDays / 30);
-  if (unit === "year") return Math.floor(diffDays / 365);
-  return diffDays;
-}
 
-function getSortValue(
-  tree: Tree,
-  key: "strain" | "nickname" | "plant_date" | "variety" | "sex" | "status"
-) {
-  if (key === "strain") return tree.strain?.name?.toLowerCase() || "";
-  if (key === "nickname") return tree.nickname?.toLowerCase() || "";
-  if (key === "plant_date") return tree.plant_date || "";
-  if (key === "variety") return tree.variety?.toLowerCase() || "";
-  if (key === "sex") return tree.sex?.toLowerCase() || "";
-  if (key === "status") return tree.status?.toLowerCase() || "";
-  return "";
-}
-
-function getFileName(url: string) {
-  try {
-    return decodeURIComponent(url.split("/").pop() || "");
-  } catch {
-    return url;
-  }
-}
-
-function getFileType(url: string) {
-  const ext = url.split(".").pop()?.toLowerCase();
-  if (ext === "pdf") return "PDF";
-  if (["jpg", "jpeg", "png"].includes(ext || "")) return "Image";
-  return "File";
-}
-
-// Helper: แปลง sex เป็นสี badge (Flowbite)
-function getSexBadgeColor(sex: string): string {
-  switch (sex) {
-    case 'male': return 'info'; // ฟ้า
-    case 'female': return 'pink'; // ชมพู
-    case 'bisexual': return 'success'; // เขียว
-    case 'mixed': return 'warning'; // เหลือง
-    case 'monoecious': return 'blue'; // น้ำเงิน
-    case 'unknown': return 'gray'; // เทา
-    default: return 'gray';
-  }
-}
-
-// Helper: แปลง sex เป็น label ภาษาไทย
-function sexLabel(sex: string): string {
-  switch (sex) {
-    case 'bisexual': return 'สมบูรณ์เพศ';
-    case 'male': return 'ตัวผู้';
-    case 'female': return 'ตัวเมีย';
-    case 'monoecious': return 'แยกเพศในต้นเดียวกัน';
-    case 'mixed': return 'ผสมหลายเพศ';
-    case 'unknown': return 'ไม่ระบุ/ไม่แน่ใจ';
-    default: return '-';
-  }
-}
