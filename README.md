@@ -1,6 +1,7 @@
 <a id="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -55,17 +56,21 @@
 
 MyTree Journal คือระบบบันทึกข้อมูลต้นไม้แบบ full-stack ที่ออกแบบมาให้ใช้งานง่าย ขยายต่อได้ เหมาะกับงานวิจัย งานอดิเรก หรือการปลูกในระดับเล็กถึงกลาง  
 **ประกอบด้วย:**
+
 - **Backend:** Django REST API (ดูโค้ดใน `trees/`)
 - **Frontend:** Next.js + React 19 (ดูโค้ดใน `mytree-frontend/app/`)
 - **UI:** Tailwind CSS 4 + Flowbite React (รองรับ Dark Mode)
 - **Media:** รองรับการแนบรูปภาพและเอกสาร
 
 **ฟีเจอร์หลัก**
+
 - จัดการสายพันธุ์ (Strains), ชุดการปลูก (Batches), ต้นไม้ (Trees)
 - แนบไฟล์ภาพ/เอกสารกับแต่ละต้นไม้
 - UI ทันสมัย รองรับมือถือ
 - ระบบแจ้งเตือน, Modal, Table, Datepicker ฯลฯ (Flowbite React)
+- ระบบแจ้งเตือน, Modal, Table, Datepicker ฯลฯ (Flowbite React)
 - รองรับการขยาย schema และฟีเจอร์ใหม่
+- **New:** รองรับการแสดงผลแบบ Grid View และ List View
 
 ### Built With
 
@@ -75,7 +80,6 @@ MyTree Journal คือระบบบันทึกข้อมูลต้�
 - [![React][React-badge]][React-url]
 - [![Tailwind CSS][Tailwind-badge]][Tailwind-url]
 - [![Flowbite][Flowbite-badge]][Flowbite-url]
-- [![Flowbite React][FlowbiteReact-badge]][FlowbiteReact-url]
 - [![Flowbite React][FlowbiteReact-badge]][FlowbiteReact-url]
 - [![Nginx][Nginx-badge]][Nginx-url]
 
@@ -132,12 +136,14 @@ mytree-journal/
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/example/mytree-journal.git
    cd mytree-journal
    ```
 
 2. **Install Python dependencies**
+
    ```bash
    pip install -r requirements.txt
    ```
@@ -152,11 +158,13 @@ mytree-journal/
 ### Environment Variables
 
 สร้างไฟล์ `.env` ที่ root:
+
 ```ini
 PUBLIC_DOMAIN=api.example.com
 ```
 
 สร้าง `mytree-frontend/.env.local`:
+
 ```ini
 NEXT_PUBLIC_FRONTEND_ORIGIN=https://www.example.com
 NEXT_PUBLIC_API_BASE_URL=https://api.example.com
@@ -166,12 +174,14 @@ NEXT_PUBLIC_MEDIA_DOMAIN=api.example.com
 ### Running Locally
 
 **Backend:**
+
 ```bash
 python manage.py migrate
 python manage.py runserver
 ```
 
 **Frontend:**
+
 ```bash
 cd mytree-frontend
 npm run dev
@@ -188,16 +198,19 @@ npm run dev
 - API docs อัตโนมัติที่ `/api/` (หลังรัน backend)
 
 **โครงสร้างข้อมูลหลัก**
+
 - **Strain:** ชื่อสายพันธุ์, รายละเอียด
 - **Batch:** รหัสชุด, รายละเอียด, วันที่เริ่มต้น
 - **Tree:** ข้อมูลต้นไม้, ความสัมพันธ์กับ Strain/Batch, รูปภาพ, เอกสาร, หมายเหตุ ฯลฯ
 
 **Media**
+
 - อัปโหลดไฟล์ภาพ (JPEG, PNG, WebP) และเอกสาร (PDF)
 - ไฟล์จะถูกเก็บใน `media/tree_images/` และ `media/tree_documents/`
 - มีระบบสร้าง thumbnail อัตโนมัติ
 
 **UI/UX**
+
 - ใช้ Flowbite React (Modal, Table, Alert, Datepicker, Toast, Tooltip ฯลฯ)
 - Tailwind CSS 4.1 (ดู config ที่ `tailwind.config.js`)
 - รองรับ Dark Mode (ปุ่ม toggle มุมขวาบน)
@@ -263,6 +276,7 @@ server {
 ```
 
 **หมายเหตุ**
+
 - เปลี่ยน `/path/to/mytree-journal/` เป็น path จริงบน server
 - รองรับ static/media, API, และ SSR frontend ใน server เดียว
 - สามารถเพิ่ม HTTPS config ได้ตามต้องการ
@@ -271,11 +285,11 @@ server {
 
 ## Roadmap
 
-* [ ] Authentication support
-* [ ] Filtering & advanced search
-* [ ] Mobile layout enhancements
-* [ ] Improved batch/strain management
-* [ ] Multi-user collaboration
+- [ ] Authentication support
+- [ ] Filtering & advanced search
+- [ ] Mobile layout enhancements
+- [ ] Improved batch/strain management
+- [ ] Multi-user collaboration
 
 ดูรายการเต็มที่ [open issues](https://github.com/example/mytree-journal/issues)
 
@@ -307,10 +321,10 @@ Project Link: [https://github.com/example/mytree-journal](https://github.com/exa
 
 ## Acknowledgments
 
-* [Tailwind CSS](https://tailwindcss.com/)
-* [Flowbite](https://flowbite.com/)
-* [Flowbite React](https://flowbite-react.com/)
-* [Best-README-Template](https://github.com/othneildrew/Best-README-Template)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Flowbite](https://flowbite.com/)
+- [Flowbite React](https://flowbite-react.com/)
+- [Best-README-Template](https://github.com/othneildrew/Best-README-Template)
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
@@ -329,15 +343,15 @@ Project Link: [https://github.com/example/mytree-journal](https://github.com/exa
 [Django-url]: https://www.djangoproject.com/
 [DRF-badge]: https://img.shields.io/badge/DRF-3.16.0-blue?style=for-the-badge
 [DRF-url]: https://www.django-rest-framework.org/
-[Next.js-badge]: https://img.shields.io/badge/Next.js-15.3.4-black?style=for-the-badge&logo=next.js
+[Next.js-badge]: https://img.shields.io/badge/Next.js-16.0.3-black?style=for-the-badge&logo=next.js
 [Next.js-url]: https://nextjs.org/
-[React-badge]: https://img.shields.io/badge/React-19.1.0-61DAFB?style=for-the-badge&logo=react&logoColor=white
+[React-badge]: https://img.shields.io/badge/React-19.2.0-61DAFB?style=for-the-badge&logo=react&logoColor=white
 [React-url]: https://react.dev/
-[Tailwind-badge]: https://img.shields.io/badge/Tailwind%20CSS-4.1.10-06B6D4?style=for-the-badge&logo=tailwindcss
+[Tailwind-badge]: https://img.shields.io/badge/Tailwind%20CSS-4.1.17-06B6D4?style=for-the-badge&logo=tailwindcss
 [Tailwind-url]: https://tailwindcss.com/
 [Flowbite-badge]: https://img.shields.io/badge/Flowbite-3.1.2-38BDF8?style=for-the-badge&logo=flowbite
 [Flowbite-url]: https://flowbite.com/
-[FlowbiteReact-badge]: https://img.shields.io/badge/Flowbite%20React-0.11.8-0EA5E9?style=for-the-badge&logo=react
+[FlowbiteReact-badge]: https://img.shields.io/badge/Flowbite%20React-0.12.10-0EA5E9?style=for-the-badge&logo=react
 [FlowbiteReact-url]: https://flowbite-react.com/
 [Nginx-badge]: https://img.shields.io/badge/nginx-1.29.0-009639?style=for-the-badge&logo=nginx&logoColor=white
 [Nginx-url]: https://nginx.org/
