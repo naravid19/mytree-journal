@@ -187,3 +187,7 @@ docs/
 nginx/
 .env
 mytree-frontend/.env.local
+
+
+# Images
+mytree-journal/media/tree_images
