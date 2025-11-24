@@ -433,35 +433,37 @@ export default function Dashboard() {
     }
   }, [form, imageFiles, todayStr]);
 
-  const handleShowEdit = () => {
-    if (!selectedTree) return;
+  const handleShowEdit = (tree?: Tree) => {
+    const target = tree || selectedTree;
+    if (!target) return;
+    setSelectedTree(target);
     setForm({
-      strainUuid: selectedTree.strain?.id?.toString() || "",
-      batch_id: selectedTree.batch?.id || null,
-      variety: selectedTree.variety || "",
-      nickname: selectedTree.nickname || "",
-      plant_date: selectedTree.plant_date || "",
-      germination_date: selectedTree.germination_date || "",
-      growth_stage: selectedTree.growth_stage || "",
-      harvest_date: selectedTree.harvest_date || "",
-      location: selectedTree.location || "",
-      phenotype: selectedTree.phenotype || "",
-      status: selectedTree.status || "",
-      sex: selectedTree.sex || "unknown",
-      genotype: selectedTree.genotype || "",
-      parent_male: selectedTree.parent_male,
-      parent_female: selectedTree.parent_female,
-      clone_source: selectedTree.clone_source,
-      pollinated_by: selectedTree.pollinated_by,
-      pollination_date: selectedTree.pollination_date || "",
-      yield_amount: selectedTree.yield_amount,
-      flower_quality: selectedTree.flower_quality || "",
-      seed_count: selectedTree.seed_count,
-      seed_harvest_date: selectedTree.seed_harvest_date || "",
-      disease_notes: selectedTree.disease_notes || "",
+      strainUuid: target.strain?.id?.toString() || "",
+      batch_id: target.batch?.id || null,
+      variety: target.variety || "",
+      nickname: target.nickname || "",
+      plant_date: target.plant_date || "",
+      germination_date: target.germination_date || "",
+      growth_stage: target.growth_stage || "",
+      harvest_date: target.harvest_date || "",
+      location: target.location || "",
+      phenotype: target.phenotype || "",
+      status: target.status || "",
+      sex: target.sex || "unknown",
+      genotype: target.genotype || "",
+      parent_male: target.parent_male,
+      parent_female: target.parent_female,
+      clone_source: target.clone_source,
+      pollinated_by: target.pollinated_by,
+      pollination_date: target.pollination_date || "",
+      yield_amount: target.yield_amount,
+      flower_quality: target.flower_quality || "",
+      seed_count: target.seed_count,
+      seed_harvest_date: target.seed_harvest_date || "",
+      disease_notes: target.disease_notes || "",
       document: null as File | null,
-      notes: selectedTree.notes || "",
-      generation: selectedTree.generation || "",
+      notes: target.notes || "",
+      generation: target.generation || "",
     });
     setImageFiles([]);
     setShowEditModal(true);
@@ -1823,7 +1825,7 @@ export default function Dashboard() {
         </ModalBody>
         <ModalFooter className="justify-between rounded-b-2xl border-t border-gray-200 transition-colors duration-300 bg-slate-50 dark:bg-gray-900/95 dark:border-gray-700">
           <div className="flex gap-2">
-            <Button color="blue" className="transition-colors duration-200 font-kanit dark:bg-blue-700 dark:text-white dark:hover:bg-blue-800 focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-700" onClick={handleShowEdit}>
+            <Button color="blue" className="transition-colors duration-200 font-kanit dark:bg-blue-700 dark:text-white dark:hover:bg-blue-800 focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-700" onClick={() => handleShowEdit()}>
               แก้ไข
             </Button>
             <Button color="red" className="transition-colors duration-200 font-kanit dark:bg-red-700 dark:text-white dark:hover:bg-red-800 focus:ring-2 focus:ring-red-400 dark:focus:ring-red-700" onClick={handleShowDelete}>
