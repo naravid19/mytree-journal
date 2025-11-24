@@ -1,0 +1,1 @@
+id,nickname,strain_id,variety,generation,batch_id,location,status,created_at,updated_at,germination_date,plant_date,growth_stage,harvest_date,sex,genotype,phenotype,parent_male_id,parent_female_id,clone_source_id,pollination_date,pollinated_by_id,yield_amount,flower_quality,seed_count,seed_harvest_date,disease_notes,document,notes
