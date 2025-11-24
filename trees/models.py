@@ -69,6 +69,17 @@ class Image(models.Model):
         img = PilImage.open(self.image.path)
         img = ImageOps.exif_transpose(img)
         img.thumbnail(size, PilImage.LANCZOS)
+        
+        # Convert RGBA to RGB before saving as JPEG
+        if img.mode == 'RGBA':
+            # Create a white background
+            rgb_img = PilImage.new('RGB', img.size, (255, 255, 255))
+            rgb_img.paste(img, mask=img.split()[3])  # Use alpha channel as mask
+            img = rgb_img
+        elif img.mode not in ('RGB', 'L'):
+            # Convert other modes to RGB
+            img = img.convert('RGB')
+        
         thumb_io = BytesIO()
         img.save(thumb_io, format='JPEG', quality=85)
         base, ext = os.path.splitext(os.path.basename(self.image.name))
