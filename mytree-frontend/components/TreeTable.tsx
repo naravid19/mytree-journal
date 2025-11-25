@@ -51,7 +51,7 @@ export const TreeTable: React.FC<TreeTableProps> = ({
     <div className="overflow-hidden rounded-xl border border-gray-200 shadow-lg dark:border-gray-700">
       <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent">
         <Table hoverable className="min-w-[800px] text-base font-kanit dark:bg-gray-800 dark:text-gray-100">
-          <TableHead className="bg-gradient-to-r from-green-50 to-blue-50 text-gray-700 uppercase dark:from-gray-700 dark:to-gray-800 dark:text-gray-200">
+          <TableHead className="bg-linear-to-r from-green-50 to-blue-50 text-gray-700 uppercase dark:from-gray-700 dark:to-gray-800 dark:text-gray-200">
             <TableRow className="border-b border-gray-200 dark:border-gray-600">
               <TableHeadCell className="p-4 w-4">
                 <input
