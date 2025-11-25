@@ -23,8 +23,8 @@ class TreeSerializer(serializers.ModelSerializer):
         queryset=Strain.objects.all(),
         source='strain',
         write_only=True,
-        required=False,
-        allow_null=True
+        required=True,
+        allow_null=False
     )
     batch = BatchSerializer(read_only=True)
     batch_id = serializers.PrimaryKeyRelatedField(
@@ -38,6 +38,8 @@ class TreeSerializer(serializers.ModelSerializer):
         child=serializers.ImageField(), write_only=True, required=False
     )
     sex = serializers.ChoiceField(choices=SEX_CHOICES, default="unknown")
+    parent_male_data = serializers.SerializerMethodField()
+    parent_female_data = serializers.SerializerMethodField()
 
     MAX_FILE_SIZE = 20 * 1024 * 1024  # 20MB
     IMAGE_TYPES = ["image/jpeg", "image/png", "image/jpg", "image/webp"]
@@ -49,10 +51,21 @@ class TreeSerializer(serializers.ModelSerializer):
             'id', 'nickname', 'strain', 'strain_id', 'variety', 'batch', 'batch_id', 'location', 'status',
             'created_at', 'updated_at', 'germination_date', 'plant_date', 'growth_stage',
             'harvest_date', 'sex', 'genotype', 'phenotype', 'parent_male', 'parent_female',
+            'parent_male_data', 'parent_female_data',
             'clone_source', 'pollination_date', 'pollinated_by', 'yield_amount',
             'flower_quality', 'seed_count', 'seed_harvest_date', 'disease_notes',
             'document', 'images', 'notes', 'uploaded_images', 'generation'
         ]
+
+    def get_parent_male_data(self, obj):
+        if obj.parent_male:
+            return {'id': obj.parent_male.id, 'nickname': obj.parent_male.nickname}
+        return None
+
+    def get_parent_female_data(self, obj):
+        if obj.parent_female:
+            return {'id': obj.parent_female.id, 'nickname': obj.parent_female.nickname}
+        return None
 
     def create(self, validated_data):
         uploaded_images = validated_data.pop('uploaded_images', [])
