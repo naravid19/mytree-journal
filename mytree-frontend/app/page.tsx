@@ -590,7 +590,10 @@ export default function Dashboard() {
     }
   }, [form, imageFiles, selectedTree, todayStr]);
 
-  const handleShowDelete = () => setShowDeleteModal(true);
+  const handleShowDelete = (tree?: Tree) => {
+    if (tree) setSelectedTree(tree);
+    setShowDeleteModal(true);
+  };
 
   const handleDelete = async () => {
     if (!selectedTree) return;
@@ -1795,7 +1798,7 @@ export default function Dashboard() {
             <Button color="blue" className="transition-colors duration-200 font-kanit dark:bg-blue-700 dark:text-white dark:hover:bg-blue-800 focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-700" onClick={() => handleShowEdit()}>
               แก้ไข
             </Button>
-            <Button color="red" className="transition-colors duration-200 font-kanit dark:bg-red-700 dark:text-white dark:hover:bg-red-800 focus:ring-2 focus:ring-red-400 dark:focus:ring-red-700" onClick={handleShowDelete}>
+            <Button color="red" className="transition-colors duration-200 font-kanit dark:bg-red-700 dark:text-white dark:hover:bg-red-800 focus:ring-2 focus:ring-red-400 dark:focus:ring-red-700" onClick={() => handleShowDelete()}>
               ลบ
             </Button>
           </div>
