@@ -45,13 +45,37 @@ class Batch(models.Model):
     def __str__(self):
         return self.batch_code
 
+def tree_image_path(instance, filename):
+    """Generate dynamic path for tree images based on nickname and ID"""
+    if instance.tree:
+        nickname = instance.tree.nickname
+        # Sanitize nickname
+        safe_nickname = "".join([c for c in nickname if c.isalnum() or c in (' ', '_', '-')]).strip()
+        # Use ID to ensure uniqueness
+        folder_name = f"{safe_nickname}_{instance.tree.id}"
+        return f'tree_images/{folder_name}/{filename}'
+    return f'tree_images/unassigned/{filename}'
+
+def tree_thumbnail_path(instance, filename):
+    """Generate dynamic path for tree thumbnails"""
+    if instance.tree:
+        nickname = instance.tree.nickname
+        safe_nickname = "".join([c for c in nickname if c.isalnum() or c in (' ', '_', '-')]).strip()
+        folder_name = f"{safe_nickname}_{instance.tree.id}"
+        return f'tree_images/{folder_name}/thumbnails/{filename}'
+    return f'tree_images/unassigned/thumbnails/{filename}'
+
 class Image(models.Model):
+    tree = models.ForeignKey(
+        'Tree', on_delete=models.CASCADE, related_name='images_set', null=True, blank=True,
+        help_text="ต้นไม้ที่เป็นเจ้าของรูปภาพนี้"
+    )
     image = models.ImageField(
-        upload_to='tree_images/',
+        upload_to=tree_image_path,
         help_text="ไฟล์รูปภาพของต้นไม้"
     )
     thumbnail = models.ImageField(
-        upload_to='tree_images/thumbnails/',
+        upload_to=tree_thumbnail_path,
         null=True, blank=True, editable=False,
         help_text="รูปขนาดย่อ (สร้างอัตโนมัติหลังอัปโหลด)"
     )
