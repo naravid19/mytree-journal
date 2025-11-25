@@ -71,7 +71,7 @@ class TreeSerializer(serializers.ModelSerializer):
         uploaded_images = validated_data.pop('uploaded_images', [])
         tree = Tree.objects.create(**validated_data)
         for img_file in uploaded_images:
-            img_obj = Image.objects.create(image=img_file)
+            img_obj = Image.objects.create(image=img_file, tree=tree)
             tree.images.add(img_obj)
         return tree
 
@@ -84,7 +84,7 @@ class TreeSerializer(serializers.ModelSerializer):
         
         # เพิ่มรูปภาพใหม่
         for img_file in uploaded_images:
-            img_obj = Image.objects.create(image=img_file)
+            img_obj = Image.objects.create(image=img_file, tree=instance)
             instance.images.add(img_obj)
         
         return instance
