@@ -3,6 +3,8 @@ from PIL import Image as PilImage, ImageOps
 from io import BytesIO
 from django.core.files.base import ContentFile
 import os
+import shutil
+from django.conf import settings
 
 SEX_CHOICES = [
     ("bisexual", "สมบูรณ์เพศ"),
@@ -87,7 +89,14 @@ class Image(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         if self.image and not self.thumbnail:
-            self.make_thumbnail()
+            # Check if file exists before trying to open it
+            if os.path.exists(self.image.path):
+                try:
+                    self.make_thumbnail()
+                except Exception as e:
+                    print(f"Warning: Failed to create thumbnail for image {self.id}: {e}")
+            else:
+                print(f"Warning: Image file not found at {self.image.path}, skipping thumbnail generation.")
 
     def make_thumbnail(self, size=(400, 300)):
         img = PilImage.open(self.image.path)
@@ -260,12 +269,59 @@ class Tree(models.Model):
         strain_name = self.strain.name if self.strain else 'Unknown Strain'
         return f"{self.nickname or 'Tree'} ({strain_name})"
 
+    def save(self, *args, **kwargs):
+        # Check if this is an update (instance already exists)
+        if self.pk:
+            try:
+                old_instance = Tree.objects.get(pk=self.pk)
+                if old_instance.nickname != self.nickname:
+                    # Nickname changed, rename folder
+                    old_safe_nickname = "".join([c for c in old_instance.nickname if c.isalnum() or c in (' ', '_', '-')]).strip()
+                    new_safe_nickname = "".join([c for c in self.nickname if c.isalnum() or c in (' ', '_', '-')]).strip()
+                    
+                    old_folder_name = f"{old_safe_nickname}_{self.id}"
+                    new_folder_name = f"{new_safe_nickname}_{self.id}"
+                    
+                    old_path = os.path.join(settings.MEDIA_ROOT, 'tree_images', old_folder_name)
+                    new_path = os.path.join(settings.MEDIA_ROOT, 'tree_images', new_folder_name)
+                    
+                    if os.path.exists(old_path):
+                        # Rename directory
+                        os.rename(old_path, new_path)
+                        
+                        # Update paths in Image objects
+                        for img in self.images_set.all():
+                            if img.image:
+                                img.image.name = img.image.name.replace(f'tree_images/{old_folder_name}/', f'tree_images/{new_folder_name}/')
+                            if img.thumbnail:
+                                img.thumbnail.name = img.thumbnail.name.replace(f'tree_images/{old_folder_name}/', f'tree_images/{new_folder_name}/')
+                            img.save()
+            except Tree.DoesNotExist:
+                pass
+        
+        super().save(*args, **kwargs)
+
     def delete(self, *args, **kwargs):
-        # ลบไฟล์ document จริง
+        # Get folder path before deleting
+        safe_nickname = "".join([c for c in self.nickname if c.isalnum() or c in (' ', '_', '-')]).strip()
+        folder_name = f"{safe_nickname}_{self.id}"
+        folder_path = os.path.join(settings.MEDIA_ROOT, 'tree_images', folder_name)
+
+        # Delete document file
         if self.document:
             if os.path.isfile(self.document.path):
                 os.remove(self.document.path)
-        # ลบรูปภาพและไฟล์จริงทั้งหมด
-        for image in self.images.all():
+        
+        # Delete all related images (this will delete files if Image.delete handles it, 
+        # but we are deleting the whole folder so we might just want to delete objects)
+        # Delete all related images (both M2M and FK)
+        # Use a set to avoid duplicates if images are in both
+        images_to_delete = set(self.images.all()) | set(self.images_set.all())
+        for image in images_to_delete:
             image.delete()
+            
         super().delete(*args, **kwargs)
+        
+        # Delete the tree's image folder
+        if os.path.exists(folder_path):
+            shutil.rmtree(folder_path)
