@@ -37,6 +37,8 @@ export type Tree = {
   phenotype: string;
   parent_male: number | null;
   parent_female: number | null;
+  parent_male_data?: { id: number; nickname: string } | null;
+  parent_female_data?: { id: number; nickname: string } | null;
   clone_source: number | null;
   pollination_date: string;
   pollinated_by: number | null;
