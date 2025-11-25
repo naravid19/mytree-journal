@@ -1680,14 +1680,14 @@ export default function Dashboard() {
                   <h3 className="pb-2 mb-3 text-lg font-bold text-green-700 border-b border-green-200 dark:text-green-300 dark:border-green-700">
                   📋 ข้อมูลพื้นฐาน
                   </h3>
-                  <div className="grid grid-cols-1 gap-y-2 gap-x-8 w-full text-base sm:text-lg md:grid-cols-2">
-                    <div className="dark:text-gray-200"><span className="font-medium">สายพันธุ์: </span>{selectedTree.strain?.name || "-"}</div>
-                    <div className="dark:text-gray-200"><span className="font-medium">พันธุ์: </span>{selectedTree.variety || "-"}</div>
-                    <div className="dark:text-gray-200"><span className="font-medium">ชุดการปลูก: </span>{selectedTree.batch?.batch_code || "-"}</div>
-                    <div className="dark:text-gray-200"><span className="font-medium">รุ่น: </span>{selectedTree.generation || "-"}</div>
-                    <div className="dark:text-gray-200"><span className="font-medium">ชื่อเล่น: </span>{selectedTree.nickname || "-"}</div>
-                    <div className="dark:text-gray-200"><span className="font-medium">สถานที่ปลูก: </span>{selectedTree.location || "-"}</div>
-                    <div className="flex gap-2 items-center dark:text-gray-200"><span className="font-medium">สถานะ: </span>
+                  <div className="grid grid-cols-1 gap-y-3 gap-x-8 w-full text-base sm:text-lg md:grid-cols-2">
+                    <div className="text-gray-900 dark:text-gray-100"><span className="font-medium text-gray-500 dark:text-gray-400">สายพันธุ์: </span>{selectedTree.strain?.name || "-"}</div>
+                    <div className="text-gray-900 dark:text-gray-100"><span className="font-medium text-gray-500 dark:text-gray-400">พันธุ์: </span>{selectedTree.variety || "-"}</div>
+                    <div className="text-gray-900 dark:text-gray-100"><span className="font-medium text-gray-500 dark:text-gray-400">ชุดการปลูก: </span>{selectedTree.batch?.batch_code || "-"}</div>
+                    <div className="text-gray-900 dark:text-gray-100"><span className="font-medium text-gray-500 dark:text-gray-400">รุ่น: </span>{selectedTree.generation || "-"}</div>
+                    <div className="text-gray-900 dark:text-gray-100"><span className="font-medium text-gray-500 dark:text-gray-400">ชื่อเล่น: </span>{selectedTree.nickname || "-"}</div>
+                    <div className="text-gray-900 dark:text-gray-100"><span className="font-medium text-gray-500 dark:text-gray-400">สถานที่ปลูก: </span>{selectedTree.location || "-"}</div>
+                    <div className="flex gap-2 items-center text-gray-900 dark:text-gray-100"><span className="font-medium text-gray-500 dark:text-gray-400">สถานะ: </span>
                       <Badge
                         color={
                           selectedTree.status === 'มีชีวิต' ? 'success'
@@ -1708,8 +1708,8 @@ export default function Dashboard() {
                         {selectedTree.status}
                       </Badge>
                 </div>
-                    <div className="dark:text-gray-200"><span className="font-medium">วันที่ปลูก: </span>{selectedTree.plant_date || "-"}</div>
-                    <div className="dark:text-gray-200"><span className="font-medium">อายุ: </span>{calcAge(selectedTree, ageUnit)} {ageUnit === "day" ? "วัน" : ageUnit === "month" ? "เดือน" : "ปี"}</div>
+                    <div className="text-gray-900 dark:text-gray-100"><span className="font-medium text-gray-500 dark:text-gray-400">วันที่ปลูก: </span>{selectedTree.plant_date || "-"}</div>
+                    <div className="text-gray-900 dark:text-gray-100"><span className="font-medium text-gray-500 dark:text-gray-400">อายุ: </span>{calcAge(selectedTree, ageUnit)} {ageUnit === "day" ? "วัน" : ageUnit === "month" ? "เดือน" : "ปี"}</div>
                 </div>
                 </div>
 
@@ -1718,10 +1718,10 @@ export default function Dashboard() {
                 <h3 className="pb-2 mb-3 text-lg font-bold text-blue-700 border-b border-blue-200 dark:text-blue-300 dark:border-blue-700">
                   🌱 ข้อมูลการปลูก
                 </h3>
-                <div className="grid grid-cols-1 gap-y-2 gap-x-8 w-full text-base sm:text-lg md:grid-cols-2">
-                  <div className="dark:text-gray-200"><span className="font-semibold">วันที่เมล็ดเริ่มงอก: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.germination_date || "-"}</span></div>
-                  <div className="dark:text-gray-200"><span className="font-semibold">ระยะการเจริญเติบโต: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.growth_stage || "-"}</span></div>
-                  <div className="dark:text-gray-200"><span className="font-semibold">วันที่เก็บเกี่ยว: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.harvest_date || "-"}</span></div>
+                <div className="grid grid-cols-1 gap-y-3 gap-x-8 w-full text-base sm:text-lg md:grid-cols-2">
+                  <div className="text-gray-900 dark:text-gray-100"><span className="font-semibold text-gray-500 dark:text-gray-400">วันที่เมล็ดเริ่มงอก: </span>{selectedTree.germination_date || "-"}</div>
+                  <div className="text-gray-900 dark:text-gray-100"><span className="font-semibold text-gray-500 dark:text-gray-400">ระยะการเจริญเติบโต: </span>{selectedTree.growth_stage || "-"}</div>
+                  <div className="text-gray-900 dark:text-gray-100"><span className="font-semibold text-gray-500 dark:text-gray-400">วันที่เก็บเกี่ยว: </span>{selectedTree.harvest_date || "-"}</div>
                 </div>
                 </div>
 
@@ -1730,19 +1730,19 @@ export default function Dashboard() {
                 <h3 className="pb-2 mb-3 text-lg font-bold text-purple-700 border-b border-purple-200 dark:text-purple-300 dark:border-purple-700">
                   🧬 ข้อมูลพันธุกรรม
                 </h3>
-                <div className="grid grid-cols-1 gap-y-2 gap-x-8 w-full text-base sm:text-lg md:grid-cols-2">
-                  <div className="flex gap-2 items-center dark:text-gray-200"><span className="font-semibold">เพศ: </span>
+                <div className="grid grid-cols-1 gap-y-3 gap-x-8 w-full text-base sm:text-lg md:grid-cols-2">
+                  <div className="flex gap-2 items-center text-gray-900 dark:text-gray-100"><span className="font-semibold text-gray-500 dark:text-gray-400">เพศ: </span>
                     <Badge color={getSexBadgeColor(selectedTree.sex)} className="text-xs capitalize dark:bg-blue-400 dark:text-black">
                       {sexLabel(selectedTree.sex)}
                     </Badge>
                 </div>
-                  <div className="dark:text-gray-200"><span className="font-semibold">ข้อมูลพันธุกรรม: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.genotype || "-"}</span></div>
-                  <div className="md:col-span-2 dark:text-gray-200"><span className="font-semibold">ลักษณะเด่น: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.phenotype || "-"}</span></div>
-                  <div className="dark:text-gray-200"><span className="font-semibold">ต้นพ่อพันธุ์: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.parent_male || "-"}</span></div>
-                  <div className="dark:text-gray-200"><span className="font-semibold">ต้นแม่พันธุ์: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.parent_female || "-"}</span></div>
-                  <div className="dark:text-gray-200"><span className="font-semibold">ต้นแม่ที่ใช้ปักชำ: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.clone_source || "-"}</span></div>
-                  <div className="dark:text-gray-200"><span className="font-semibold">ต้นที่ใช้ผสมเกสร: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.pollinated_by || "-"}</span></div>
-                  <div className="dark:text-gray-200"><span className="font-semibold">วันที่ผสมเกสร: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.pollination_date || "-"}</span></div>
+                  <div className="text-gray-900 dark:text-gray-100"><span className="font-semibold text-gray-500 dark:text-gray-400">ข้อมูลพันธุกรรม: </span>{selectedTree.genotype || "-"}</div>
+                  <div className="md:col-span-2 text-gray-900 dark:text-gray-100"><span className="font-semibold text-gray-500 dark:text-gray-400">ลักษณะเด่น: </span>{selectedTree.phenotype || "-"}</div>
+                  <div className="text-gray-900 dark:text-gray-100"><span className="font-semibold text-gray-500 dark:text-gray-400">ต้นพ่อพันธุ์: </span>{selectedTree.parent_male || "-"}</div>
+                  <div className="text-gray-900 dark:text-gray-100"><span className="font-semibold text-gray-500 dark:text-gray-400">ต้นแม่พันธุ์: </span>{selectedTree.parent_female || "-"}</div>
+                  <div className="text-gray-900 dark:text-gray-100"><span className="font-semibold text-gray-500 dark:text-gray-400">ต้นแม่ที่ใช้ปักชำ: </span>{selectedTree.clone_source || "-"}</div>
+                  <div className="text-gray-900 dark:text-gray-100"><span className="font-semibold text-gray-500 dark:text-gray-400">ต้นที่ใช้ผสมเกสร: </span>{selectedTree.pollinated_by || "-"}</div>
+                  <div className="text-gray-900 dark:text-gray-100"><span className="font-semibold text-gray-500 dark:text-gray-400">วันที่ผสมเกสร: </span>{selectedTree.pollination_date || "-"}</div>
                 </div>
                 </div>
 
@@ -1751,11 +1751,11 @@ export default function Dashboard() {
                 <h3 className="flex gap-2 items-center pb-2 mb-3 text-lg font-bold text-amber-700 border-b border-amber-200 dark:text-amber-300 dark:border-amber-700">
                   <span>🌸</span> ข้อมูลผลผลิต
                 </h3>
-                <div className="grid grid-cols-1 gap-y-2 gap-x-8 w-full text-base sm:text-lg md:grid-cols-2">
-                  <div className="dark:text-gray-200"><span className="font-semibold">ปริมาณผลผลิต (กรัม): </span><span className="text-white/90 dark:text-gray-100">{selectedTree.yield_amount ?? "-"}</span></div>
-                  <div className="dark:text-gray-200"><span className="font-semibold">จำนวนเมล็ด: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.seed_count ?? "-"}</span></div>
-                  <div className="dark:text-gray-200"><span className="font-semibold">วันที่เก็บเมล็ด: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.seed_harvest_date || "-"}</span></div>
-                  <div className="md:col-span-2 dark:text-gray-200"><span className="font-semibold">คุณภาพ/ลักษณะของดอก: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.flower_quality || "-"}</span></div>
+                <div className="grid grid-cols-1 gap-y-3 gap-x-8 w-full text-base sm:text-lg md:grid-cols-2">
+                  <div className="text-gray-900 dark:text-gray-100"><span className="font-semibold text-gray-500 dark:text-gray-400">ปริมาณผลผลิต (กรัม): </span>{selectedTree.yield_amount ?? "-"}</div>
+                  <div className="text-gray-900 dark:text-gray-100"><span className="font-semibold text-gray-500 dark:text-gray-400">จำนวนเมล็ด: </span>{selectedTree.seed_count ?? "-"}</div>
+                  <div className="text-gray-900 dark:text-gray-100"><span className="font-semibold text-gray-500 dark:text-gray-400">วันที่เก็บเมล็ด: </span>{selectedTree.seed_harvest_date || "-"}</div>
+                  <div className="md:col-span-2 text-gray-900 dark:text-gray-100"><span className="font-semibold text-gray-500 dark:text-gray-400">คุณภาพ/ลักษณะของดอก: </span>{selectedTree.flower_quality || "-"}</div>
                 </div>
               </div>
 
@@ -1764,8 +1764,8 @@ export default function Dashboard() {
                 <h3 className="flex gap-2 items-center pb-2 mb-3 text-lg font-bold text-cyan-700 border-b border-cyan-200 dark:text-cyan-300 dark:border-cyan-700">
                   <span>🩺</span> ข้อมูลสุขภาพ
                 </h3>
-                <div className="w-full text-base sm:text-lg dark:text-gray-200">
-                  <span className="font-semibold">โรค/ศัตรูพืช: </span><span className="text-white/90 dark:text-gray-100">{selectedTree.disease_notes || "-"}</span>
+                <div className="w-full text-base sm:text-lg text-gray-900 dark:text-gray-100">
+                  <span className="font-semibold text-gray-500 dark:text-gray-400">โรค/ศัตรูพืช: </span>{selectedTree.disease_notes || "-"}
                 </div>
               </div>
 
@@ -1774,9 +1774,9 @@ export default function Dashboard() {
                 <h3 className="pb-2 mb-3 text-lg font-bold text-gray-700 border-b border-gray-200 dark:text-gray-300 dark:border-gray-700">
                   📎 ไฟล์และหมายเหตุ
                 </h3>
-                <div className="grid grid-cols-1 gap-y-2 gap-x-8 w-full text-base sm:text-lg md:grid-cols-2">
-                  <div className="flex gap-2 items-center dark:text-gray-200">
-                    <span className="font-medium">เอกสาร:</span>
+                <div className="grid grid-cols-1 gap-y-3 gap-x-8 w-full text-base sm:text-lg md:grid-cols-2">
+                  <div className="flex gap-2 items-center text-gray-900 dark:text-gray-100">
+                    <span className="font-medium text-gray-500 dark:text-gray-400">เอกสาร:</span>
                     {selectedTree.document ? (
                       <div className="flex gap-3 items-center p-2 bg-gray-50 rounded-xl border border-gray-200 shadow-sm dark:bg-gray-800 dark:border-gray-700">
                         <div className="flex justify-center items-center w-8 h-8 bg-red-50 rounded-lg dark:bg-red-900">
@@ -1806,8 +1806,8 @@ export default function Dashboard() {
                       <span className="ml-2 text-gray-400 dark:text-gray-500">ไม่มีเอกสาร</span>
                     )}
                   </div>
-                  <div className="md:col-span-2 dark:text-gray-200">
-                  <span className="font-medium">หมายเหตุ: </span>{selectedTree.notes || "-"}
+                  <div className="md:col-span-2 text-gray-900 dark:text-gray-100">
+                  <span className="font-medium text-gray-500 dark:text-gray-400">หมายเหตุ: </span>{selectedTree.notes || "-"}
                 </div>
                 </div>
               </div>
