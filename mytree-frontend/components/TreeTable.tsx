@@ -193,9 +193,14 @@ export const TreeTable: React.FC<TreeTableProps> = ({
                   </TableCell>
                   <TableCell className="px-6 py-4">
                     {tree.images && tree.images.length > 0 ? (
-                      <div className="flex -space-x-3 hover:space-x-1 transition-all duration-300">
+                      <div className="flex -space-x-3 group transition-all duration-300">
                         {tree.images.slice(0, 3).map((img, idx) => (
-                          <div key={img.id} className="relative group z-0 hover:z-10">
+                          <div
+                            key={img.id}
+                            className={`relative z-0 hover:z-10 transition-transform duration-300 ${
+                              idx === 1 ? "group-hover:translate-x-4" : idx === 2 ? "group-hover:translate-x-8" : ""
+                            }`}
+                          >
                             <Image
                               src={img.thumbnail || img.image}
                               alt={`รูปที่ ${idx + 1}`}
@@ -206,7 +211,7 @@ export const TreeTable: React.FC<TreeTableProps> = ({
                           </div>
                         ))}
                         {tree.images.length > 3 && (
-                          <div className="flex items-center justify-center w-10 h-10 text-xs font-medium text-white bg-gray-400 rounded-full border-2 border-white dark:border-gray-700 z-0">
+                          <div className="flex items-center justify-center w-10 h-10 text-xs font-medium text-white bg-gray-400 rounded-full border-2 border-white dark:border-gray-700 z-0 transition-transform duration-300 group-hover:translate-x-12">
                             +{tree.images.length - 3}
                           </div>
                         )}
