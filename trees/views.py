@@ -28,8 +28,10 @@ class TreeViewSet(viewsets.ModelViewSet):
                 return Response({'message': 'ลบเอกสารสำเร็จ'}, status=status.HTTP_200_OK)
             else:
                 return Response({'message': 'ไม่มีเอกสารให้ลบ'}, status=status.HTTP_404_NOT_FOUND)
+        except OSError as e:
+            return Response({'error': f'เกิดข้อผิดพลาดในการลบไฟล์: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': f'เกิดข้อผิดพลาดที่ไม่คาดคิด: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class ImageViewSet(viewsets.ModelViewSet):
     queryset = Image.objects.all()
