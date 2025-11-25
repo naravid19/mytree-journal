@@ -824,7 +824,7 @@ export default function Dashboard() {
       {/* ปุ่มเปลี่ยนโหมดแสง/มืด (Floating) */}
       <div className="fixed top-4 right-4 z-[20001]">
         <Tooltip content="เปลี่ยนโหมดแสง/มืด" placement="left">
-          <DarkThemeToggle className="rounded-full shadow-lg border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 hover:scale-110 transition-all w-12 h-12 flex items-center justify-center" />
+          <DarkThemeToggle className="rounded-full shadow-lg border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 hover:scale-110 transition-all w-12 h-12 flex items-center justify-center text-gray-600 dark:text-gray-300" />
         </Tooltip>
       </div>
       {/* Overlay Spinner กลางจอ ขณะ loading */}
@@ -834,25 +834,25 @@ export default function Dashboard() {
           <span className="ml-4 text-lg font-bold text-green-700 dark:text-green-300" role="status">กำลังโหลดข้อมูล...</span>
         </div>
       )}
-      <main className="px-2 py-6 mx-auto w-full max-w-3xl md:max-w-6xl sm:px-4">
+      <main className="px-4 py-8 mx-auto w-full max-w-7xl sm:px-6 lg:px-8">
         {/* HEADER */}
-        <div className="flex flex-col gap-3 mb-6 sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-2xl font-extrabold tracking-tight text-green-800 md:text-3xl lg:text-4xl dark:text-green-300 font-kanit">
+        <div className="flex flex-col gap-4 mb-8 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-green-700 to-blue-700 md:text-4xl lg:text-5xl dark:from-green-400 dark:to-blue-400 font-kanit drop-shadow-sm">
             🌳 รายการต้นไม้ที่ปลูก
           </h1>
-          <div className="flex gap-2 items-center self-end sm:self-auto">
+          <div className="flex gap-3 items-center self-end sm:self-auto">
             <Tooltip content="ไปหน้าจัดการสายพันธุ์">
               <Link href="/strains">
-                <Button color="blue" size="sm" className="flex items-center gap-2 font-kanit shadow hover:scale-105 transition">
-                  <HiCollection className="w-5 h-5" />
+                <Button color="light" size="sm" className="flex items-center gap-2 font-kanit shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                  <HiCollection className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   สายพันธุ์
                 </Button>
               </Link>
             </Tooltip>
             <Tooltip content="ไปหน้าจัดการชุดการปลูก">
               <Link href="/batches">
-                <Button color="indigo" size="sm" className="flex items-center gap-2 font-kanit shadow hover:scale-105 transition">
-                  <HiOutlineBeaker className="w-5 h-5" />
+                <Button color="light" size="sm" className="flex items-center gap-2 font-kanit shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                  <HiOutlineBeaker className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                   ชุดการปลูก
                 </Button>
               </Link>
@@ -860,20 +860,22 @@ export default function Dashboard() {
           </div>
         </div>
         {/* Filter Bar & View Toggle */}
-        <FilterBar
-          search={search}
-          onSearchChange={debouncedSearch}
-          selectedCount={selectedIds.length}
-          onBulkDelete={() => setShowBulkDeleteModal(true)}
-          onClearSelection={() => setSelectedIds([])}
-          loading={loading}
-          viewMode={viewMode}
-          onViewModeChange={setViewMode}
-        />
+        <div className="mb-6">
+          <FilterBar
+            search={search}
+            onSearchChange={debouncedSearch}
+            selectedCount={selectedIds.length}
+            onBulkDelete={() => setShowBulkDeleteModal(true)}
+            onClearSelection={() => setSelectedIds([])}
+            loading={loading}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+          />
+        </div>
 
         {/* CONTENT */}
         {viewMode === "table" ? (
-          <Card className="overflow-visible pb-6 w-full rounded-2xl border border-gray-200 shadow-2xl bg-white/70 dark:bg-gray-900/80 dark:border-gray-700">
+          <Card className="overflow-visible pb-6 w-full rounded-2xl border-none shadow-xl bg-white/80 backdrop-blur-sm dark:bg-gray-900/80">
             <TreeTable
               trees={pagedTrees}
               loading={loading}
@@ -902,13 +904,13 @@ export default function Dashboard() {
               calcAge={calcAge}
             />
             {totalPages > 1 && (
-              <nav aria-label="Page navigation" className="flex justify-center mt-6 w-full">
-                <ul className="flex items-center -space-x-px h-10 text-base">
+              <nav aria-label="Page navigation" className="flex justify-center mt-8 w-full">
+                <ul className="flex items-center -space-x-px h-10 text-base shadow-sm rounded-lg">
                   <li>
                     <button
                       onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                       disabled={currentPage === 1}
-                      className="flex justify-center items-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 ms-0 border-e-0 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex justify-center items-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 ms-0 border-e-0 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       <span className="sr-only">Previous</span>
                       <svg className="w-3 h-3 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
@@ -921,7 +923,7 @@ export default function Dashboard() {
                       <button
                         onClick={() => setCurrentPage(page)}
                         aria-current={currentPage === page ? "page" : undefined}
-                        className={`flex items-center justify-center px-4 h-10 leading-tight border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white ${currentPage === page ? 'z-10 text-blue-600 border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:bg-gray-700 dark:text-white' : 'bg-white'}`}
+                        className={`flex items-center justify-center px-4 h-10 leading-tight border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white transition-colors ${currentPage === page ? 'z-10 text-green-600 border-green-300 bg-green-50 hover:bg-green-100 hover:text-green-700 dark:bg-gray-700 dark:text-white dark:border-gray-600' : 'bg-white'}`}
                       >
                         {page}
                       </button>
@@ -931,7 +933,7 @@ export default function Dashboard() {
                     <button
                       onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                       disabled={currentPage === totalPages}
-                      className="flex justify-center items-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex justify-center items-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       <span className="sr-only">Next</span>
                       <svg className="w-3 h-3 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
@@ -969,10 +971,10 @@ export default function Dashboard() {
             )}
           </div>
         )}
-        <div className="flex justify-end mt-6">
+        <div className="fixed bottom-8 right-8 z-[1000]">
           <Button
-            size="lg"
-            className="px-8 py-3 text-xl bg-gradient-to-br from-green-400 to-blue-600 rounded-full shadow-md hover:from-green-500 hover:to-blue-700 dark:from-green-700 dark:to-blue-900 dark:text-white font-kanit focus:ring-2 focus:ring-green-400 dark:focus:ring-green-700"
+            size="xl"
+            className="rounded-full shadow-2xl bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white border-none transform hover:scale-110 transition-all duration-300 w-16 h-16 flex items-center justify-center focus:ring-4 focus:ring-green-300 dark:focus:ring-green-800"
             onClick={() => {
               setForm(getDefaultForm());
               setImageFiles([]);
@@ -980,9 +982,9 @@ export default function Dashboard() {
               setShowAddModal(true);
             }}
             disabled={loading || submitting}
-            aria-disabled={loading || submitting}
+            aria-label="เพิ่มต้นไม้ใหม่"
           >
-            <span className="mr-2 text-2xl font-bold">+</span> เพิ่มต้นไม้
+            <span className="text-3xl font-light">+</span>
           </Button>
         </div>
       </main>
