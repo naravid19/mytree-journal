@@ -20,8 +20,9 @@ import {
   DarkThemeToggle,
   Tooltip,
   Card,
+  Badge,
 } from "flowbite-react";
-import { HiCheckCircle, HiXCircle, HiTrash, HiArrowLeft } from "react-icons/hi";
+import { HiCheckCircle, HiXCircle, HiTrash, HiArrowLeft, HiPencil, HiPlus } from "react-icons/hi";
 import { useRouter } from "next/navigation";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -168,123 +169,164 @@ export default function StrainsPage() {
   }
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 font-kanit">
+    <div className="w-full min-h-screen bg-linear-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 font-kanit">
       {/* ปุ่มเปลี่ยนโหมดแสง/มืด (Floating) */}
-      <div className="fixed top-4 right-4 z-[20001]">
+      <div className="fixed top-4 right-4 z-20001">
         <Tooltip content="เปลี่ยนโหมดแสง/มืด" placement="left">
           <DarkThemeToggle className="flex justify-center items-center w-12 h-12 rounded-full border border-gray-200 shadow-lg transition-all dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 hover:scale-110" />
         </Tooltip>
       </div>
-      <main className="px-2 py-6 mx-auto w-full max-w-3xl md:max-w-4xl">
-        <div className="flex flex-col gap-3 mb-6 sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-2xl font-extrabold tracking-tight text-green-800 md:text-3xl lg:text-4xl dark:text-green-300">
-            🦜 สายพันธุ์ทั้งหมด
-          </h1>
-          <Button onClick={() => { resetForm(); setShowAddModal(true); }}>
+      <main className="px-4 py-8 mx-auto w-full max-w-5xl">
+        <div className="flex flex-col gap-4 mb-8 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="flex items-center gap-3 text-3xl font-extrabold tracking-tight text-green-800 md:text-4xl dark:text-green-300">
+              <span className="text-4xl">🧬</span> สายพันธุ์ทั้งหมด
+            </h1>
+            <p className="mt-2 text-gray-600 dark:text-gray-400">จัดการข้อมูลสายพันธุ์ต้นไม้ของคุณ</p>
+          </div>
+          <Button 
+            onClick={() => { resetForm(); setShowAddModal(true); }}
+            className="shadow-lg transition-transform hover:scale-105 bg-linear-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white border-none"
+          >
+            <HiPlus className="mr-2 w-5 h-5" />
             เพิ่มสายพันธุ์
           </Button>
         </div>
-        <Button color="gray" size="sm" className="flex gap-2 items-center mb-4" onClick={() => router.push('/')}> 
-          <HiArrowLeft className="w-4 h-4" />
+        
+        <Button color="gray" size="sm" className="flex gap-2 items-center mb-6 shadow-sm hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => router.push('/')}> 
+          <HiArrowLeft className="mr-2 w-4 h-4" />
           กลับหน้ารายการต้นไม้
         </Button>
-        <Card className="w-full rounded-2xl border border-gray-200 shadow-2xl bg-white/80 dark:bg-gray-900/90 dark:border-gray-700">
-          <div className="overflow-x-auto rounded-xl">
-            <Table hoverable className="min-w-[650px] text-base font-kanit dark:bg-gray-900/80 dark:text-gray-100">
-              <TableHead className="bg-blue-50 dark:bg-gray-800/80 dark:text-gray-100">
+
+        <Card className="overflow-hidden rounded-2xl border-none shadow-xl bg-white/80 backdrop-blur-sm dark:bg-gray-800/80">
+          <div className="overflow-x-auto">
+            <Table hoverable className="w-full text-left text-gray-500 dark:text-gray-400">
+              <TableHead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <TableRow>
-                  <TableHeadCell>ชื่อสายพันธุ์</TableHeadCell>
-                  <TableHeadCell>รายละเอียด</TableHeadCell>
-                  <TableHeadCell>
-                    <span className="sr-only">Actions</span>
+                  <TableHeadCell className="px-6 py-4 text-sm font-bold">ชื่อสายพันธุ์</TableHeadCell>
+                  <TableHeadCell className="px-6 py-4 text-sm font-bold">รายละเอียด</TableHeadCell>
+                  <TableHeadCell className="px-6 py-4 text-sm font-bold text-right">
+                    จัดการ
                   </TableHeadCell>
                 </TableRow>
               </TableHead>
-              <TableBody className="divide-y">
-                {strains.map((strain) => (
-                  <TableRow key={strain.id} className="bg-white transition dark:border-gray-700 dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-gray-800">
-                    <TableCell className="font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                      {strain.name}
-                    </TableCell>
-                    <TableCell>{strain.description}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-2 items-center">
-                        <Button size="xs" onClick={() => handleShowEdit(strain)}>
-                          แก้ไข
-                        </Button>
-                        <Tooltip content="ลบ">
-                          <Button color="failure" size="xs" className="flex gap-1 items-center px-3 py-1 rounded-lg shadow transition hover:scale-105" onClick={() => { setSelectedStrain(strain); setShowDeleteModal(true); }}>
-                            <HiTrash className="w-4 h-4" />
-                            <span className="sr-only">ลบ</span>
-                          </Button>
-                        </Tooltip>
-                      </div>
+              <TableBody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {strains.length > 0 ? (
+                  strains.map((strain) => (
+                    <TableRow key={strain.id} className="bg-white transition-colors hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700">
+                      <TableCell className="px-6 py-4 font-semibold text-gray-900 whitespace-nowrap dark:text-white">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          {strain.name}
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-6 py-4 max-w-md truncate">
+                        {strain.description || <span className="italic text-gray-400">ไม่มีรายละเอียด</span>}
+                      </TableCell>
+                      <TableCell className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <Tooltip content="แก้ไข">
+                            <Button size="xs" color="light" className="border-gray-200 hover:bg-blue-50 hover:text-blue-600 dark:border-gray-600 dark:hover:bg-gray-600" onClick={() => handleShowEdit(strain)}>
+                              <HiPencil className="w-4 h-4" />
+                            </Button>
+                          </Tooltip>
+                          <Tooltip content="ลบ">
+                            <Button size="xs" color="light" className="border-gray-200 hover:bg-red-50 hover:text-red-600 dark:border-gray-600 dark:hover:bg-gray-600" onClick={() => { setSelectedStrain(strain); setShowDeleteModal(true); }}>
+                              <HiTrash className="w-4 h-4" />
+                            </Button>
+                          </Tooltip>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={3} className="py-8 text-center text-gray-500">
+                      ไม่พบข้อมูลสายพันธุ์
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </div>
         </Card>
       </main>
+
       {/* Add Modal */}
-      <Modal show={showAddModal} onClose={() => setShowAddModal(false)} initialFocus={addNameRef}>
-        <ModalHeader>เพิ่มสายพันธุ์</ModalHeader>
+      <Modal show={showAddModal} onClose={() => setShowAddModal(false)} initialFocus={addNameRef} size="md">
+        <ModalHeader className="border-b-0">
+          <span className="text-xl font-bold text-green-700 dark:text-green-400">เพิ่มสายพันธุ์ใหม่</span>
+        </ModalHeader>
         <ModalBody>
           {formError && (
-            <Alert id="strainAddError" color="failure" className="mb-4">
+            <Alert id="strainAddError" color="failure" className="mb-4 rounded-xl">
               <span className="font-medium">{formError}</span>
             </Alert>
           )}
           {strainDuplicateError && (
-            <Alert color="failure" className="mb-4">
+            <Alert color="failure" className="mb-4 rounded-xl">
               <span className="font-medium">{strainDuplicateError}</span>
             </Alert>
           )}
           <div className="space-y-4">
             <div>
-              <Label htmlFor="name">ชื่อสายพันธุ์</Label>
+              <Label htmlFor="name" className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">ชื่อสายพันธุ์ <span className="text-red-500">*</span></Label>
               <TextInput
                 ref={addNameRef}
                 id="name"
+                placeholder="เช่น Cannabis, Durian"
                 value={formName}
                 onChange={(e) => {
                   setFormName(e.target.value);
                   setStrainDuplicateError(checkDuplicateStrainName(e.target.value));
                 }}
-                aria-describedby={strainDuplicateError ? 'strainNameError' : undefined}
+                className="focus:ring-green-500"
+                shadow
               />
             </div>
             <div>
-              <Label htmlFor="desc">รายละเอียด</Label>
-              <Textarea id="desc" rows={4} value={formDescription} onChange={(e) => setFormDescription(e.target.value)} />
+              <Label htmlFor="desc" className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">รายละเอียด</Label>
+              <Textarea 
+                id="desc" 
+                rows={4} 
+                placeholder="รายละเอียดเพิ่มเติมเกี่ยวกับสายพันธุ์นี้..."
+                value={formDescription} 
+                onChange={(e) => setFormDescription(e.target.value)} 
+                className="focus:ring-green-500"
+                shadow
+              />
             </div>
           </div>
         </ModalBody>
-        <ModalFooter>
-          <Button onClick={handleAddSubmit} disabled={!!strainDuplicateError || !formName.trim()}>บันทึก</Button>
+        <ModalFooter className="border-t-0 justify-end gap-2">
           <Button color="gray" onClick={() => setShowAddModal(false)}>
             ยกเลิก
           </Button>
+          <Button className="bg-linear-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white border-none" onClick={handleAddSubmit} disabled={!!strainDuplicateError || !formName.trim()}>
+            บันทึกข้อมูล
+          </Button>
         </ModalFooter>
       </Modal>
+
       {/* Edit Modal */}
-      <Modal show={showEditModal} onClose={() => setShowEditModal(false)} initialFocus={editNameRef}>
-        <ModalHeader>แก้ไขสายพันธุ์</ModalHeader>
+      <Modal show={showEditModal} onClose={() => setShowEditModal(false)} initialFocus={editNameRef} size="md">
+        <ModalHeader className="border-b-0">
+          <span className="text-xl font-bold text-blue-700 dark:text-blue-400">แก้ไขสายพันธุ์</span>
+        </ModalHeader>
         <ModalBody>
           {formError && (
-            <Alert id="strainEditError" color="failure" className="mb-4">
+            <Alert id="strainEditError" color="failure" className="mb-4 rounded-xl">
               <span className="font-medium">{formError}</span>
             </Alert>
           )}
           {strainDuplicateError && (
-            <Alert color="failure" className="mb-4">
+            <Alert color="failure" className="mb-4 rounded-xl">
               <span className="font-medium">{strainDuplicateError}</span>
             </Alert>
           )}
           <div className="space-y-4">
             <div>
-              <Label htmlFor="name">ชื่อสายพันธุ์</Label>
+              <Label htmlFor="nameEdit" className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">ชื่อสายพันธุ์ <span className="text-red-500">*</span></Label>
               <TextInput
                 ref={editNameRef}
                 id="nameEdit"
@@ -293,42 +335,63 @@ export default function StrainsPage() {
                   setFormName(e.target.value);
                   setStrainDuplicateError(checkDuplicateStrainName(e.target.value, selectedStrain?.id));
                 }}
-                aria-describedby={strainDuplicateError ? 'strainNameError' : undefined}
+                className="focus:ring-blue-500"
+                shadow
               />
             </div>
             <div>
-              <Label htmlFor="descEdit">รายละเอียด</Label>
-              <Textarea id="descEdit" rows={4} value={formDescription} onChange={(e) => setFormDescription(e.target.value)} />
+              <Label htmlFor="descEdit" className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">รายละเอียด</Label>
+              <Textarea 
+                id="descEdit" 
+                rows={4} 
+                value={formDescription} 
+                onChange={(e) => setFormDescription(e.target.value)} 
+                className="focus:ring-blue-500"
+                shadow
+              />
             </div>
           </div>
         </ModalBody>
-        <ModalFooter>
-          <Button onClick={handleEditSubmit} disabled={!!strainDuplicateError || !formName.trim()}>บันทึก</Button>
+        <ModalFooter className="border-t-0 justify-end gap-2">
           <Button color="gray" onClick={() => setShowEditModal(false)}>
             ยกเลิก
           </Button>
-        </ModalFooter>
-      </Modal>
-      {/* Delete Modal */}
-      <Modal show={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
-        <ModalHeader>ยืนยันการลบ</ModalHeader>
-        <ModalBody>คุณต้องการลบสายพันธุ์ {selectedStrain?.name} ?</ModalBody>
-        <ModalFooter>
-          <Button color="failure" onClick={handleDeleteSubmit}>ลบ</Button>
-          <Button color="gray" onClick={() => setShowDeleteModal(false)}>
-            ยกเลิก
+          <Button className="bg-linear-to-r from-cyan-400 to-blue-500 hover:from-cyan-500 hover:to-blue-600 text-white border-none" onClick={handleEditSubmit} disabled={!!strainDuplicateError || !formName.trim()}>
+            บันทึกการแก้ไข
           </Button>
         </ModalFooter>
       </Modal>
+
+      {/* Delete Modal */}
+      <Modal show={showDeleteModal} onClose={() => setShowDeleteModal(false)} size="sm">
+        <ModalHeader className="border-b-0" />
+        <ModalBody>
+          <div className="text-center">
+            <HiTrash className="mx-auto mb-4 h-14 w-14 text-red-600 dark:text-red-200" />
+            <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+              คุณต้องการลบสายพันธุ์ <span className="font-bold text-gray-900 dark:text-white">"{selectedStrain?.name}"</span> ใช่หรือไม่?
+            </h3>
+            <div className="flex justify-center gap-4">
+              <Button color="failure" onClick={handleDeleteSubmit}>
+                ยืนยันลบ
+              </Button>
+              <Button color="gray" onClick={() => setShowDeleteModal(false)}>
+                ยกเลิก
+              </Button>
+            </div>
+          </div>
+        </ModalBody>
+      </Modal>
+
       <div className="fixed top-4 right-4 z-50 space-y-2" aria-live="polite">
         {successMessage && (
-          <Toast className="flex gap-2 items-center text-green-800 bg-green-50 border border-green-300 shadow dark:bg-green-800 dark:text-green-100">
+          <Toast className="flex gap-2 items-center text-green-800 bg-green-50 border border-green-300 shadow-lg rounded-xl dark:bg-green-800 dark:text-green-100">
             <HiCheckCircle className="w-5 h-5 text-green-600 dark:text-green-300" />
             <span className="font-semibold">{successMessage}</span>
           </Toast>
         )}
         {errorMessage && (
-          <Toast className="flex gap-2 items-center text-red-800 bg-red-50 border border-red-300 shadow dark:bg-red-800 dark:text-red-100">
+          <Toast className="flex gap-2 items-center text-red-800 bg-red-50 border border-red-300 shadow-lg rounded-xl dark:bg-red-800 dark:text-red-100">
             <HiXCircle className="w-5 h-5 text-red-600 dark:text-red-300" />
             <span className="font-semibold">{errorMessage}</span>
           </Toast>
