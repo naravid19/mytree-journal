@@ -1,8 +1,10 @@
 import React from "react";
-import { Card, Badge, Button } from "flowbite-react";
+import { Card, Badge, Button, Tooltip } from "flowbite-react";
 import { Tree } from "../app/types";
-import { HiPencil, HiTrash, HiEye, HiPhotograph } from "react-icons/hi";
+import { HiPencil, HiTrash, HiEye, HiPhotograph, HiCalendar, HiLocationMarker } from "react-icons/hi";
+import { TbGenderMale, TbGenderFemale, TbGenderBigender, TbGenderAgender, TbHelp } from "react-icons/tb";
 import Image from "next/image";
+import { calcAge, sexLabel } from "../app/utils";
 
 interface TreeCardProps {
   tree: Tree;
@@ -11,73 +13,118 @@ interface TreeCardProps {
   onView: (tree: Tree) => void;
 }
 
+const getSexIcon = (sex: string) => {
+  switch (sex) {
+    case 'male': return <TbGenderMale className="w-4 h-4" />;
+    case 'female': return <TbGenderFemale className="w-4 h-4" />;
+    case 'bisexual': return <TbGenderBigender className="w-4 h-4" />;
+    case 'mixed': return <TbGenderBigender className="w-4 h-4" />; // Using Bigender for mixed as well
+    case 'monoecious': return <TbGenderBigender className="w-4 h-4" />; // Using Bigender for monoecious
+    case 'unknown': return <TbHelp className="w-4 h-4" />;
+    default: return <TbHelp className="w-4 h-4" />;
+  }
+};
+
+const getSexColorClass = (sex: string) => {
+  switch (sex) {
+    case 'male': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 border-blue-200 dark:border-blue-800';
+    case 'female': return 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-300 border-pink-200 dark:border-pink-800';
+    case 'bisexual': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300 border-purple-200 dark:border-purple-800';
+    case 'mixed': return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300 border-orange-200 dark:border-orange-800';
+    case 'monoecious': return 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300 border-teal-200 dark:border-teal-800';
+    default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600';
+  }
+};
+
 export const TreeCard: React.FC<TreeCardProps> = ({ tree, onEdit, onDelete, onView }) => {
   const thumbnail = tree.images.length > 0 ? tree.images[0].thumbnail || tree.images[0].image : null;
 
   return (
-    <Card
-      className="max-w-sm transition-all duration-300 border-gray-200 shadow-md hover:shadow-xl hover:-translate-y-1 dark:border-gray-700 dark:bg-gray-800"
-      renderImage={() => (
-        <div className="relative w-full h-48 bg-gray-100 overflow-hidden dark:bg-gray-700 group">
-          {thumbnail ? (
-            <Image
-              src={thumbnail}
-              alt={tree.nickname}
-              fill
-              className="object-cover transition-transform duration-700 group-hover:scale-110"
-            />
-          ) : (
-            <div className="flex flex-col justify-center items-center h-full text-gray-300 bg-gray-50 dark:bg-gray-800 dark:text-gray-600">
-              <HiPhotograph className="w-12 h-12 mb-2 opacity-50" />
-              <span className="text-xs font-medium">No Image</span>
+    <div 
+      onClick={() => onView(tree)}
+      className="group relative max-w-sm cursor-pointer transition-all duration-300 hover:-translate-y-1"
+    >
+      <Card
+        className="h-full border-gray-200 shadow-md transition-shadow duration-300 hover:shadow-xl dark:border-gray-700 dark:bg-gray-800"
+        renderImage={() => (
+          <div className="relative w-full h-56 bg-gray-100 overflow-hidden dark:bg-gray-700">
+            {thumbnail ? (
+              <Image
+                src={thumbnail}
+                alt={tree.nickname}
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+            ) : (
+              <div className="flex flex-col justify-center items-center h-full text-gray-300 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 dark:text-gray-600">
+                <HiPhotograph className="w-16 h-16 mb-3 opacity-40" />
+                <span className="text-sm font-medium tracking-wide opacity-60">No Image</span>
+              </div>
+            )}
+            
+            {/* Status Badge (Top Right) */}
+            <div className="absolute top-3 right-3">
+              <Badge color={tree.status === "มีชีวิต" ? "success" : "failure"} className="shadow-sm backdrop-blur-sm bg-opacity-90">
+                {tree.status}
+              </Badge>
             </div>
-          )}
-          <div className="absolute top-2 right-2">
-            <Badge color={tree.status === "มีชีวิต" ? "success" : "failure"} className="shadow-sm">
-              {tree.status}
-            </Badge>
+
+            {/* Sex Badge (Bottom Right) */}
+            {tree.sex && tree.sex !== 'unknown' && (
+              <div className="absolute bottom-3 right-3">
+                <Tooltip content={sexLabel(tree.sex)} placement="left">
+                  <div className={`flex items-center justify-center w-8 h-8 rounded-full shadow-sm backdrop-blur-md border ${getSexColorClass(tree.sex)}`}>
+                    {getSexIcon(tree.sex)}
+                  </div>
+                </Tooltip>
+              </div>
+            )}
+          </div>
+        )}
+      >
+        <div className="flex flex-col gap-3">
+          <div className="flex justify-between items-start">
+            <div>
+              <h5 className="text-xl font-bold tracking-tight text-gray-900 font-kanit dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
+                {tree.nickname || "Unnamed Tree"}
+              </h5>
+              <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                {tree.strain?.name || "Unknown Strain"}
+              </p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-600 dark:text-gray-300 font-kanit mt-1">
+            <div className="flex items-center gap-1.5">
+              <HiLocationMarker className="w-4 h-4 text-gray-400" />
+              <span className="truncate">{tree.location || "-"}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-bold text-gray-400 uppercase">อายุ</span>
+              <span className="font-medium text-gray-900 dark:text-white">
+                {calcAge(tree, "day")} วัน
+              </span>
+            </div>
+            <div className="col-span-2 flex items-center gap-1.5">
+              <HiCalendar className="w-4 h-4 text-gray-400" />
+              <span className="font-medium">{tree.plant_date}</span>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-gray-100 dark:border-gray-700" onClick={(e) => e.stopPropagation()}>
+            <Button size="xs" color="gray" onClick={() => onView(tree)} className="transition-colors hover:bg-gray-200 dark:hover:bg-gray-600">
+              <HiEye className="w-4 h-4 mr-1" />
+              View
+            </Button>
+            <Button size="xs" color="light" onClick={() => onEdit(tree)} className="transition-colors hover:bg-gray-200 dark:hover:bg-gray-600">
+              <HiPencil className="w-4 h-4" />
+            </Button>
+            <Button size="xs" color="failure" onClick={() => onDelete(tree)} className="transition-colors hover:bg-red-700">
+              <HiTrash className="w-4 h-4" />
+            </Button>
           </div>
         </div>
-      )}
-    >
-      <div className="flex flex-col gap-3">
-        <div className="flex justify-between items-start">
-          <h5 className="text-xl font-bold tracking-tight text-gray-900 font-kanit dark:text-white">
-            {tree.nickname || "Unnamed Tree"}
-          </h5>
-          <Badge color="info" className="text-xs shadow-sm">
-            {tree.strain?.name || "Unknown Strain"}
-          </Badge>
-        </div>
-        
-        <div className="space-y-1.5 text-sm text-gray-600 dark:text-gray-300 font-kanit">
-          <p className="flex items-center gap-2">
-            <span className="w-5 text-center">📍</span> 
-            <span className="font-medium text-gray-900 dark:text-gray-100">{tree.location || "-"}</span>
-          </p>
-          <p className="flex items-center gap-2">
-            <span className="w-5 text-center">🧬</span> 
-            <span className="font-medium text-gray-900 dark:text-gray-100">{tree.sex}</span>
-          </p>
-          <p className="flex items-center gap-2">
-            <span className="w-5 text-center">📅</span> 
-            <span className="font-medium text-gray-900 dark:text-gray-100">{tree.plant_date}</span>
-          </p>
-        </div>
-
-        <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
-          <Button size="xs" color="gray" onClick={() => onView(tree)} className="transition-colors hover:bg-gray-200 dark:hover:bg-gray-600">
-            <HiEye className="w-4 h-4 mr-1" />
-            View
-          </Button>
-          <Button size="xs" color="light" onClick={() => onEdit(tree)} className="transition-colors hover:bg-gray-200 dark:hover:bg-gray-600">
-            <HiPencil className="w-4 h-4" />
-          </Button>
-          <Button size="xs" color="failure" onClick={() => onDelete(tree)} className="transition-colors hover:bg-red-700">
-            <HiTrash className="w-4 h-4" />
-          </Button>
-        </div>
-      </div>
-    </Card>
+      </Card>
+    </div>
   );
 };
