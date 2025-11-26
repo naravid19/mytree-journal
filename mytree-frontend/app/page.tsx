@@ -1828,6 +1828,18 @@ export default function Dashboard() {
                       <span className="text-gray-500 dark:text-gray-400">แม่พันธุ์</span>
                       <span className="font-medium text-gray-900 dark:text-white">{selectedTree.parent_female_data?.nickname || "-"}</span>
                     </div>
+                    <div className="flex justify-between pb-2 border-b border-gray-100 dark:border-gray-700">
+                      <span className="text-gray-500 dark:text-gray-400">ต้นแม่ที่ใช้ปักชำ</span>
+                      <span className="font-medium text-gray-900 dark:text-white">{selectedTree.clone_source ? `Tree_${selectedTree.clone_source}` : "-"}</span>
+                    </div>
+                    <div className="flex justify-between pb-2 border-b border-gray-100 dark:border-gray-700">
+                      <span className="text-gray-500 dark:text-gray-400">ผสมเกสรโดย</span>
+                      <span className="font-medium text-gray-900 dark:text-white">{selectedTree.pollinated_by ? `Tree_${selectedTree.pollinated_by}` : "-"}</span>
+                    </div>
+                    <div className="flex justify-between pb-2 border-b border-gray-100 dark:border-gray-700">
+                      <span className="text-gray-500 dark:text-gray-400">วันที่ผสมเกสร</span>
+                      <span className="font-medium text-gray-900 dark:text-white">{selectedTree.pollination_date ? new Date(selectedTree.pollination_date).toLocaleDateString('th-TH') : "-"}</span>
+                    </div>
                   </div>
                 </div>
 
@@ -1846,32 +1858,41 @@ export default function Dashboard() {
                       <span className="font-medium text-gray-900 dark:text-white">{selectedTree.seed_count || "-"}</span>
                     </div>
                     <div className="flex justify-between pb-2 border-b border-gray-100 dark:border-gray-700">
+                      <span className="text-gray-500 dark:text-gray-400">วันที่เก็บเมล็ด</span>
+                      <span className="font-medium text-gray-900 dark:text-white">{selectedTree.seed_harvest_date ? new Date(selectedTree.seed_harvest_date).toLocaleDateString('th-TH') : "-"}</span>
+                    </div>
+                    <div className="flex justify-between pb-2 border-b border-gray-100 dark:border-gray-700">
                       <span className="text-gray-500 dark:text-gray-400">คุณภาพดอก</span>
                       <span className="font-medium text-gray-900 dark:text-white">{selectedTree.flower_quality || "-"}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* ข้อมูลสุขภาพ & หมายเหตุ */}
+                {/* ข้อมูลสุขภาพ */}
                 <div className="p-5 rounded-2xl border border-gray-100 shadow-sm bg-white/60 dark:bg-gray-800/60 dark:border-gray-700">
                   <h3 className="flex items-center mb-4 text-lg font-bold text-cyan-700 dark:text-cyan-300">
-                    <span className="mr-2 text-xl">📝</span> บันทึกเพิ่มเติม
+                    <span className="mr-2 text-xl">🩺</span> ข้อมูลสุขภาพ
                   </h3>
-                  <div className="space-y-4 text-sm">
-                    <div>
-                      <p className="mb-1 text-xs font-medium text-gray-500 uppercase dark:text-gray-400">โรค/ศัตรูพืช</p>
-                      <p className="p-3 rounded-lg bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-200">
-                        {selectedTree.disease_notes || "ไม่มีบันทึก"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="mb-1 text-xs font-medium text-gray-500 uppercase dark:text-gray-400">หมายเหตุ</p>
-                      <p className="p-3 rounded-lg bg-gray-50 text-gray-800 dark:bg-gray-700/50 dark:text-gray-200">
-                        {selectedTree.notes || "ไม่มีบันทึก"}
-                      </p>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex flex-col gap-1 pb-2 border-b border-gray-100 dark:border-gray-700">
+                      <span className="text-gray-500 dark:text-gray-400">โรค/ศัตรูพืช</span>
+                      <span className="font-medium text-gray-900 dark:text-white whitespace-pre-wrap">{selectedTree.disease_notes || "-"}</span>
                     </div>
                   </div>
                 </div>
+
+                {/* หมายเหตุ */}
+                <div className="p-5 rounded-2xl border border-gray-100 shadow-sm bg-white/60 dark:bg-gray-800/60 dark:border-gray-700">
+                  <h3 className="flex items-center mb-4 text-lg font-bold text-gray-700 dark:text-gray-300">
+                    <span className="mr-2 text-xl">📝</span> หมายเหตุ
+                  </h3>
+                  <div className="space-y-3 text-sm">
+                    <div className="font-medium text-gray-900 dark:text-white whitespace-pre-wrap">
+                      {selectedTree.notes || "-"}
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </div>
           ) : (
