@@ -22,7 +22,7 @@ import {
   DarkThemeToggle,
   Card,
 } from "flowbite-react";
-import { HiCheckCircle, HiXCircle, HiTrash, HiArrowLeft } from "react-icons/hi";
+import { HiCheckCircle, HiXCircle, HiTrash, HiArrowLeft, HiPlus, HiPencil } from "react-icons/hi";
 import { useRouter } from "next/navigation";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -192,110 +192,145 @@ export default function BatchesPage() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 font-kanit">
+    <div className="w-full min-h-screen bg-linear-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 font-kanit">
       {/* ปุ่มเปลี่ยนโหมดแสง/มืด (Floating) */}
-      <div className="fixed top-4 right-4 z-[20001]">
+      <div className="fixed top-4 right-4 z-20001">
         <Tooltip content="เปลี่ยนโหมดแสง/มืด" placement="left">
           <DarkThemeToggle className="flex justify-center items-center w-12 h-12 rounded-full border border-gray-200 shadow-lg transition-all dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 hover:scale-110" />
         </Tooltip>
       </div>
-      <main className="px-2 py-6 mx-auto w-full max-w-3xl md:max-w-4xl">
-        <div className="flex flex-col gap-3 mb-6 sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-2xl font-extrabold tracking-tight text-green-800 md:text-3xl lg:text-4xl dark:text-green-300">
-            🪴 ชุดการปลูกทั้งหมด
-          </h1>
-          <Button onClick={() => { resetForm(); setShowAddModal(true); }}>
+      <main className="px-4 py-8 mx-auto w-full max-w-5xl">
+        <div className="flex flex-col gap-4 mb-8 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="flex items-center gap-3 text-3xl font-extrabold tracking-tight text-green-800 md:text-4xl dark:text-green-300">
+              <span className="text-4xl">🪴</span> ชุดการปลูกทั้งหมด
+            </h1>
+            <p className="mt-2 text-gray-600 dark:text-gray-400">จัดการข้อมูลชุดการปลูก (Batches) ของคุณ</p>
+          </div>
+          <Button 
+            onClick={() => { resetForm(); setShowAddModal(true); }}
+            className="shadow-lg transition-transform hover:scale-105 bg-linear-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white border-none"
+          >
+            <HiPlus className="mr-2 w-5 h-5" />
             เพิ่มชุดการปลูก
           </Button>
         </div>
-        <Button color="gray" size="sm" className="flex gap-2 items-center mb-4" onClick={() => router.push('/')}>
-          <HiArrowLeft className="w-4 h-4" />
+        
+        <Button color="gray" size="sm" className="flex gap-2 items-center mb-6 shadow-sm hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => router.push('/')}>
+          <HiArrowLeft className="mr-2 w-4 h-4" />
           กลับหน้ารายการต้นไม้
         </Button>
-        <Card className="w-full rounded-2xl border border-gray-200 shadow-2xl bg-white/80 dark:bg-gray-900/90 dark:border-gray-700">
-          <div className="overflow-x-auto rounded-xl">
-            <Table hoverable className="min-w-[650px] text-base font-kanit dark:bg-gray-900/80 dark:text-gray-100">
-              <TableHead className="bg-blue-50 dark:bg-gray-800/80 dark:text-gray-100">
+
+        <Card className="overflow-hidden rounded-2xl border-none shadow-xl bg-white/80 backdrop-blur-sm dark:bg-gray-800/80">
+          <div className="overflow-x-auto">
+            <Table hoverable className="w-full text-left text-gray-500 dark:text-gray-400">
+              <TableHead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <TableRow>
-                  <TableHeadCell>รหัสชุด</TableHeadCell>
-                  <TableHeadCell>รายละเอียด</TableHeadCell>
-                  <TableHeadCell>เริ่มเมื่อ</TableHeadCell>
-                  <TableHeadCell>
-                    <span className="sr-only">Actions</span>
+                  <TableHeadCell className="px-6 py-4 text-sm font-bold">รหัสชุด</TableHeadCell>
+                  <TableHeadCell className="px-6 py-4 text-sm font-bold">รายละเอียด</TableHeadCell>
+                  <TableHeadCell className="px-6 py-4 text-sm font-bold">เริ่มเมื่อ</TableHeadCell>
+                  <TableHeadCell className="px-6 py-4 text-sm font-bold text-right">
+                    จัดการ
                   </TableHeadCell>
                 </TableRow>
               </TableHead>
-              <TableBody className="divide-y">
-                {batches.map((batch) => (
-                  <TableRow key={batch.id} className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                    <TableCell className="font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                      {batch.batch_code}
-                    </TableCell>
-                    <TableCell>{batch.description}</TableCell>
-                    <TableCell>{batch.started_date}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-2 items-center">
-                        <Button size="xs" onClick={() => handleShowEdit(batch)}>
-                          แก้ไข
-                        </Button>
-                        <Tooltip content="ลบ">
-                          <Button color="failure" size="xs" className="flex gap-1 items-center px-3 py-1 rounded-lg shadow transition hover:scale-105" onClick={() => { setSelectedBatch(batch); setShowDeleteModal(true); }}>
-                            <HiTrash className="w-4 h-4" />
-                            <span className="sr-only">ลบ</span>
-                          </Button>
-                        </Tooltip>
-                      </div>
+              <TableBody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {batches.length > 0 ? (
+                  batches.map((batch) => (
+                    <TableRow key={batch.id} className="bg-white transition-colors hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700">
+                      <TableCell className="px-6 py-4 font-semibold text-gray-900 whitespace-nowrap dark:text-white">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                          {batch.batch_code}
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-6 py-4 max-w-md truncate">
+                        {batch.description || <span className="italic text-gray-400">ไม่มีรายละเอียด</span>}
+                      </TableCell>
+                      <TableCell className="px-6 py-4 font-medium text-gray-700 dark:text-gray-300">
+                        {batch.started_date}
+                      </TableCell>
+                      <TableCell className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <Tooltip content="แก้ไข">
+                            <Button size="xs" color="light" className="border-gray-200 hover:bg-blue-50 hover:text-blue-600 dark:border-gray-600 dark:hover:bg-gray-600" onClick={() => handleShowEdit(batch)}>
+                              <HiPencil className="w-4 h-4" />
+                            </Button>
+                          </Tooltip>
+                          <Tooltip content="ลบ">
+                            <Button size="xs" color="light" className="border-gray-200 hover:bg-red-50 hover:text-red-600 dark:border-gray-600 dark:hover:bg-gray-600" onClick={() => { setSelectedBatch(batch); setShowDeleteModal(true); }}>
+                              <HiTrash className="w-4 h-4" />
+                            </Button>
+                          </Tooltip>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} className="py-8 text-center text-gray-500">
+                      ไม่พบข้อมูลชุดการปลูก
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </div>
         </Card>
       </main>
+
       {/* Add Modal */}
-      <Modal show={showAddModal} onClose={() => setShowAddModal(false)} initialFocus={addCodeRef}>
-        <ModalHeader>เพิ่มชุดการปลูก</ModalHeader>
+      <Modal show={showAddModal} onClose={() => setShowAddModal(false)} initialFocus={addCodeRef} size="md">
+        <ModalHeader className="border-b-0">
+          <span className="text-xl font-bold text-green-700 dark:text-green-400">เพิ่มชุดการปลูก</span>
+        </ModalHeader>
         <ModalBody>
           {formError && (
-            <Alert id="batchAddError" color="failure" className="mb-4">
+            <Alert id="batchAddError" color="failure" className="mb-4 rounded-xl">
               <span className="font-medium">{formError}</span>
             </Alert>
           )}
           {duplicateError && (
-            <Alert id="batchAddError" color="failure" className="mb-4">
+            <Alert id="batchAddError" color="failure" className="mb-4 rounded-xl">
               <span className="font-medium">{duplicateError}</span>
             </Alert>
           )}
           <div className="space-y-4">
             <div>
-              <Label htmlFor="code">รหัสชุดการปลูก</Label>
+              <Label htmlFor="code" className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">รหัสชุดการปลูก <span className="text-red-500">*</span></Label>
               <TextInput
                 ref={addCodeRef}
                 id="code"
+                placeholder="เช่น BATCH-001"
                 value={formCode}
                 onChange={(e) => {
                   setFormCode(e.target.value);
                   setDuplicateError(checkDuplicateBatchCode(e.target.value));
                 }}
-                aria-describedby={formError || duplicateError ? 'batchAddError' : undefined}
+                className="focus:ring-green-500"
+                shadow
               />
             </div>
             <div>
-              <Label htmlFor="desc">รายละเอียด</Label>
-              <Textarea id="desc" rows={4} value={formDescription} onChange={(e) => setFormDescription(e.target.value)} />
+              <Label htmlFor="desc" className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">รายละเอียด</Label>
+              <Textarea 
+                id="desc" 
+                rows={4} 
+                placeholder="รายละเอียดเกี่ยวกับชุดการปลูกนี้..."
+                value={formDescription} 
+                onChange={(e) => setFormDescription(e.target.value)} 
+                className="focus:ring-green-500"
+                shadow
+              />
             </div>
             <div>
-              <Label htmlFor="started" className="font-semibold">วันที่เริ่มต้น</Label>
+              <Label htmlFor="started" className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">วันที่เริ่มต้น</Label>
               <Datepicker
                 id="started"
                 value={formStartedDate}
                 onChange={(date: Date | null) => setFormStartedDate(date)}
                 placeholder="เลือกวันที่เริ่มต้น"
-                className="mt-1 w-full text-base rounded-lg border border-gray-300 transition-all focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700 font-kanit"
-                aria-label="เลือกวันที่เริ่มต้นชุดการปลูก"
-                required
-                disabled={false}
+                className="w-full"
                 showClearButton={true}
                 weekStart={0}
                 autoHide={true}
@@ -313,37 +348,38 @@ export default function BatchesPage() {
                   }
                 }}
               />
-              {/* error state */}
-              {formError && (
-                <span className="block mt-1 text-xs text-red-500">{formError}</span>
-              )}
             </div>
           </div>
         </ModalBody>
-        <ModalFooter>
-          <Button onClick={handleAddSubmit} disabled={!!duplicateError || !!formError}>บันทึก</Button>
+        <ModalFooter className="border-t-0 justify-end gap-2">
           <Button color="gray" onClick={() => setShowAddModal(false)}>
             ยกเลิก
           </Button>
+          <Button className="bg-linear-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white border-none" onClick={handleAddSubmit} disabled={!!duplicateError || !!formError}>
+            บันทึกข้อมูล
+          </Button>
         </ModalFooter>
       </Modal>
+
       {/* Edit Modal */}
-      <Modal show={showEditModal} onClose={() => setShowEditModal(false)} initialFocus={editCodeRef}>
-        <ModalHeader>แก้ไขชุดการปลูก</ModalHeader>
+      <Modal show={showEditModal} onClose={() => setShowEditModal(false)} initialFocus={editCodeRef} size="md">
+        <ModalHeader className="border-b-0">
+          <span className="text-xl font-bold text-blue-700 dark:text-blue-400">แก้ไขชุดการปลูก</span>
+        </ModalHeader>
         <ModalBody>
           {formError && (
-            <Alert id="batchEditError" color="failure" className="mb-4">
+            <Alert id="batchEditError" color="failure" className="mb-4 rounded-xl">
               <span className="font-medium">{formError}</span>
             </Alert>
           )}
           {duplicateError && (
-            <Alert id="batchEditError" color="failure" className="mb-4">
+            <Alert id="batchEditError" color="failure" className="mb-4 rounded-xl">
               <span className="font-medium">{duplicateError}</span>
             </Alert>
           )}
           <div className="space-y-4">
             <div>
-              <Label htmlFor="codeEdit">รหัสชุดการปลูก</Label>
+              <Label htmlFor="codeEdit" className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">รหัสชุดการปลูก <span className="text-red-500">*</span></Label>
               <TextInput
                 ref={editCodeRef}
                 id="codeEdit"
@@ -352,50 +388,72 @@ export default function BatchesPage() {
                   setFormCode(e.target.value);
                   setDuplicateError(checkDuplicateBatchCode(e.target.value, selectedBatch?.id));
                 }}
-                aria-describedby={formError || duplicateError ? 'batchEditError' : undefined}
+                className="focus:ring-blue-500"
+                shadow
               />
             </div>
             <div>
-              <Label htmlFor="descEdit">รายละเอียด</Label>
-              <Textarea id="descEdit" rows={4} value={formDescription} onChange={(e) => setFormDescription(e.target.value)} />
+              <Label htmlFor="descEdit" className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">รายละเอียด</Label>
+              <Textarea 
+                id="descEdit" 
+                rows={4} 
+                value={formDescription} 
+                onChange={(e) => setFormDescription(e.target.value)} 
+                className="focus:ring-blue-500"
+                shadow
+              />
             </div>
             <div>
-              <Label htmlFor="startedEdit">วันที่เริ่มต้น</Label>
+              <Label htmlFor="startedEdit" className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">วันที่เริ่มต้น</Label>
               <Datepicker
                 id="startedEdit"
                 value={formStartedDate}
                 onChange={(d: Date | null) => setFormStartedDate(d)}
+                className="w-full"
               />
             </div>
           </div>
         </ModalBody>
-        <ModalFooter>
-          <Button onClick={handleEditSubmit} disabled={!!duplicateError || !!formError}>บันทึก</Button>
+        <ModalFooter className="border-t-0 justify-end gap-2">
           <Button color="gray" onClick={() => setShowEditModal(false)}>
             ยกเลิก
           </Button>
-        </ModalFooter>
-      </Modal>
-      {/* Delete Modal */}
-      <Modal show={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
-        <ModalHeader>ยืนยันการลบ</ModalHeader>
-        <ModalBody>คุณต้องการลบชุดการปลูก {selectedBatch?.batch_code} ?</ModalBody>
-        <ModalFooter>
-          <Button color="failure" onClick={handleDeleteSubmit}>ลบ</Button>
-          <Button color="gray" onClick={() => setShowDeleteModal(false)}>
-            ยกเลิก
+          <Button className="bg-linear-to-r from-cyan-400 to-blue-500 hover:from-cyan-500 hover:to-blue-600 text-white border-none" onClick={handleEditSubmit} disabled={!!duplicateError || !!formError}>
+            บันทึกการแก้ไข
           </Button>
         </ModalFooter>
       </Modal>
+
+      {/* Delete Modal */}
+      <Modal show={showDeleteModal} onClose={() => setShowDeleteModal(false)} size="sm">
+        <ModalHeader className="border-b-0" />
+        <ModalBody>
+          <div className="text-center">
+            <HiTrash className="mx-auto mb-4 h-14 w-14 text-red-600 dark:text-red-200" />
+            <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+              คุณต้องการลบชุดการปลูก <span className="font-bold text-gray-900 dark:text-white">"{selectedBatch?.batch_code}"</span> ใช่หรือไม่?
+            </h3>
+            <div className="flex justify-center gap-4">
+              <Button color="failure" onClick={handleDeleteSubmit}>
+                ยืนยันลบ
+              </Button>
+              <Button color="gray" onClick={() => setShowDeleteModal(false)}>
+                ยกเลิก
+              </Button>
+            </div>
+          </div>
+        </ModalBody>
+      </Modal>
+
       <div className="fixed top-4 right-4 z-50 space-y-2" aria-live="polite">
         {successMessage && (
-          <Toast className="flex gap-2 items-center text-green-800 bg-green-50 border border-green-300 shadow dark:bg-green-800 dark:text-green-100">
+          <Toast className="flex gap-2 items-center text-green-800 bg-green-50 border border-green-300 shadow-lg rounded-xl dark:bg-green-800 dark:text-green-100">
             <HiCheckCircle className="w-5 h-5 text-green-600 dark:text-green-300" />
             <span className="font-semibold">{successMessage}</span>
           </Toast>
         )}
         {errorMessage && (
-          <Toast className="flex gap-2 items-center text-red-800 bg-red-50 border border-red-300 shadow dark:bg-red-800 dark:text-red-100">
+          <Toast className="flex gap-2 items-center text-red-800 bg-red-50 border border-red-300 shadow-lg rounded-xl dark:bg-red-800 dark:text-red-100">
             <HiXCircle className="w-5 h-5 text-red-600 dark:text-red-300" />
             <span className="font-semibold">{errorMessage}</span>
           </Toast>
