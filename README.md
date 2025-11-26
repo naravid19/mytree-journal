@@ -68,8 +68,12 @@ MyTree Journal คือระบบบันทึกข้อมูลต้�
 - แนบไฟล์ภาพ/เอกสารกับแต่ละต้นไม้
 - UI ทันสมัย รองรับมือถือ
 - ระบบแจ้งเตือน, Modal, Table, Datepicker ฯลฯ (Flowbite React)
-- ระบบแจ้งเตือน, Modal, Table, Datepicker ฯลฯ (Flowbite React)
-- รองรับการขยาย schema และฟีเจอร์ใหม่
+- **Smart Folder Management:** เปลี่ยนชื่อ/ลบโฟลเดอร์รูปภาพตามชื่อต้นไม้อัตโนมัติ
+- **Enhanced UI/UX:**
+  - **TreeCard:** แสดงอายุ (คำนวณอัตโนมัติ) และเพศด้วยไอคอนที่สวยงาม
+  - **Detail Modal:** แสดงข้อมูลครบถ้วน (พันธุกรรม, ผลผลิต, สุขภาพ)
+  - **Grid/List View:** สลับมุมมองได้ตามต้องการ
+- **Performance:** ปรับปรุง Query (select_related) ลดโหลด Database
 - **New:** รองรับการแสดงผลแบบ Grid View และ List View
 
 ### Built With
@@ -339,9 +343,9 @@ Project Link: [https://github.com/example/mytree-journal](https://github.com/exa
 [issues-url]: https://github.com/naravid19/mytree-journal/issues
 [license-shield]: https://img.shields.io/github/license/naravid19/mytree-journal.svg?style=for-the-badge
 [license-url]: https://github.com/naravid19/mytree-journal/blob/main/LICENSE
-[Django-badge]: https://img.shields.io/badge/Django-5.2.3-blue?style=for-the-badge&logo=django&logoColor=white
+[Django-badge]: https://img.shields.io/badge/Django-5.2.8-blue?style=for-the-badge&logo=django&logoColor=white
 [Django-url]: https://www.djangoproject.com/
-[DRF-badge]: https://img.shields.io/badge/DRF-3.16.0-blue?style=for-the-badge
+[DRF-badge]: https://img.shields.io/badge/DRF-3.16.1-blue?style=for-the-badge
 [DRF-url]: https://www.django-rest-framework.org/
 [Next.js-badge]: https://img.shields.io/badge/Next.js-16.0.3-black?style=for-the-badge&logo=next.js
 [Next.js-url]: https://nextjs.org/
