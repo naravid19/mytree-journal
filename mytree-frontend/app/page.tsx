@@ -27,7 +27,7 @@ import {
   Toast,
   ToastToggle,
 } from "flowbite-react";
-import { HiSearch, HiCheckCircle, HiXCircle, HiCollection, HiOutlineBeaker } from "react-icons/hi";
+import { HiSearch, HiCheckCircle, HiXCircle, HiCollection, HiOutlineBeaker, HiTrash, HiPlus } from "react-icons/hi";
 import Image from "next/image";
 import Link from "next/link";
 import { Tree, Strain, Batch } from "./types";
@@ -210,6 +210,78 @@ export default function Dashboard() {
     }
     setFormError("");
     setForm(f => ({ ...f, document: file }));
+  };
+
+  // Drag & Drop Handlers
+  const [isDraggingDoc, setIsDraggingDoc] = useState(false);
+  const [isDraggingImages, setIsDraggingImages] = useState(false);
+
+  const handleDragOverDoc = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingDoc(true);
+  };
+
+  const handleDragLeaveDoc = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingDoc(false);
+  };
+
+  const handleDropDoc = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingDoc(false);
+    const file = e.dataTransfer.files?.[0] || null;
+    if (file) {
+      if (!ACCEPTED_DOCUMENT_TYPES.includes(file.type)) {
+        setFormError("เอกสารต้องเป็น PDF หรือภาพ JPG, PNG, WEBP");
+        return;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        setFormError("ขนาดเอกสารต้องไม่เกิน 20MB");
+        return;
+      }
+      setFormError("");
+      setForm(f => ({ ...f, document: file }));
+    }
+  };
+
+  const handleDragOverImages = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingImages(true);
+  };
+
+  const handleDragLeaveImages = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingImages(false);
+  };
+
+  const handleDropImages = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingImages(false);
+    const files = Array.from(e.dataTransfer.files);
+    const validFiles: File[] = [];
+    let errorMsg = "";
+
+    files.forEach(file => {
+      if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+        errorMsg = "บางไฟล์ไม่ใช่รูปภาพที่รองรับ (JPG, PNG, WEBP)";
+        return;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        errorMsg = "บางรูปภาพมีขนาดเกิน 20MB";
+        return;
+      }
+      validFiles.push(file);
+    });
+
+    if (errorMsg) {
+      setFormError(errorMsg);
+    } else {
+      setFormError("");
+    }
+
+    if (validFiles.length > 0) {
+      setImageFiles(prev => [...prev, ...validFiles]);
+    }
   };
   const [submitting, setSubmitting] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -970,7 +1042,7 @@ export default function Dashboard() {
         <div className="fixed bottom-8 right-8 z-1000">
           <Button
             size="xl"
-            className="rounded-full shadow-2xl bg-linear-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white border-none transform hover:scale-110 transition-all duration-300 w-16 h-16 flex items-center justify-center focus:ring-4 focus:ring-green-300 dark:focus:ring-green-800"
+            className="rounded-full shadow-2xl bg-linear-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white border-none transform hover:scale-110 transition-all duration-300 w-16 h-16 flex items-center justify-center focus:ring-4 focus:ring-green-300 dark:focus:ring-green-800"
             onClick={() => {
               setForm(getDefaultForm());
               setImageFiles([]);
@@ -980,7 +1052,7 @@ export default function Dashboard() {
             disabled={loading || submitting}
             aria-label="เพิ่มต้นไม้ใหม่"
           >
-            <span className="text-3xl font-light">+</span>
+            <HiPlus className="w-8 h-8" />
           </Button>
         </div>
       </main>
@@ -1343,126 +1415,98 @@ export default function Dashboard() {
               </h3>
             </div>
             <div className="md:col-span-2">
-              <Label className="mb-1 font-semibold">เอกสาร (PDF, JPG, PNG)</Label>
-              <FileInput
-                accept=".pdf,.jpg,.jpeg,.png,.webp"
-                onChange={handleDocumentChange}
-                className="mt-1"
-              />
-              {/* แสดง preview เอกสารเดิม ถ้ามี */}
-              {selectedTree?.document && !form.document && (
-                <div className="flex justify-between items-center p-4 mt-2 rounded-xl border border-gray-200 shadow bg-white/80 dark:bg-gray-800 dark:border-gray-700">
-                  <div className="flex gap-4 items-center">
-                    <div className="flex justify-center items-center w-12 h-12 bg-blue-50 rounded-lg dark:bg-blue-900">
-                      <svg className="w-7 h-7 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <div className="flex gap-2 items-center">
-                        <span className="font-semibold text-gray-800 dark:text-gray-200">เอกสารปัจจุบัน</span>
-                        <Badge color={getFileType(selectedTree.document) === "PDF" ? "red" : "info"} className="ml-1">
-                          {getFileType(selectedTree.document)}
-                        </Badge>
-                      </div>
-                      <div className="flex gap-2 items-center mt-1">
-                        <Tooltip content={getFileName(selectedTree.document)} placement="bottom">
-                          <a
-                            href={selectedTree.document}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sm font-medium text-blue-600 transition hover:underline hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
-                          >
-                            ดูเอกสาร
-                          </a>
-                        </Tooltip>
-                        <span className="text-xs text-gray-500 truncate max-w-[120px]">{getFileName(selectedTree.document)}</span>
-                      </div>
-                    </div>
+              <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">เอกสาร (PDF, JPG, PNG)</Label>
+              <div className="flex items-center justify-center w-full">
+                <label 
+                  htmlFor="dropzone-file-doc-add" 
+                  className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                    isDraggingDoc 
+                      ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" 
+                      : "border-gray-300 bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
+                  }`}
+                  onDragOver={handleDragOverDoc}
+                  onDragLeave={handleDragLeaveDoc}
+                  onDrop={handleDropDoc}
+                >
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg className={`w-8 h-8 mb-3 ${isDraggingDoc ? "text-blue-500" : "text-gray-500 dark:text-gray-400"}`} aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                      <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                    </svg>
+                    <p className={`mb-2 text-sm ${isDraggingDoc ? "text-blue-500 font-bold" : "text-gray-500 dark:text-gray-400"}`}>
+                      <span className="font-semibold">คลิกเพื่ออัปโหลด</span> หรือลากไฟล์มาวาง
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">PDF, PNG, JPG (สูงสุด 10MB)</p>
                   </div>
-                  <Tooltip content="ลบเอกสารนี้" placement="left">
-                    <Button
-                      color="failure"
-                      size="xs"
-                      onClick={handleShowDeleteDocumentModal}
-                      className="ml-4 text-xs font-semibold"
-                    >
-                      ลบเอกสาร
-                    </Button>
-                  </Tooltip>
-                </div>
+                  <FileInput 
+                    id="dropzone-file-doc-add" 
+                    className="hidden" 
+                    accept=".pdf,.jpg,.jpeg,.png,.webp"
+                    onChange={handleDocumentChange}
+                  />
+                </label>
+              </div>
+              {form.document && (
+                 <div className="flex items-center gap-2 mt-2 text-sm text-green-600 dark:text-green-400">
+                    <HiCheckCircle className="w-5 h-5" />
+                    <span>เลือกไฟล์แล้ว: {form.document.name}</span>
+                 </div>
               )}
             </div>
             <div className="md:col-span-2">
-              <Label className="mb-1 font-semibold">รูปภาพ (เลือกได้หลายไฟล์)</Label>
-              <FileInput
-                multiple
-                accept="image/jpeg,image/png,image/jpg,image/webp"
-                onChange={handleImageFilesChange}
-                className="mt-1"
-              />
-              {/* แสดง preview รูปภาพเดิม ถ้ามี */}
-              {(selectedTree?.images?.length ?? 0) > 0 && imageFiles.length === 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                  {(selectedTree?.images ?? []).map((img, idx) => (
-                    <div key={img.id} className="relative group">
-                      <Image
-                        src={img.thumbnail || img.image}
-                        alt={`รูปที่ ${idx + 1}`}
-                        width={56}
-                        height={56}
-                        className="object-cover w-14 h-14 rounded-xl border border-gray-200 shadow cursor-pointer"
-                        onClick={() => window.open(img.image, '_blank')}
-                        tabIndex={0}
-                        role="button"
-                        aria-label={`ดูภาพต้นฉบับของรูปที่ ${idx + 1}`}
-                        onKeyDown={e => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            window.open(img.image, '_blank');
-                          }
-                        }}
-                      />
-                      <Tooltip content="ลบรูปนี้" placement="top">
-                        <button
-                          type="button"
-                          aria-label="ลบรูปภาพนี้"
-                          onClick={() => handleDeleteImage(img.id)}
-                          className="absolute top-1.5 right-1.5 w-7 h-7 flex items-center justify-center rounded-full bg-red-500 border-2 border-white shadow-lg hover:scale-110 transition-transform cursor-pointer z-10 p-0"
-                        >
-                          <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </Tooltip>
-                    </div>
-                  ))}
-                  {/* ปุ่มลบรูปทั้งหมด */}
-                  <Tooltip content="ลบรูปภาพทั้งหมด" placement="top">
-                    <Button
-                      color="failure"
-                      size="xs"
-                      onClick={handleShowDeleteAllImagesModal}
-                      className="flex justify-center items-center w-14 h-14 rounded-xl border border-gray-200 shadow"
-                    >
-                      ลบทั้งหมด
-                    </Button>
-                  </Tooltip>
+              <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">รูปภาพ (เลือกได้หลายไฟล์)</Label>
+              <div className="flex items-center justify-center w-full">
+                <label 
+                  htmlFor="dropzone-file-images-add" 
+                  className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                    isDraggingImages 
+                      ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" 
+                      : "border-gray-300 bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
+                  }`}
+                  onDragOver={handleDragOverImages}
+                  onDragLeave={handleDragLeaveImages}
+                  onDrop={handleDropImages}
+                >
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg className={`w-8 h-8 mb-3 ${isDraggingImages ? "text-blue-500" : "text-gray-500 dark:text-gray-400"}`} aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                      <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                    </svg>
+                    <p className={`mb-2 text-sm ${isDraggingImages ? "text-blue-500 font-bold" : "text-gray-500 dark:text-gray-400"}`}>
+                      <span className="font-semibold">คลิกเพื่ออัปโหลดรูปภาพ</span> หรือลากไฟล์มาวาง
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">PNG, JPG (สูงสุด 10MB)</p>
+                  </div>
+                  <FileInput 
+                    id="dropzone-file-images-add" 
+                    className="hidden" 
+                    multiple
+                    accept="image/jpeg,image/png,image/jpg,image/webp"
+                    onChange={handleImageFilesChange}
+                  />
+                </label>
               </div>
-              )}
-
-              {/* preview รูปใหม่ที่เลือก */}
               {imageFiles.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {imageFiles.map((file, idx) => (
-                    <Image
-                      key={idx}
-                      src={URL.createObjectURL(file)}
-                      alt={`รูปที่ ${idx + 1}`}
-                      width={56}
-                      height={56}
-                      className="object-cover w-14 h-14 rounded-xl border border-gray-200 shadow"
-                    />
-                  ))}
+                <div className="mt-4">
+                  <p className="mb-2 text-sm font-medium text-green-600 dark:text-green-400">รูปภาพที่เลือก ({imageFiles.length} รูป):</p>
+                  <div className="flex flex-wrap gap-3">
+                    {imageFiles.map((file, idx) => (
+                      <div key={idx} className="relative">
+                        <Image
+                          src={URL.createObjectURL(file)}
+                          alt={`รูปที่ ${idx + 1}`}
+                          width={80}
+                          height={80}
+                          className="object-cover w-20 h-20 rounded-xl border border-green-200 shadow-sm"
+                        />
+                      </div>
+                    ))}
+                    <button
+                        type="button"
+                        onClick={() => setImageFiles([])}
+                        className="flex items-center justify-center w-20 h-20 rounded-xl border-2 border-dashed border-gray-300 text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
+                      >
+                        <span className="text-xs font-medium">ยกเลิก</span>
+                      </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -1628,60 +1672,101 @@ export default function Dashboard() {
                 </div>
 
                 {/* ข้อมูลหลัก */}
-                <div className="flex-1 space-y-4">
-                  <div>
-                    <div className="flex flex-wrap gap-2 items-center mb-2">
-                      <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+                <div className="flex-1 space-y-6">
+                  {/* Header Section */}
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap gap-3 items-center">
+                      <h2 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white font-kanit">
                         {selectedTree.nickname}
                       </h2>
-                      <Badge color={selectedTree.status === "มีชีวิต" ? "success" : "failure"} size="sm" className="px-2 py-0.5 text-sm">
-                        {selectedTree.status}
-                      </Badge>
-                      <Badge color={getSexBadgeColor(selectedTree.sex)} size="sm" className="px-2 py-0.5 text-sm">
-                        {sexLabel(selectedTree.sex)}
-                      </Badge>
+                      <div className="flex gap-2">
+                        <Badge color={selectedTree.status === "มีชีวิต" ? "success" : "failure"} size="sm" className="px-2.5 py-0.5 text-sm font-medium shadow-sm">
+                          {selectedTree.status}
+                        </Badge>
+                        <Badge color={getSexBadgeColor(selectedTree.sex)} size="sm" className="px-2.5 py-0.5 text-sm font-medium shadow-sm">
+                          {sexLabel(selectedTree.sex)}
+                        </Badge>
+                      </div>
                     </div>
-                    <p className="text-xl font-semibold text-green-600 dark:text-green-400">
-                      {selectedTree.strain?.name || "ไม่ระบุสายพันธุ์"}
-                    </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {selectedTree.variety && <span className="mr-3">พันธุ์: {selectedTree.variety}</span>}
-                      {selectedTree.generation && <span>รุ่น: {selectedTree.generation}</span>}
-                    </p>
+                    
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 text-2xl font-bold text-green-600 dark:text-green-400">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" /></svg>
+                        {selectedTree.strain?.name || "ไม่ระบุสายพันธุ์"}
+                      </div>
+                      <div className="flex flex-wrap gap-2 text-sm text-gray-500 dark:text-gray-400 font-medium">
+                        {selectedTree.variety && (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                            พันธุ์: {selectedTree.variety}
+                          </span>
+                        )}
+                        {selectedTree.generation && (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                            รุ่น: {selectedTree.generation}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-4 p-4 rounded-xl border sm:grid-cols-2 bg-gray-50/50 border-gray-100 dark:bg-gray-800/50 dark:border-gray-700">
-                    <div>
-                      <p className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">ชุดการปลูก</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{selectedTree.batch?.batch_code || "-"}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">สถานที่</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{selectedTree.location || "-"}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">อายุต้นไม้</p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {calcAge(selectedTree, "day")} วัน
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* Batch */}
+                    <div className="p-4 rounded-xl border border-gray-100 bg-white shadow-sm transition-shadow hover:shadow-md dark:bg-gray-800 dark:border-gray-700">
+                      <div className="flex items-center gap-2 mb-1 text-blue-600 dark:text-blue-400">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                        <span className="text-xs font-bold uppercase tracking-wider">ชุดการปลูก</span>
+                      </div>
+                      <p className="text-lg font-bold text-gray-900 truncate dark:text-white">
+                        {selectedTree.batch?.batch_code || "-"}
                       </p>
                     </div>
-                    <div>
-                      <p className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">ระยะการเจริญเติบโต</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{selectedTree.growth_stage || "-"}</p>
+
+                    {/* Location */}
+                    <div className="p-4 rounded-xl border border-gray-100 bg-white shadow-sm transition-shadow hover:shadow-md dark:bg-gray-800 dark:border-gray-700">
+                      <div className="flex items-center gap-2 mb-1 text-red-600 dark:text-red-400">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        <span className="text-xs font-bold uppercase tracking-wider">สถานที่</span>
+                      </div>
+                      <p className="text-lg font-bold text-gray-900 truncate dark:text-white">
+                        {selectedTree.location || "-"}
+                      </p>
+                    </div>
+
+                    {/* Age */}
+                    <div className="p-4 rounded-xl border border-gray-100 bg-white shadow-sm transition-shadow hover:shadow-md dark:bg-gray-800 dark:border-gray-700">
+                      <div className="flex items-center gap-2 mb-1 text-amber-600 dark:text-amber-400">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span className="text-xs font-bold uppercase tracking-wider">อายุต้นไม้</span>
+                      </div>
+                      <p className="text-lg font-bold text-gray-900 dark:text-white">
+                        {calcAge(selectedTree, "day")} <span className="text-sm font-normal text-gray-500">วัน</span>
+                      </p>
+                    </div>
+
+                    {/* Growth Stage */}
+                    <div className="p-4 rounded-xl border border-gray-100 bg-white shadow-sm transition-shadow hover:shadow-md dark:bg-gray-800 dark:border-gray-700">
+                      <div className="flex items-center gap-2 mb-1 text-emerald-600 dark:text-emerald-400">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                        <span className="text-xs font-bold uppercase tracking-wider">ระยะการเจริญเติบโต</span>
+                      </div>
+                      <p className="text-lg font-bold text-gray-900 truncate dark:text-white">
+                        {selectedTree.growth_stage || "-"}
+                      </p>
                     </div>
                   </div>
 
                   {/* Document Link */}
                   {selectedTree.document && (
-                    <div className="flex items-center p-3 rounded-lg border border-blue-100 bg-blue-50/50 dark:bg-blue-900/20 dark:border-blue-800">
-                      <div className="p-2 mr-3 bg-white rounded-full shadow-sm dark:bg-blue-800">
-                        <svg className="w-5 h-5 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    <div className="group flex items-center p-4 rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 to-white shadow-sm transition-all hover:shadow-md dark:from-blue-900/20 dark:to-gray-800 dark:border-blue-800">
+                      <div className="p-3 mr-4 bg-white rounded-full shadow-sm ring-1 ring-blue-100 dark:bg-blue-800 dark:ring-blue-700">
+                        <svg className="w-6 h-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate dark:text-white">
+                        <p className="text-base font-bold text-gray-900 truncate dark:text-white group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
                           {getFileName(selectedTree.document)}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide dark:text-gray-400">
                           {getFileType(selectedTree.document)}
                         </p>
                       </div>
@@ -1689,7 +1774,7 @@ export default function Dashboard() {
                         href={selectedTree.document}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors dark:bg-blue-800 dark:text-blue-200 dark:hover:bg-blue-700"
+                        className="px-4 py-2 text-sm font-semibold text-blue-700 bg-white border border-blue-200 rounded-lg shadow-sm hover:bg-blue-50 hover:border-blue-300 transition-all dark:bg-gray-800 dark:text-blue-300 dark:border-blue-700 dark:hover:bg-gray-700"
                       >
                         ดูไฟล์
                       </a>
@@ -2133,17 +2218,30 @@ export default function Dashboard() {
               </h3>
             </div>
             <div className="md:col-span-2">
-              <Label className="mb-1 font-semibold">เอกสาร (PDF, JPG, PNG)</Label>
-              <FileInput
-                accept=".pdf,.jpg,.jpeg,.png,.webp"
-                onChange={handleDocumentChange}
-                className="mt-1"
-              />
+              <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">เอกสาร (PDF, JPG, PNG)</Label>
+              <div className="flex items-center justify-center w-full">
+                <label htmlFor="dropzone-file-doc" className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 transition-colors">
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg className="w-8 h-8 mb-3 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                      <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                    </svg>
+                    <p className="mb-2 text-sm text-gray-500 dark:text-gray-400"><span className="font-semibold">คลิกเพื่ออัปโหลด</span> หรือลากไฟล์มาวาง</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">PDF, PNG, JPG (สูงสุด 10MB)</p>
+                  </div>
+                  <FileInput 
+                    id="dropzone-file-doc" 
+                    className="hidden" 
+                    accept=".pdf,.jpg,.jpeg,.png,.webp"
+                    onChange={handleDocumentChange}
+                  />
+                </label>
+              </div>
+              
               {selectedTree?.document && !form.document && (
-                <div className="flex justify-between items-center p-4 mt-2 rounded-xl border border-gray-200 shadow bg-white/80 dark:bg-gray-800 dark:border-gray-700">
+                <div className="flex justify-between items-center p-4 mt-3 rounded-xl border border-gray-200 shadow-sm bg-white dark:bg-gray-800 dark:border-gray-700">
                   <div className="flex gap-4 items-center">
-                    <div className="flex justify-center items-center w-12 h-12 bg-blue-50 rounded-lg dark:bg-blue-900">
-                      <svg className="w-7 h-7 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="flex justify-center items-center w-12 h-12 bg-blue-50 rounded-lg dark:bg-blue-900/50">
+                      <svg className="w-6 h-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
                     </div>
@@ -2155,17 +2253,14 @@ export default function Dashboard() {
                         </Badge>
                       </div>
                       <div className="flex gap-2 items-center mt-1">
-                        <Tooltip content={getFileName(selectedTree.document)} placement="bottom">
-                          <a
-                            href={selectedTree.document}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sm font-medium text-blue-600 transition hover:underline hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
-                          >
-                            ดูเอกสาร
-                          </a>
-                        </Tooltip>
-                        <span className="text-xs text-gray-500 truncate max-w-[120px]">{getFileName(selectedTree.document)}</span>
+                        <a
+                          href={selectedTree.document}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm font-medium text-blue-600 transition hover:underline hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
+                        >
+                          {getFileName(selectedTree.document)}
+                        </a>
                       </div>
                     </div>
                   </div>
@@ -2174,71 +2269,119 @@ export default function Dashboard() {
                       color="failure"
                       size="xs"
                       onClick={handleShowDeleteDocumentModal}
-                      className="ml-4 text-xs font-semibold"
+                      className="ml-4"
                     >
-                      ลบเอกสาร
+                      <HiTrash className="w-4 h-4" />
                     </Button>
                   </Tooltip>
                 </div>
+              )}
+              {form.document && (
+                 <div className="flex items-center gap-2 mt-2 text-sm text-green-600 dark:text-green-400">
+                    <HiCheckCircle className="w-5 h-5" />
+                    <span>เลือกไฟล์แล้ว: {form.document.name}</span>
+                 </div>
               )}
             </div>
+
+
+
             <div className="md:col-span-2">
-              <Label className="mb-1 font-semibold">รูปภาพ (เลือกได้หลายไฟล์)</Label>
-              <FileInput
-                multiple
-                accept="image/jpeg,image/png,image/jpg,image/webp"
-                onChange={handleImageFilesChange}
-                className="mt-1"
-              />
+              <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">รูปภาพ (เลือกได้หลายไฟล์)</Label>
+              <div className="flex items-center justify-center w-full">
+                <label 
+                  htmlFor="dropzone-file-images" 
+                  className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                    isDraggingImages 
+                      ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" 
+                      : "border-gray-300 bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
+                  }`}
+                  onDragOver={handleDragOverImages}
+                  onDragLeave={handleDragLeaveImages}
+                  onDrop={handleDropImages}
+                >
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg className={`w-8 h-8 mb-3 ${isDraggingImages ? "text-blue-500" : "text-gray-500 dark:text-gray-400"}`} aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                      <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                    </svg>
+                    <p className={`mb-2 text-sm ${isDraggingImages ? "text-blue-500 font-bold" : "text-gray-500 dark:text-gray-400"}`}>
+                      <span className="font-semibold">คลิกเพื่ออัปโหลดรูปภาพ</span> หรือลากไฟล์มาวาง
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">PNG, JPG (สูงสุด 10MB)</p>
+                  </div>
+                  <FileInput 
+                    id="dropzone-file-images" 
+                    className="hidden" 
+                    multiple
+                    accept="image/jpeg,image/png,image/jpg,image/webp"
+                    onChange={handleImageFilesChange}
+                  />
+                </label>
+              </div>
+
+              {/* Existing Images */}
               {(selectedTree?.images?.length ?? 0) > 0 && imageFiles.length === 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {(selectedTree?.images ?? []).map((img, idx) => (
-                    <div key={img.id} className="relative group">
-                      <Image
-                        src={img.thumbnail || img.image}
-                        alt={`รูปที่ ${idx + 1}`}
-                        width={56}
-                        height={56}
-                        className="object-cover w-14 h-14 rounded-xl border border-gray-200 shadow cursor-pointer"
-                        onClick={() => window.open(img.image, '_blank')}
-                      />
-                      <Tooltip content="ลบรูปนี้" placement="top">
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteImage(img.id)}
-                          className="absolute top-1.5 right-1.5 w-7 h-7 flex items-center justify-center rounded-full bg-red-500 border-2 border-white shadow-lg hover:scale-110 transition-transform cursor-pointer z-10 p-0"
-                        >
-                          <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </Tooltip>
-                    </div>
-                  ))}
-                  <Tooltip content="ลบรูปภาพทั้งหมด" placement="top">
-                    <Button
-                      color="failure"
-                      size="xs"
-                      onClick={handleShowDeleteAllImagesModal}
-                      className="flex justify-center items-center w-14 h-14 rounded-xl border border-gray-200 shadow"
-                    >
-                      ลบทั้งหมด
-                    </Button>
-                  </Tooltip>
+                <div className="mt-4">
+                  <p className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">รูปภาพปัจจุบัน:</p>
+                  <div className="flex flex-wrap gap-3">
+                    {(selectedTree?.images ?? []).map((img, idx) => (
+                      <div key={img.id} className="relative group">
+                        <Image
+                          src={img.thumbnail || img.image}
+                          alt={`รูปที่ ${idx + 1}`}
+                          width={80}
+                          height={80}
+                          className="object-cover w-20 h-20 rounded-xl border border-gray-200 shadow-sm transition-transform hover:scale-105 cursor-pointer"
+                          onClick={() => window.open(img.image, '_blank')}
+                        />
+                        <Tooltip content="ลบรูปนี้" placement="top">
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteImage(img.id)}
+                            className="absolute -top-2 -right-2 w-6 h-6 flex items-center justify-center rounded-full bg-red-500 text-white shadow-md hover:bg-red-600 transition-colors z-10"
+                          >
+                            <HiTrash className="w-3 h-3" />
+                          </button>
+                        </Tooltip>
+                      </div>
+                    ))}
+                    <Tooltip content="ลบรูปภาพทั้งหมด" placement="top">
+                      <button
+                        type="button"
+                        onClick={handleShowDeleteAllImagesModal}
+                        className="flex items-center justify-center w-20 h-20 rounded-xl border-2 border-dashed border-red-300 text-red-500 hover:bg-red-50 hover:border-red-400 transition-colors"
+                      >
+                        <span className="text-xs font-medium">ลบทั้งหมด</span>
+                      </button>
+                    </Tooltip>
+                  </div>
                 </div>
               )}
+              
+              {/* New Selected Images */}
               {imageFiles.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {imageFiles.map((file, idx) => (
-                    <Image
-                      key={idx}
-                      src={URL.createObjectURL(file)}
-                      alt={`รูปที่ ${idx + 1}`}
-                      width={56}
-                      height={56}
-                      className="object-cover w-14 h-14 rounded-xl border border-gray-200 shadow"
-                    />
-                  ))}
+                <div className="mt-4">
+                  <p className="mb-2 text-sm font-medium text-green-600 dark:text-green-400">รูปภาพที่เลือกใหม่ ({imageFiles.length} รูป):</p>
+                  <div className="flex flex-wrap gap-3">
+                    {imageFiles.map((file, idx) => (
+                      <div key={idx} className="relative">
+                        <Image
+                          src={URL.createObjectURL(file)}
+                          alt={`รูปที่ ${idx + 1}`}
+                          width={80}
+                          height={80}
+                          className="object-cover w-20 h-20 rounded-xl border border-green-200 shadow-sm"
+                        />
+                      </div>
+                    ))}
+                    <button
+                        type="button"
+                        onClick={() => setImageFiles([])}
+                        className="flex items-center justify-center w-20 h-20 rounded-xl border-2 border-dashed border-gray-300 text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
+                      >
+                        <span className="text-xs font-medium">ยกเลิก</span>
+                      </button>
+                  </div>
                 </div>
               )}
             </div>
