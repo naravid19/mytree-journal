@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, Badge, Button } from "flowbite-react";
 import { Tree } from "../app/types";
-import { HiPencil, HiTrash, HiEye } from "react-icons/hi";
+import { HiPencil, HiTrash, HiEye, HiPhotograph } from "react-icons/hi";
 import Image from "next/image";
 
 interface TreeCardProps {
@@ -27,8 +27,9 @@ export const TreeCard: React.FC<TreeCardProps> = ({ tree, onEdit, onDelete, onVi
               className="object-cover transition-transform duration-700 group-hover:scale-110"
             />
           ) : (
-            <div className="flex justify-center items-center h-full text-gray-400">
-              <span className="text-sm">No Image</span>
+            <div className="flex flex-col justify-center items-center h-full text-gray-300 bg-gray-50 dark:bg-gray-800 dark:text-gray-600">
+              <HiPhotograph className="w-12 h-12 mb-2 opacity-50" />
+              <span className="text-xs font-medium">No Image</span>
             </div>
           )}
           <div className="absolute top-2 right-2">
