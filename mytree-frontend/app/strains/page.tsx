@@ -25,7 +25,7 @@ import {
 import { HiCheckCircle, HiXCircle, HiTrash, HiArrowLeft, HiPencil, HiPlus } from "react-icons/hi";
 import { useRouter } from "next/navigation";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
 type Strain = {
   id: number;

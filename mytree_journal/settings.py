@@ -14,10 +14,12 @@ from dotenv import load_dotenv
 from pathlib import Path
 import os
 
-load_dotenv()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv(BASE_DIR / '.env', override=True)
 
 
 # Quick-start development settings - unsuitable for production
@@ -29,16 +31,7 @@ SECRET_KEY = 'django-insecure-xrufg@ydg0t8esq^vnj+c954pedd9j=8v1)2@@%-&+v8mg#%tm
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-PUBLIC_DOMAIN = os.environ.get('PUBLIC_DOMAIN', 'localhost')
-
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    PUBLIC_DOMAIN,
-]
-
-
-# Application definition
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -55,12 +48,12 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'mytree_journal.urls'

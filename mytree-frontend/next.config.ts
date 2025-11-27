@@ -4,7 +4,7 @@ import type { RemotePattern } from "next/dist/shared/lib/image-config";
 
 // อ่าน env ที่ต้องใช้
 const FRONTEND_ORIGIN = process.env.NEXT_PUBLIC_FRONTEND_ORIGIN || "http://localhost:3000";
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000";
 const MEDIA_DOMAIN = process.env.NEXT_PUBLIC_MEDIA_DOMAIN || "localhost";
 
 // สร้าง remotePatterns อัตโนมัติจาก env
@@ -57,6 +57,18 @@ const nextConfig: NextConfig = {
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   allowedDevOrigins,
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${API_BASE}/api/:path*`,
+      },
+      {
+        source: '/media/:path*',
+        destination: `${API_BASE}/media/:path*`,
+      },
+    ]
+  },
   // เพิ่ม experimental settings สำหรับ image optimization
   experimental: {
     optimizeCss: true,

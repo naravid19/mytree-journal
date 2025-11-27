@@ -164,7 +164,7 @@ mytree-journal/
 สร้างไฟล์ `.env` ที่ root:
 
 ```ini
-PUBLIC_DOMAIN=api.example.com
+DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,api.example.com
 ```
 
 สร้าง `mytree-frontend/.env.local`:
