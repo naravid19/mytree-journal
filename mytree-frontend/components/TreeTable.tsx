@@ -50,7 +50,7 @@ export const TreeTable: React.FC<TreeTableProps> = ({
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 shadow-lg dark:border-gray-700">
       <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent">
-        <Table hoverable className="min-w-[800px] text-base font-kanit dark:bg-gray-800 dark:text-gray-100">
+        <Table hoverable className="min-w-full text-base font-kanit dark:bg-gray-800 dark:text-gray-100">
           <TableHead className="bg-linear-to-r from-green-50 to-blue-50 text-gray-700 uppercase dark:from-gray-700 dark:to-gray-800 dark:text-gray-200">
             <TableRow className="border-b border-gray-200 dark:border-gray-600">
               <TableHeadCell className="p-4 w-4">
@@ -63,31 +63,31 @@ export const TreeTable: React.FC<TreeTableProps> = ({
                 />
               </TableHeadCell>
               <TableHeadCell
-                className="py-4 px-6 font-bold cursor-pointer select-none hover:text-green-700 dark:hover:text-green-400 transition-colors"
+                className="py-4 px-6 font-bold cursor-pointer select-none hover:text-green-700 dark:hover:text-green-400 transition-colors whitespace-nowrap"
                 onClick={() => onSort("strain")}
               >
                 สายพันธุ์ {renderSortIcon("strain")}
               </TableHeadCell>
               <TableHeadCell
-                className="py-4 px-6 font-bold cursor-pointer select-none hover:text-green-700 dark:hover:text-green-400 transition-colors"
+                className="py-4 px-6 font-bold cursor-pointer select-none hover:text-green-700 dark:hover:text-green-400 transition-colors hidden xl:table-cell whitespace-nowrap"
                 onClick={() => onSort("variety")}
               >
                 พันธุ์ {renderSortIcon("variety")}
               </TableHeadCell>
               <TableHeadCell
-                className="py-4 px-6 font-bold cursor-pointer select-none hover:text-green-700 dark:hover:text-green-400 transition-colors"
+                className="py-4 px-6 font-bold cursor-pointer select-none hover:text-green-700 dark:hover:text-green-400 transition-colors hidden lg:table-cell whitespace-nowrap"
                 onClick={() => onSort("nickname")}
               >
                 ชื่อเล่น {renderSortIcon("nickname")}
               </TableHeadCell>
               <TableHeadCell
-                className="py-4 px-6 font-bold cursor-pointer select-none hover:text-green-700 dark:hover:text-green-400 transition-colors"
+                className="py-4 px-6 font-bold cursor-pointer select-none hover:text-green-700 dark:hover:text-green-400 transition-colors hidden md:table-cell whitespace-nowrap"
                 onClick={() => onSort("sex")}
               >
                 เพศ {renderSortIcon("sex")}
               </TableHeadCell>
               <TableHeadCell
-                className="py-4 px-6 font-bold cursor-pointer select-none hover:text-green-700 dark:hover:text-green-400 transition-colors"
+                className="py-4 px-6 font-bold cursor-pointer select-none hover:text-green-700 dark:hover:text-green-400 transition-colors whitespace-nowrap"
                 onClick={() => onSort("plant_date")}
               >
                 <div className="flex gap-3 items-center">
@@ -109,19 +109,19 @@ export const TreeTable: React.FC<TreeTableProps> = ({
                         }}
                         className={`transition-all font-kanit ${ageUnit === unit ? "font-bold ring-1 ring-green-500" : "hover:bg-gray-100 dark:hover:bg-gray-600"}`}
                       >
-                        {unit === "day" ? "วัน" : unit === "month" ? "เดือน" : "ปี"}
+                        {unit === "day" ? "วัน" : unit === "month" ? "ด." : "ปี"}
                       </Button>
                     ))}
                   </ButtonGroup>
                 </div>
               </TableHeadCell>
               <TableHeadCell
-                className="py-4 px-6 font-bold cursor-pointer select-none hover:text-green-700 dark:hover:text-green-400 transition-colors"
+                className="py-4 px-6 font-bold cursor-pointer select-none hover:text-green-700 dark:hover:text-green-400 transition-colors whitespace-nowrap"
                 onClick={() => onSort("status")}
               >
                 สถานะ {renderSortIcon("status")}
               </TableHeadCell>
-              <TableHeadCell className="py-4 px-6 font-bold">รูป</TableHeadCell>
+              <TableHeadCell className="py-4 px-6 font-bold whitespace-nowrap">รูป</TableHeadCell>
             </TableRow>
           </TableHead>
           <TableBody className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -152,10 +152,10 @@ export const TreeTable: React.FC<TreeTableProps> = ({
                       onClick={(e) => e.stopPropagation()}
                     />
                   </TableCell>
-                  <TableCell className="px-6 py-4 font-medium text-gray-900 dark:text-white">{tree.strain?.name || "-"}</TableCell>
-                  <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">{tree.variety}</TableCell>
-                  <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">{tree.nickname}</TableCell>
-                  <TableCell className="px-6 py-4">
+                  <TableCell className="px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap">{tree.strain?.name || "-"}</TableCell>
+                  <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300 hidden xl:table-cell whitespace-nowrap">{tree.variety}</TableCell>
+                  <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300 hidden lg:table-cell whitespace-nowrap">{tree.nickname}</TableCell>
+                  <TableCell className="px-6 py-4 hidden md:table-cell">
                     <Badge
                       className="w-fit shadow-sm"
                       color={
@@ -177,8 +177,8 @@ export const TreeTable: React.FC<TreeTableProps> = ({
                       }[tree.sex] || "-"}
                     </Badge>
                   </TableCell>
-                  <TableCell className="px-6 py-4 font-mono text-gray-600 dark:text-gray-300">{calcAge(tree, ageUnit)}</TableCell>
-                  <TableCell className="px-6 py-4">
+                  <TableCell className="px-6 py-4 font-mono text-gray-600 dark:text-gray-300 whitespace-nowrap">{calcAge(tree, ageUnit)}</TableCell>
+                  <TableCell className="px-6 py-4 whitespace-nowrap">
                     <Badge
                       className="w-fit shadow-sm"
                       color={

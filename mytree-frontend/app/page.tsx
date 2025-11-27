@@ -1,12 +1,6 @@
 "use client";
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeadCell,
-  TableRow,
   Card,
   Button,
   ButtonGroup,
@@ -47,13 +41,12 @@ import {
   getSexBadgeColor,
   sexLabel,
 } from "./utils";
-import { TreeCard } from "../components/TreeCard";
+import { TreeCard, TreeCardSkeleton } from "../components/TreeCard";
 import { TreeTable } from "../components/TreeTable";
 import { FilterBar } from "../components/FilterBar";
 import { useDebouncedSearch } from "./hooks";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "";
-console.log("API_BASE:", API_BASE);
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 const ACCEPTED_IMAGE_TYPES = [
@@ -947,16 +940,7 @@ export default function Dashboard() {
     return () => window.removeEventListener("keydown", handleKey);
   }, [showAddModal, showEditModal, handleSubmit, handleEditSubmit]);
 
-  // Skeleton Row Loader (Shimmer)
-  const SkeletonRow = () => (
-    <TableRow>
-      {[...Array(8)].map((_, i) => (
-        <TableCell key={i}>
-          <div className="w-full h-4 bg-gray-200 rounded animate-pulse dark:bg-gray-700" />
-        </TableCell>
-      ))}
-    </TableRow>
-  );
+
   if (!mounted) return null;
 
   return (
@@ -1145,10 +1129,7 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {loading ? (
               Array.from({ length: 8 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-64 bg-gray-200 rounded-2xl animate-pulse dark:bg-gray-700"
-                />
+                <TreeCardSkeleton key={i} />
               ))
             ) : pagedTrees.length === 0 ? (
               <div className="col-span-full py-12 text-center text-gray-400">
@@ -2213,7 +2194,7 @@ export default function Dashboard() {
 
                   {/* Document Link */}
                   {selectedTree.document && (
-                    <div className="group flex items-center p-4 rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 to-white shadow-sm transition-all hover:shadow-md dark:from-blue-900/20 dark:to-gray-800 dark:border-blue-800">
+                    <div className="group flex items-center p-4 rounded-xl border border-blue-100 bg-linear-to-r from-blue-50 to-white shadow-sm transition-all hover:shadow-md dark:from-blue-900/20 dark:to-gray-800 dark:border-blue-800">
                       <div className="p-3 mr-4 bg-white rounded-full shadow-sm ring-1 ring-blue-100 dark:bg-blue-800 dark:ring-blue-700">
                         <svg
                           className="w-6 h-6 text-blue-600 dark:text-blue-300"
