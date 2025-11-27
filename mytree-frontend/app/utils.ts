@@ -1,5 +1,13 @@
 import { Tree } from "./types";
 
+export function getSecureImageUrl(url: string | null | undefined): string {
+  if (!url) return "";
+  if (url.startsWith("http://") && typeof window !== "undefined" && window.location.protocol === "https:") {
+    return url.replace("http://", "https://");
+  }
+  return url;
+}
+
 export function calcAge(tree: Tree, unit: "day" | "month" | "year") {
   if (!tree.plant_date) return "-";
   const plant = new Date(tree.plant_date);

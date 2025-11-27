@@ -4,7 +4,7 @@ import { Tree } from "../app/types";
 import { HiPencil, HiTrash, HiEye, HiPhotograph, HiCalendar, HiLocationMarker } from "react-icons/hi";
 import { TbGenderMale, TbGenderFemale, TbGenderBigender, TbGenderAgender, TbHelp } from "react-icons/tb";
 import Image from "next/image";
-import { calcAge, sexLabel } from "../app/utils";
+import { calcAge, sexLabel, getSecureImageUrl } from "../app/utils";
 
 interface TreeCardProps {
   tree: Tree;
@@ -61,7 +61,7 @@ export const TreeCardSkeleton = () => (
 );
 
 export const TreeCard: React.FC<TreeCardProps> = ({ tree, onEdit, onDelete, onView }) => {
-  const thumbnail = tree.images.length > 0 ? tree.images[0].thumbnail || tree.images[0].image : null;
+  const thumbnail = tree.images.length > 0 ? getSecureImageUrl(tree.images[0].thumbnail || tree.images[0].image) : null;
 
   return (
     <div 

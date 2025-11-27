@@ -2,6 +2,7 @@ import React from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow, Badge, ButtonGroup, Button } from "flowbite-react";
 import { Tree } from "../app/types";
 import Image from "next/image";
+import { calcAge, getSecureImageUrl } from "../app/utils";
 
 interface TreeTableProps {
   trees: Tree[];
@@ -202,7 +203,7 @@ export const TreeTable: React.FC<TreeTableProps> = ({
                             }`}
                           >
                             <Image
-                              src={img.thumbnail || img.image}
+                              src={getSecureImageUrl(img.thumbnail || img.image)}
                               alt={`รูปที่ ${idx + 1}`}
                               width={40}
                               height={40}
