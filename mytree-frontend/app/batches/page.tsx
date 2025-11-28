@@ -197,8 +197,8 @@ export default function BatchesPage() {
       <main className="px-4 py-8 mx-auto w-full max-w-5xl">
         <div className="flex flex-col gap-4 mb-8 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="flex items-center gap-3 text-3xl font-extrabold tracking-tight text-green-800 md:text-4xl dark:text-green-300">
-              <span className="text-4xl">🪴</span> ชุดการปลูกทั้งหมด
+            <h1 className="flex items-center gap-3 text-2xl font-bold tracking-tight text-gray-900 md:text-3xl dark:text-white">
+              ชุดการปลูกทั้งหมด
             </h1>
             <p className="mt-2 text-gray-600 dark:text-gray-400">จัดการข้อมูลชุดการปลูก (Batches) ของคุณ</p>
           </div>

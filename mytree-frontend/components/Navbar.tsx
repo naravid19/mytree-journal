@@ -13,11 +13,11 @@ export function AppNavbar() {
   const isActive = (path: string) => pathname === path ? "text-primary dark:text-green-400" : "text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-green-400";
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-900/70 backdrop-blur-md transition-all duration-300">
+    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="shrink-0 flex items-center">
-            <Link href="/" className="text-xl font-extrabold text-transparent bg-clip-text bg-linear-to-r from-primary to-primary-light dark:from-green-400 dark:to-green-200 font-kanit">
+            <Link href="/" className="text-xl font-bold tracking-tight text-emerald-900 dark:text-emerald-400 font-kanit">
               🌳 MyTree Journal
             </Link>
           </div>

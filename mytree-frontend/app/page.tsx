@@ -961,8 +961,8 @@ export default function Dashboard() {
       <main className="px-4 py-8 mx-auto w-full max-w-7xl sm:px-6 lg:px-8">
         {/* HEADER */}
         <div className="flex flex-col gap-4 mb-8 sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-linear-to-r from-green-700 to-blue-700 md:text-4xl lg:text-5xl dark:from-green-400 dark:to-blue-400 font-kanit drop-shadow-sm">
-            🌳 รายการต้นไม้ที่ปลูก
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900 md:text-3xl dark:text-white font-kanit">
+            รายการต้นไม้ที่ปลูก
           </h1>
           <div className="flex gap-3 items-center self-end sm:self-auto">
             <Tooltip content="ไปหน้าจัดการสายพันธุ์">
