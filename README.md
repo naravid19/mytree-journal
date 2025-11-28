@@ -168,7 +168,7 @@ mytree-journal/
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/example/mytree-journal.git
+   git clone https://github.com/naravid19/mytree-journal.git
    cd mytree-journal
    ```
 
@@ -321,7 +321,7 @@ server {
 - [ ] Improved batch/strain management
 - [ ] Multi-user collaboration
 
-ดูรายการเต็มที่ [open issues](https://github.com/example/mytree-journal/issues)
+ดูรายการเต็มที่ [open issues](https://github.com/naravid19/mytree-journal/issues)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -345,7 +345,7 @@ Distributed under the MIT License. See [`LICENSE`](LICENSE) for details.
 
 ## Contact
 
-Project Link: [https://github.com/example/mytree-journal](https://github.com/example/mytree-journal)
+Project Link: [https://github.com/naravid19/mytree-journal](https://github.com/naravid19/mytree-journal)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
