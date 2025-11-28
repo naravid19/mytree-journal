@@ -1,5 +1,6 @@
 import React from "react";
-import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow, Badge, ButtonGroup, Button } from "flowbite-react";
+import { HiQrcode, HiExternalLink, HiPencil, HiTrash } from "react-icons/hi";
+import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow, Badge, ButtonGroup, Button, Tooltip } from "flowbite-react";
 import { Tree } from "../app/types";
 import Image from "next/image";
 import { calcAge, getSecureImageUrl } from "../app/utils";
@@ -17,6 +18,9 @@ interface TreeTableProps {
   ageUnit: "day" | "month" | "year";
   setAgeUnit: (unit: "day" | "month" | "year") => void;
   calcAge: (tree: Tree, unit: "day" | "month" | "year") => string;
+  onEdit: (tree: Tree) => void;
+  onDelete: (tree: Tree) => void;
+  onShowQR: (tree: Tree) => void;
 }
 
 export const TreeTable: React.FC<TreeTableProps> = ({
@@ -31,7 +35,11 @@ export const TreeTable: React.FC<TreeTableProps> = ({
   onRowClick,
   ageUnit,
   setAgeUnit,
+
   calcAge,
+  onEdit,
+  onDelete,
+  onShowQR,
 }) => {
   const SkeletonRow = () => (
     <TableRow>
@@ -64,10 +72,10 @@ export const TreeTable: React.FC<TreeTableProps> = ({
                 />
               </TableHeadCell>
               <TableHeadCell
-                className="py-3 px-3 md:py-4 md:px-6 font-bold cursor-pointer select-none hover:text-green-700 dark:hover:text-green-400 transition-colors whitespace-nowrap"
+                className="py-2 px-2 md:py-4 md:px-6 font-bold cursor-pointer select-none hover:text-green-700 dark:hover:text-green-400 transition-colors whitespace-nowrap"
                 onClick={() => onSort("strain")}
               >
-                สายพันธุ์ {renderSortIcon("strain")}
+                ชื่อ/สายพันธุ์ {renderSortIcon("strain")}
               </TableHeadCell>
               <TableHeadCell
                 className="py-3 px-3 md:py-4 md:px-6 font-bold cursor-pointer select-none hover:text-green-700 dark:hover:text-green-400 transition-colors hidden xl:table-cell whitespace-nowrap"
@@ -88,7 +96,7 @@ export const TreeTable: React.FC<TreeTableProps> = ({
                 เพศ {renderSortIcon("sex")}
               </TableHeadCell>
               <TableHeadCell
-                className="py-3 px-3 md:py-4 md:px-6 font-bold cursor-pointer select-none hover:text-green-700 dark:hover:text-green-400 transition-colors whitespace-nowrap"
+                className="py-3 px-3 md:py-4 md:px-6 font-bold cursor-pointer select-none hover:text-green-700 dark:hover:text-green-400 transition-colors whitespace-nowrap hidden sm:table-cell"
                 onClick={() => onSort("plant_date")}
               >
                 <div className="flex gap-3 items-center">
@@ -117,12 +125,13 @@ export const TreeTable: React.FC<TreeTableProps> = ({
                 </div>
               </TableHeadCell>
               <TableHeadCell
-                className="py-3 px-3 md:py-4 md:px-6 font-bold cursor-pointer select-none hover:text-green-700 dark:hover:text-green-400 transition-colors whitespace-nowrap"
+                className="py-2 px-2 md:py-4 md:px-6 font-bold cursor-pointer select-none hover:text-green-700 dark:hover:text-green-400 transition-colors whitespace-nowrap"
                 onClick={() => onSort("status")}
               >
                 สถานะ {renderSortIcon("status")}
               </TableHeadCell>
-              <TableHeadCell className="py-3 px-3 md:py-4 md:px-6 font-bold whitespace-nowrap">รูป</TableHeadCell>
+              <TableHeadCell className="py-2 px-2 md:py-4 md:px-6 font-bold whitespace-nowrap">รูป</TableHeadCell>
+              <TableHeadCell className="py-2 px-2 md:py-4 md:px-6 font-bold whitespace-nowrap text-center">จัดการ</TableHeadCell>
             </TableRow>
           </TableHead>
           <TableBody className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -153,7 +162,16 @@ export const TreeTable: React.FC<TreeTableProps> = ({
                       onClick={(e) => e.stopPropagation()}
                     />
                   </TableCell>
-                  <TableCell className="px-3 py-3 md:px-6 md:py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap">{tree.strain?.name || "-"}</TableCell>
+                  <TableCell className="px-2 py-2 md:px-6 md:py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap">
+                    <div className="flex flex-col">
+                      <span className="text-sm md:text-base">{tree.nickname || tree.strain?.name || "-"}</span>
+                      {tree.nickname && (
+                        <span className="text-xs text-gray-500 dark:text-gray-400 font-normal md:hidden">
+                          {tree.strain?.name}
+                        </span>
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell className="px-3 py-3 md:px-6 md:py-4 text-gray-600 dark:text-gray-300 hidden xl:table-cell whitespace-nowrap">{tree.variety}</TableCell>
                   <TableCell className="px-3 py-3 md:px-6 md:py-4 text-gray-600 dark:text-gray-300 hidden lg:table-cell whitespace-nowrap">{tree.nickname}</TableCell>
                   <TableCell className="px-3 py-3 md:px-6 md:py-4 hidden md:table-cell">
@@ -178,8 +196,8 @@ export const TreeTable: React.FC<TreeTableProps> = ({
                       }[tree.sex] || "-"}
                     </Badge>
                   </TableCell>
-                  <TableCell className="px-3 py-3 md:px-6 md:py-4 font-mono text-gray-600 dark:text-gray-300 whitespace-nowrap">{calcAge(tree, ageUnit)}</TableCell>
-                  <TableCell className="px-3 py-3 md:px-6 md:py-4 whitespace-nowrap">
+                  <TableCell className="px-3 py-3 md:px-6 md:py-4 font-mono text-gray-600 dark:text-gray-300 whitespace-nowrap hidden sm:table-cell">{calcAge(tree, ageUnit)}</TableCell>
+                  <TableCell className="px-2 py-2 md:px-6 md:py-4 whitespace-nowrap">
                     <Badge
                       className="w-fit shadow-sm"
                       color={
@@ -192,7 +210,7 @@ export const TreeTable: React.FC<TreeTableProps> = ({
                       {tree.status}
                     </Badge>
                   </TableCell>
-                  <TableCell className="px-3 py-3 md:px-6 md:py-4">
+                  <TableCell className="px-2 py-2 md:px-6 md:py-4">
                     {tree.images && tree.images.length > 0 ? (
                       <>
                         {/* Mobile: Single Thumbnail with Badge */}
@@ -239,6 +257,62 @@ export const TreeTable: React.FC<TreeTableProps> = ({
                     ) : (
                       <span className="text-xs text-gray-400 dark:text-gray-500 italic">ไม่มีรูป</span>
                     )}
+                  </TableCell>
+                  <TableCell className="px-2 py-2 md:px-6 md:py-4">
+                    <div className="flex items-center justify-center gap-2">
+                      <Tooltip content="หน้าสาธารณะ">
+                        <Button
+                          size="xs"
+                          color="light"
+                          className="p-1! border-gray-200 dark:border-gray-600 hover:bg-green-50 dark:hover:bg-green-900/30"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(`/tree/${tree.id}`, '_blank');
+                          }}
+                        >
+                          <HiExternalLink className="w-4 h-4 text-green-600 dark:text-green-400" />
+                        </Button>
+                      </Tooltip>
+                       <Tooltip content="QR Code">
+                        <Button
+                          size="xs"
+                          color="light"
+                          className="p-1! border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onShowQR(tree);
+                          }}
+                        >
+                          <HiQrcode className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                        </Button>
+                      </Tooltip>
+                      <Tooltip content="แก้ไข">
+                        <Button
+                          size="xs"
+                          color="light"
+                          className="p-1! border-gray-200 dark:border-gray-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/30"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit(tree);
+                          }}
+                        >
+                          <HiPencil className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+                        </Button>
+                      </Tooltip>
+                      <Tooltip content="ลบ">
+                        <Button
+                          size="xs"
+                          color="light"
+                          className="p-1! border-gray-200 dark:border-gray-600 hover:bg-red-50 dark:hover:bg-red-900/30"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete(tree);
+                          }}
+                        >
+                          <HiTrash className="w-4 h-4 text-red-600 dark:text-red-400" />
+                        </Button>
+                      </Tooltip>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

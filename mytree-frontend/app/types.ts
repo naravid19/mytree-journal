@@ -51,4 +51,5 @@ export type Tree = {
   images: Image[];
   notes: string;
   generation?: string;
+  code?: string;
 };

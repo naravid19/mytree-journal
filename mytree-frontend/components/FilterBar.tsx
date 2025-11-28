@@ -24,7 +24,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   onViewModeChange,
 }) => {
   return (
-    <div className="flex flex-col gap-4 p-4 bg-white rounded-2xl shadow-lg md:flex-row md:items-center md:justify-between dark:bg-gray-800 border border-gray-100 dark:border-gray-700 transition-all hover:shadow-xl">
+    <div className="flex flex-col gap-3 p-3 bg-white rounded-2xl shadow-lg md:flex-row md:items-center md:justify-between md:p-4 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 transition-all hover:shadow-xl">
       <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center w-full md:w-auto flex-1">
         <div className="relative w-full sm:max-w-md group">
           <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
@@ -40,10 +40,10 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             disabled={loading}
           />
         </div>
-        <div className="flex items-center p-1 bg-gray-100 rounded-xl border border-gray-200 dark:bg-gray-700 dark:border-gray-600 shadow-inner self-start sm:self-auto">
+        <div className="flex items-center justify-center p-1 bg-gray-100 rounded-xl border border-gray-200 dark:bg-gray-700 dark:border-gray-600 shadow-inner w-full sm:w-auto">
           <button
             onClick={() => onViewModeChange("table")}
-            className={`p-2 rounded-lg transition-all duration-200 flex items-center gap-2 ${
+            className={`flex-1 sm:flex-none justify-center p-2 rounded-lg transition-all duration-200 flex items-center gap-2 ${
               viewMode === "table"
                 ? "bg-white text-green-600 shadow-sm dark:bg-gray-600 dark:text-green-400 transform scale-105 font-medium"
                 : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
@@ -51,11 +51,11 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             aria-label="Table View"
           >
             <HiViewList className="w-5 h-5" />
-            <span className="text-xs hidden sm:inline">List</span>
+            <span className="text-xs">List</span>
           </button>
           <button
             onClick={() => onViewModeChange("grid")}
-            className={`p-2 rounded-lg transition-all duration-200 flex items-center gap-2 ${
+            className={`flex-1 sm:flex-none justify-center p-2 rounded-lg transition-all duration-200 flex items-center gap-2 ${
               viewMode === "grid"
                 ? "bg-white text-green-600 shadow-sm dark:bg-gray-600 dark:text-green-400 transform scale-105 font-medium"
                 : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
@@ -63,7 +63,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             aria-label="Grid View"
           >
             <HiViewGrid className="w-5 h-5" />
-            <span className="text-xs hidden sm:inline">Grid</span>
+            <span className="text-xs">Grid</span>
           </button>
         </div>
       </div>

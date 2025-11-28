@@ -42,6 +42,7 @@ import {
   sexLabel,
 } from "./utils";
 import { TreeCard, TreeCardSkeleton } from "../components/TreeCard";
+import { QRCodeModal } from "../components/QRCodeModal";
 import { TreeTable } from "../components/TreeTable";
 import { FilterBar } from "../components/FilterBar";
 import { useDebouncedSearch } from "./hooks";
@@ -95,6 +96,8 @@ export default function Dashboard() {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showQRModal, setShowQRModal] = useState(false);
+  const [selectedQRTree, setSelectedQRTree] = useState<Tree | null>(null);
   const [selectedTree, setSelectedTree] = useState<Tree | null>(null);
   const [galleryIndex, setGalleryIndex] = useState(0);
 
@@ -700,6 +703,11 @@ export default function Dashboard() {
     }
   }, [form, imageFiles, selectedTree, todayStr]);
 
+  const handleShowQR = (tree: Tree) => {
+    setSelectedQRTree(tree);
+    setShowQRModal(true);
+  };
+
   const handleShowDelete = (tree?: Tree) => {
     if (tree) setSelectedTree(tree);
     setShowDeleteModal(true);
@@ -958,34 +966,34 @@ export default function Dashboard() {
           </span>
         </div>
       )}
-      <main className="px-4 py-8 mx-auto w-full max-w-7xl sm:px-6 lg:px-8">
+      <main className="px-3 py-4 mx-auto w-full max-w-7xl sm:px-6 lg:px-8 md:py-8 pb-24">
         {/* HEADER */}
-        <div className="flex flex-col gap-4 mb-8 sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900 md:text-3xl dark:text-white font-kanit">
+        <div className="flex flex-col gap-4 mb-6 sm:flex-row sm:items-center sm:justify-between sm:mb-8">
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900 md:text-3xl dark:text-white font-kanit text-center sm:text-left">
             รายการต้นไม้ที่ปลูก
           </h1>
-          <div className="flex gap-3 items-center self-end sm:self-auto">
+          <div className="grid grid-cols-2 gap-3 w-full sm:w-auto sm:flex">
             <Tooltip content="ไปหน้าจัดการสายพันธุ์">
-              <Link href="/strains">
+              <Link href="/strains" className="w-full sm:w-auto">
                 <Button
                   color="light"
                   size="sm"
-                  className="flex items-center gap-2 font-kanit shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                  className="flex justify-center items-center gap-2 w-full font-kanit shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                 >
                   <HiCollection className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                  สายพันธุ์
+                  <span className="ml-2">สายพันธุ์</span>
                 </Button>
               </Link>
             </Tooltip>
             <Tooltip content="ไปหน้าจัดการชุดการปลูก">
-              <Link href="/batches">
+              <Link href="/batches" className="w-full sm:w-auto">
                 <Button
                   color="light"
                   size="sm"
-                  className="flex items-center gap-2 font-kanit shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                  className="flex justify-center items-center gap-2 w-full font-kanit shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                 >
                   <HiOutlineBeaker className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                  ชุดการปลูก
+                  <span className="ml-2">ชุดการปลูก</span>
                 </Button>
               </Link>
             </Tooltip>
@@ -1038,6 +1046,12 @@ export default function Dashboard() {
               ageUnit={ageUnit}
               setAgeUnit={setAgeUnit}
               calcAge={calcAge}
+              onEdit={handleShowEdit}
+              onDelete={(t) => {
+                setSelectedTree(t);
+                setShowDeleteModal(true);
+              }}
+              onShowQR={handleShowQR}
             />
             {totalPages > 1 && (
               <nav
@@ -1143,6 +1157,7 @@ export default function Dashboard() {
                     setShowDeleteModal(true);
                   }}
                   onView={handleShowDetail}
+                  onShowQR={handleShowQR}
                 />
               ))
             )}
@@ -1165,6 +1180,13 @@ export default function Dashboard() {
           </Button>
         </div>
       </main>
+
+      {/* QR Code Modal */}
+      <QRCodeModal
+        show={showQRModal}
+        onClose={() => setShowQRModal(false)}
+        tree={selectedQRTree}
+      />
 
       {/* Modal เพิ่มต้นไม้ใหม่ */}
       <Modal

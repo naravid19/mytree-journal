@@ -1,9 +1,10 @@
 import React from "react";
 import { Card, Badge, Button, Tooltip } from "flowbite-react";
 import { Tree } from "../app/types";
-import { HiPencil, HiTrash, HiEye, HiPhotograph, HiCalendar, HiLocationMarker } from "react-icons/hi";
+import { HiPencil, HiTrash, HiEye, HiPhotograph, HiCalendar, HiLocationMarker, HiQrcode, HiExternalLink } from "react-icons/hi";
 import { TbGenderMale, TbGenderFemale, TbGenderBigender, TbGenderAgender, TbHelp } from "react-icons/tb";
 import Image from "next/image";
+import Link from "next/link";
 import { calcAge, sexLabel, getSecureImageUrl } from "../app/utils";
 
 interface TreeCardProps {
@@ -11,6 +12,7 @@ interface TreeCardProps {
   onEdit: (tree: Tree) => void;
   onDelete: (tree: Tree) => void;
   onView: (tree: Tree) => void;
+  onShowQR: (tree: Tree) => void;
 }
 
 const getSexIcon = (sex: string) => {
@@ -60,7 +62,7 @@ export const TreeCardSkeleton = () => (
   </div>
 );
 
-export const TreeCard: React.FC<TreeCardProps> = ({ tree, onEdit, onDelete, onView }) => {
+export const TreeCard: React.FC<TreeCardProps> = ({ tree, onEdit, onDelete, onView, onShowQR }) => {
   const thumbnail = tree.images.length > 0 ? getSecureImageUrl(tree.images[0].thumbnail || tree.images[0].image) : null;
 
   return (
@@ -136,16 +138,37 @@ export const TreeCard: React.FC<TreeCardProps> = ({ tree, onEdit, onDelete, onVi
           </div>
 
           <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-gray-100 dark:border-gray-700" onClick={(e) => e.stopPropagation()}>
-            <Button size="xs" color="gray" onClick={() => onView(tree)} className="transition-all hover:bg-gray-100 dark:hover:bg-gray-700 focus:ring-2 focus:ring-gray-200">
-              <HiEye className="w-4 h-4 mr-1.5" />
-              View
-            </Button>
-            <Button size="xs" color="light" onClick={() => onEdit(tree)} className="transition-all hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 dark:hover:text-blue-400 border-gray-200 dark:border-gray-600">
-              <HiPencil className="w-4 h-4" />
-            </Button>
-            <Button size="xs" color="failure" onClick={() => onDelete(tree)} className="transition-all hover:bg-red-700 shadow-sm">
-              <HiTrash className="w-4 h-4" />
-            </Button>
+            <Tooltip content="ดูรายละเอียด">
+              <Button size="xs" color="gray" onClick={() => onView(tree)} className="rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-gray-700 focus:ring-2 focus:ring-gray-200">
+                <HiEye className="w-4 h-4" />
+              </Button>
+            </Tooltip>
+            
+            <Tooltip content="QR Code">
+              <Button size="xs" color="light" onClick={() => onShowQR(tree)} className="rounded-lg transition-all hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-gray-700 dark:hover:text-purple-400 border-gray-200 dark:border-gray-600">
+                <HiQrcode className="w-4 h-4" />
+              </Button>
+            </Tooltip>
+
+            <Tooltip content="หน้าสาธารณะ">
+              <Link href={`/tree/${tree.id}`} passHref>
+                <Button size="xs" color="light" className="rounded-lg transition-all hover:text-green-600 hover:bg-green-50 dark:hover:bg-gray-700 dark:hover:text-green-400 border-gray-200 dark:border-gray-600">
+                  <HiExternalLink className="w-4 h-4" />
+                </Button>
+              </Link>
+            </Tooltip>
+
+            <Tooltip content="แก้ไข">
+              <Button size="xs" color="light" onClick={() => onEdit(tree)} className="rounded-lg transition-all hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 dark:hover:text-blue-400 border-gray-200 dark:border-gray-600">
+                <HiPencil className="w-4 h-4" />
+              </Button>
+            </Tooltip>
+
+            <Tooltip content="ลบ">
+              <Button size="xs" color="failure" onClick={() => onDelete(tree)} className="rounded-lg transition-all hover:bg-red-700 shadow-sm">
+                <HiTrash className="w-4 h-4" />
+              </Button>
+            </Tooltip>
           </div>
         </div>
       </Card>
