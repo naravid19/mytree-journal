@@ -66,10 +66,10 @@ export const TreeCard: React.FC<TreeCardProps> = ({ tree, onEdit, onDelete, onVi
   return (
     <div 
       onClick={() => onView(tree)}
-      className="group relative h-full w-full max-w-sm cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02]"
+      className="group relative h-full w-full max-w-sm cursor-pointer transition-all duration-500 hover:-translate-y-2"
     >
       <Card
-        className="h-full border-gray-200 shadow-lg transition-all duration-300 hover:shadow-2xl dark:border-gray-700 dark:bg-gray-800 overflow-hidden"
+        className="h-full border-0 shadow-lg transition-all duration-500 hover:shadow-2xl dark:bg-gray-800 overflow-hidden glass"
         renderImage={() => (
           <div className="relative w-full h-56 bg-gray-100 overflow-hidden dark:bg-gray-700">
             {thumbnail ? (
@@ -109,7 +109,7 @@ export const TreeCard: React.FC<TreeCardProps> = ({ tree, onEdit, onDelete, onVi
         <div className="flex flex-col gap-3 p-1">
           <div className="flex justify-between items-start">
             <div>
-              <h5 className="text-xl font-bold tracking-tight text-gray-900 font-kanit dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors line-clamp-1">
+              <h5 className="text-xl font-bold tracking-tight text-gray-900 font-kanit dark:text-white group-hover:text-primary dark:group-hover:text-primary-light transition-colors line-clamp-1">
                 {tree.nickname || "Unnamed Tree"}
               </h5>
               <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mt-0.5">

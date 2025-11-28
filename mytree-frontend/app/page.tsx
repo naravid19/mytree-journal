@@ -945,12 +945,7 @@ export default function Dashboard() {
 
   return (
     <div className="w-full min-h-screen bg-linear-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 font-kanit">
-      {/* ปุ่มเปลี่ยนโหมดแสง/มืด (Floating) */}
-      <div className="fixed top-4 right-4 z-20001">
-        <Tooltip content="เปลี่ยนโหมดแสง/มืด" placement="left">
-          <DarkThemeToggle className="rounded-full shadow-lg border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 hover:scale-110 transition-all w-12 h-12 flex items-center justify-center text-gray-600 dark:text-gray-300" />
-        </Tooltip>
-      </div>
+
       {/* Overlay Spinner กลางจอ ขณะ loading */}
       {loading && (
         <div className="fixed inset-0 z-20000 flex items-center justify-center bg-black/20 backdrop-blur-sm">

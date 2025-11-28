@@ -4,8 +4,8 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8fafc; /* Slate 50 - Softer white */
+  --foreground: #0f172a; /* Slate 900 */
 }
 
 @theme inline {
@@ -13,22 +13,42 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Premium Nature Palette */
+  --color-primary: #064e3b; /* Emerald 900 */
+  --color-primary-light: #059669; /* Emerald 600 */
+  --color-secondary: #ecfdf5; /* Emerald 50 */
+  --color-accent: #d97706; /* Amber 600 */
+  --color-surface: #ffffff;
+  --color-surface-dark: #111827; /* Gray 900 */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #020617; /* Slate 950 */
+    --foreground: #f1f5f9; /* Slate 100 */
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Kanit', Arial, Helvetica, sans-serif;
-  /* รองรับ mobile */
+  font-family: "Kanit", Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   font-size: 16px;
+}
+
+/* Glassmorphism Utility */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark .glass {
+  background: rgba(17, 24, 39, 0.7); /* Gray 900 with opacity */
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 [data-testid="modal-overlay"] {
