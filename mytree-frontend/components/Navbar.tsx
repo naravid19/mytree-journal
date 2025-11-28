@@ -16,7 +16,7 @@ export function AppNavbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-900/70 backdrop-blur-md transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
-          <div className="flex-shrink-0 flex items-center">
+          <div className="shrink-0 flex items-center">
             <Link href="/" className="text-xl font-extrabold text-transparent bg-clip-text bg-linear-to-r from-primary to-primary-light dark:from-green-400 dark:to-green-200 font-kanit">
               🌳 MyTree Journal
             </Link>
@@ -51,21 +51,28 @@ export function AppNavbar() {
       </div>
 
       {/* Mobile menu */}
-      {isOpen && (
-        <div className="md:hidden bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <Link href="/" className={`block px-3 py-2 rounded-md text-base font-medium ${isActive("/")}`} onClick={() => setIsOpen(false)}>
+      <div className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? "max-h-64 opacity-100" : "max-h-0 opacity-0"}`}>
+        <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 px-2 pt-2 pb-3 space-y-1 sm:px-3 shadow-lg">
+          <Link href="/" className={`block px-3 py-3 rounded-xl text-base font-medium transition-colors ${isActive("/")}`} onClick={() => setIsOpen(false)}>
+            <div className="flex items-center gap-2">
+              <HiHome className="w-5 h-5" />
               หน้าหลัก
-            </Link>
-            <Link href="/strains" className={`block px-3 py-2 rounded-md text-base font-medium ${isActive("/strains")}`} onClick={() => setIsOpen(false)}>
+            </div>
+          </Link>
+          <Link href="/strains" className={`block px-3 py-3 rounded-xl text-base font-medium transition-colors ${isActive("/strains")}`} onClick={() => setIsOpen(false)}>
+            <div className="flex items-center gap-2">
+              <HiCollection className="w-5 h-5" />
               สายพันธุ์
-            </Link>
-            <Link href="/batches" className={`block px-3 py-2 rounded-md text-base font-medium ${isActive("/batches")}`} onClick={() => setIsOpen(false)}>
+            </div>
+          </Link>
+          <Link href="/batches" className={`block px-3 py-3 rounded-xl text-base font-medium transition-colors ${isActive("/batches")}`} onClick={() => setIsOpen(false)}>
+            <div className="flex items-center gap-2">
+              <HiOutlineBeaker className="w-5 h-5" />
               ชุดการปลูก
-            </Link>
-          </div>
+            </div>
+          </Link>
         </div>
-      )}
+      </div>
     </nav>
   );
 }

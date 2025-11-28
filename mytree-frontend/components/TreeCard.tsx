@@ -66,7 +66,7 @@ export const TreeCard: React.FC<TreeCardProps> = ({ tree, onEdit, onDelete, onVi
   return (
     <div 
       onClick={() => onView(tree)}
-      className="group relative h-full w-full max-w-sm cursor-pointer transition-all duration-500 hover:-translate-y-2"
+      className="group relative h-full w-full max-w-sm cursor-pointer transition-all duration-500 hover:-translate-y-2 active:scale-95"
     >
       <Card
         className="h-full border-0 shadow-lg transition-all duration-500 hover:shadow-2xl dark:bg-gray-800 overflow-hidden glass"

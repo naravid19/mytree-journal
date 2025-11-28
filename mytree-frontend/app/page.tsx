@@ -1148,7 +1148,7 @@ export default function Dashboard() {
             )}
           </div>
         )}
-        <div className="fixed bottom-8 right-8 z-1000">
+        <div className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-1000">
           <Button
             size="xl"
             className="rounded-full shadow-2xl bg-linear-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white border-none transform hover:scale-110 transition-all duration-300 w-16 h-16 flex items-center justify-center focus:ring-4 focus:ring-green-300 dark:focus:ring-green-800"
@@ -1169,7 +1169,7 @@ export default function Dashboard() {
       {/* Modal เพิ่มต้นไม้ใหม่ */}
       <Modal
         show={showAddModal}
-        size="lg"
+        size="xl"
         aria-modal="true"
         initialFocus={addInitialRef}
         onClose={() => {
@@ -1181,7 +1181,7 @@ export default function Dashboard() {
           setSuccessMessage("");
           setErrorMessage("");
         }}
-        className="rounded-2xl border border-gray-200 shadow-2xl backdrop-blur-lg xl:max-w-2xl dark:border-gray-700"
+        className="rounded-2xl border border-gray-200 shadow-2xl backdrop-blur-lg xl:max-w-2xl dark:border-gray-700 [&>div]:p-0 [&>div]:h-full [&>div]:md:h-auto [&>div]:w-full [&>div]:max-w-full [&>div]:md:max-w-4xl"
       >
         <ModalHeader>
           <span className="text-2xl font-extrabold text-green-700 font-kanit sm:text-3xl md:text-4xl dark:text-green-300">
@@ -2457,7 +2457,7 @@ export default function Dashboard() {
       {/* Modal แก้ไขข้อมูลต้นไม้ */}
       <Modal
         show={showEditModal}
-        size="lg"
+        size="xl"
         aria-modal="true"
         initialFocus={editInitialRef}
         onClose={() => {
@@ -2468,7 +2468,7 @@ export default function Dashboard() {
           setImageFiles([]);
           setSelectedTree(null);
         }}
-        className="rounded-2xl border border-gray-200 shadow-2xl backdrop-blur-lg xl:max-w-2xl dark:border-gray-700"
+        className="rounded-2xl border border-gray-200 shadow-2xl backdrop-blur-lg xl:max-w-2xl dark:border-gray-700 [&>div]:p-0 [&>div]:h-full [&>div]:md:h-auto [&>div]:w-full [&>div]:max-w-full [&>div]:md:max-w-4xl"
       >
         <ModalHeader>
           <span className="text-2xl font-extrabold text-blue-700 font-kanit sm:text-3xl md:text-4xl dark:text-blue-300">
