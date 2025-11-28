@@ -107,6 +107,18 @@ export default function PublicTreePage() {
                 <HiClipboardList className="w-4 h-4 mr-1" />
                 แชร์
              </Button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column: Cover & Key Stats */}
+          <div className="lg:col-span-1 space-y-6">
+            <Card className="overflow-hidden border-0 shadow-xl ring-1 ring-gray-900/5 dark:ring-gray-700/50 p-0">
+              <div className="relative h-80 w-full bg-white dark:bg-gray-800">
+                <Image 
+                  src={coverImage} 
+                  alt={altText}
+                  fill
                   className="object-contain p-4 hover:scale-105 transition-transform duration-500"
                   priority
                 />
