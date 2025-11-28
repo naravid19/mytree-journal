@@ -19,7 +19,6 @@ import {
   Alert,
   Toast,
   Tooltip,
-  DarkThemeToggle,
   Card,
 } from "flowbite-react";
 import { HiCheckCircle, HiXCircle, HiTrash, HiArrowLeft, HiPlus, HiPencil } from "react-icons/hi";
@@ -194,11 +193,7 @@ export default function BatchesPage() {
   return (
     <div className="w-full min-h-screen bg-linear-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 font-kanit">
       {/* ปุ่มเปลี่ยนโหมดแสง/มืด (Floating) */}
-      <div className="fixed top-4 right-4 z-20001">
-        <Tooltip content="เปลี่ยนโหมดแสง/มืด" placement="left">
-          <DarkThemeToggle className="flex justify-center items-center w-12 h-12 rounded-full border border-gray-200 shadow-lg transition-all dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 hover:scale-110" />
-        </Tooltip>
-      </div>
+
       <main className="px-4 py-8 mx-auto w-full max-w-5xl">
         <div className="flex flex-col gap-4 mb-8 sm:flex-row sm:items-center sm:justify-between">
           <div>
