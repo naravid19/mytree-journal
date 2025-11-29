@@ -47,7 +47,9 @@ import { TreeTable } from "../components/TreeTable";
 import { FilterBar } from "../components/FilterBar";
 import { useDebouncedSearch } from "./hooks";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+const API_BASE = process.env.NODE_ENV === 'development' 
+  ? "http://127.0.0.1:8000" 
+  : (process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000").replace(/\/$/, "");
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 const ACCEPTED_IMAGE_TYPES = [
@@ -261,7 +263,6 @@ export default function Dashboard() {
     e.preventDefault();
     setIsDraggingImages(false);
   };
-
   const handleDropImages = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDraggingImages(false);
@@ -314,19 +315,23 @@ export default function Dashboard() {
 
   // Fetch Data
   const fetchTrees = () => {
+    const url = `${API_BASE}/api/trees/`;
+    console.log("Fetching trees from:", url);
     // setLoading(true); // Remove redundant loading (handled by skeleton in table)
-    fetch(`${API_BASE}/api/trees/`)
-      .then((res) => res.json())
+    fetch(url)
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
+      })
       .then((data) => setTrees(data))
       .catch((err) => {
         console.error("Error fetching trees:", err);
-        setErrorMessage("โหลดข้อมูลไม่สำเร็จ");
+        setErrorMessage("โหลดข้อมูลไม่สำเร็จ: " + (err.message || "Unknown error"));
       })
       .finally(() => setLoading(false));
   };
 
   const fetchStrains = () => {
-    setStrainsLoading(true);
     fetch(`${API_BASE}/api/strains/`)
       .then((res) => res.json())
       .then((data) => setStrains(data))
