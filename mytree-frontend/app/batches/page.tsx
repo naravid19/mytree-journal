@@ -21,7 +21,7 @@ import {
   Tooltip,
   Card,
 } from "flowbite-react";
-import { HiCheckCircle, HiXCircle, HiTrash, HiArrowLeft, HiPlus, HiPencil } from "react-icons/hi";
+import { HiCheckCircle, HiXCircle, HiTrash, HiArrowLeft, HiPlus, HiPencil, HiOutlineBeaker } from "react-icons/hi";
 import { useRouter } from "next/navigation";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "";
@@ -191,35 +191,36 @@ export default function BatchesPage() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-linear-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 font-kanit">
-      {/* ปุ่มเปลี่ยนโหมดแสง/มืด (Floating) */}
-
-      <main className="px-4 py-8 mx-auto w-full max-w-5xl">
-        <div className="flex flex-col gap-4 mb-8 sm:flex-row sm:items-center sm:justify-between">
+    <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <main className="space-y-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="flex items-center gap-3 text-2xl font-bold tracking-tight text-gray-900 md:text-3xl dark:text-white">
-              ชุดการปลูกทั้งหมด
+            <h1 className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400">
+              จัดการชุดการปลูก
             </h1>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">จัดการข้อมูลชุดการปลูก (Batches) ของคุณ</p>
+            <p className="mt-1 text-gray-500 dark:text-gray-400">
+              เพิ่มและแก้ไขข้อมูลชุดการปลูกพืชของคุณ
+            </p>
           </div>
-          <Button 
-            onClick={() => { resetForm(); setShowAddModal(true); }}
-            className="shadow-lg transition-transform hover:scale-105 bg-linear-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white border-none"
-          >
-            <HiPlus className="mr-2 w-5 h-5" />
-            เพิ่มชุดการปลูก
-          </Button>
+          <div className="flex gap-3">
+            <Button color="gray" size="sm" className="shadow-sm hover:bg-gray-100 dark:hover:bg-gray-700 border-0" onClick={() => router.push('/')}> 
+              <HiArrowLeft className="mr-2 w-4 h-4" />
+              กลับหน้าหลัก
+            </Button>
+            <Button 
+              onClick={() => { resetForm(); setShowAddModal(true); }}
+              className="shadow-lg transition-transform hover:scale-105 bg-linear-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white border-none"
+            >
+              <HiPlus className="mr-2 w-5 h-5" />
+              เพิ่มชุดการปลูก
+            </Button>
+          </div>
         </div>
-        
-        <Button color="gray" size="sm" className="flex gap-2 items-center mb-6 shadow-sm hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => router.push('/')}>
-          <HiArrowLeft className="mr-2 w-4 h-4" />
-          กลับหน้ารายการต้นไม้
-        </Button>
 
-        <Card className="overflow-hidden rounded-2xl border-none shadow-xl bg-white/80 backdrop-blur-sm dark:bg-gray-800/80">
+        <div className="glass rounded-3xl overflow-hidden shadow-xl border border-white/50 dark:border-gray-700">
           <div className="overflow-x-auto">
             <Table hoverable className="w-full text-left text-gray-500 dark:text-gray-400">
-              <TableHead className="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+              <TableHead className="text-gray-700 uppercase bg-gray-50/50 dark:bg-gray-800/50 dark:text-gray-400 backdrop-blur-sm">
                 <TableRow>
                   <TableHeadCell className="px-6 py-4 text-sm font-bold">รหัสชุด</TableHeadCell>
                   <TableHeadCell className="px-6 py-4 text-sm font-bold">รายละเอียด</TableHeadCell>
@@ -232,15 +233,15 @@ export default function BatchesPage() {
               <TableBody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {batches.length > 0 ? (
                   batches.map((batch) => (
-                    <TableRow key={batch.id} className="bg-white transition-colors hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700">
+                    <TableRow key={batch.id} className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-sm transition-colors hover:bg-white/80 dark:hover:bg-gray-800/80">
                       <TableCell className="px-6 py-4 font-semibold text-gray-900 whitespace-nowrap dark:text-white">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                          {batch.batch_code}
+                        <div className="flex items-center gap-3">
+                          <div className="w-3 h-3 bg-blue-500 rounded-full shadow-sm shadow-blue-500/50"></div>
+                          <span className="text-base font-mono">{batch.batch_code}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="px-6 py-4 max-w-md truncate">
-                        {batch.description || <span className="italic text-gray-400">ไม่มีรายละเอียด</span>}
+                      <TableCell className="px-6 py-4 max-w-md truncate text-gray-600 dark:text-gray-300">
+                        {batch.description || <span className="italic text-gray-400 opacity-70">ไม่มีรายละเอียด</span>}
                       </TableCell>
                       <TableCell className="px-6 py-4 font-medium text-gray-700 dark:text-gray-300">
                         {batch.started_date}
@@ -248,12 +249,12 @@ export default function BatchesPage() {
                       <TableCell className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2">
                           <Tooltip content="แก้ไข">
-                            <Button size="xs" color="light" className="border-gray-200 hover:bg-blue-50 hover:text-blue-600 dark:border-gray-600 dark:hover:bg-gray-600" onClick={() => handleShowEdit(batch)}>
+                            <Button size="xs" color="light" className="rounded-full w-8 h-8 p-0 flex items-center justify-center border-gray-200 hover:bg-blue-50 hover:text-blue-600 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:text-blue-400 transition-all" onClick={() => handleShowEdit(batch)}>
                               <HiPencil className="w-4 h-4" />
                             </Button>
                           </Tooltip>
                           <Tooltip content="ลบ">
-                            <Button size="xs" color="light" className="border-gray-200 hover:bg-red-50 hover:text-red-600 dark:border-gray-600 dark:hover:bg-gray-600" onClick={() => { setSelectedBatch(batch); setShowDeleteModal(true); }}>
+                            <Button size="xs" color="light" className="rounded-full w-8 h-8 p-0 flex items-center justify-center border-gray-200 hover:bg-red-50 hover:text-red-600 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:text-red-400 transition-all" onClick={() => { setSelectedBatch(batch); setShowDeleteModal(true); }}>
                               <HiTrash className="w-4 h-4" />
                             </Button>
                           </Tooltip>
@@ -263,15 +264,21 @@ export default function BatchesPage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4} className="py-8 text-center text-gray-500">
-                      ไม่พบข้อมูลชุดการปลูก
+                    <TableCell colSpan={4} className="py-12 text-center text-gray-500">
+                      <div className="flex flex-col items-center justify-center">
+                        <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-3">
+                          <HiOutlineBeaker className="w-8 h-8 text-gray-400" />
+                        </div>
+                        <span className="text-lg font-medium">ไม่พบข้อมูลชุดการปลูก</span>
+                        <p className="text-sm text-gray-400 mt-1">เริ่มเพิ่มชุดการปลูกใหม่ได้เลย</p>
+                      </div>
                     </TableCell>
                   </TableRow>
                 )}
               </TableBody>
             </Table>
           </div>
-        </Card>
+        </div>
       </main>
 
       {/* Add Modal */}

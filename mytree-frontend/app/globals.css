@@ -4,7 +4,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #f8fafc; /* Slate 50 - Softer white */
+  --background: #f8fafc; /* Slate 50 */
   --foreground: #0f172a; /* Slate 900 */
 }
 
@@ -14,11 +14,12 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  /* Premium Nature Palette */
-  --color-primary: #064e3b; /* Emerald 900 */
-  --color-primary-light: #059669; /* Emerald 600 */
-  --color-secondary: #ecfdf5; /* Emerald 50 */
-  --color-accent: #d97706; /* Amber 600 */
+  /* Refined Premium Nature Palette */
+  --color-primary: #047857; /* Emerald 700 - Slightly brighter for better contrast */
+  --color-primary-dark: #064e3b; /* Emerald 900 */
+  --color-primary-light: #10b981; /* Emerald 500 */
+  --color-secondary: #f0fdf4; /* Emerald 50 */
+  --color-accent: #f59e0b; /* Amber 500 */
   --color-surface: #ffffff;
   --color-surface-dark: #111827; /* Gray 900 */
 }
@@ -36,55 +37,53 @@ body {
   font-family: "Kanit", Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   font-size: 16px;
+  overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
-/* Glassmorphism Utility */
+/* Enhanced Glassmorphism */
 .glass {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
 }
 
 .dark .glass {
-  background: rgba(17, 24, 39, 0.7); /* Gray 900 with opacity */
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(17, 24, 39, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
 }
 
-.dark .glassbody {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: 'Kanit', Arial, Helvetica, sans-serif;
-  /* รองรับ mobile */
-  -webkit-font-smoothing: antialiased;
-  font-size: 16px;
+/* Card Hover Effects */
+.hover-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.hover-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
 }
 
 /* Mobile Typography Adjustments */
 @media (max-width: 640px) {
   h1 {
-    font-size: 1.75rem !important; /* text-2xl+ */
+    font-size: 1.75rem !important;
     line-height: 2.25rem !important;
   }
   h2 {
-    font-size: 1.5rem !important; /* text-2xl */
+    font-size: 1.5rem !important;
     line-height: 2rem !important;
   }
 }
 
-/* Safe Area Spacing for FAB */
+/* Safe Area Spacing */
 main {
-  padding-bottom: 80px; /* Prevent FAB from covering content */
+  padding-bottom: 80px;
 }
 
+/* Modal Overlay Fix */
 [data-testid="modal-overlay"] {
+  position: fixed !important;
   inset: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  top: 0 !important;
-  bottom: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  max-width: 100vw !important;
-  max-height: 100vh !important;
+  z-index: 200 !important;
 }

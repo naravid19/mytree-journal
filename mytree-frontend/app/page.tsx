@@ -957,55 +957,55 @@ export default function Dashboard() {
   if (!mounted) return null;
 
   return (
-    <div className="w-full min-h-screen bg-linear-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 font-kanit">
+    <div className="w-full min-h-screen bg-linear-to-br from-blue-50 via-white to-green-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-800 font-kanit">
 
       {/* Overlay Spinner กลางจอ ขณะ loading */}
       {loading && (
-        <div className="fixed inset-0 z-20000 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-          <Spinner size="xl" color="success" aria-label="กำลังโหลดข้อมูล..." />
-          <span
-            className="ml-4 text-lg font-bold text-green-700 dark:text-green-300"
-            role="status"
-          >
-            กำลังโหลดข้อมูล...
-          </span>
-        </div>
-      )}
-      <main className="px-3 py-4 mx-auto w-full max-w-7xl sm:px-6 lg:px-8 md:py-8 pb-24">
-        {/* HEADER */}
-        <div className="flex flex-col gap-4 mb-6 sm:flex-row sm:items-center sm:justify-between sm:mb-8">
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900 md:text-3xl dark:text-white font-kanit text-center sm:text-left">
-            รายการต้นไม้ที่ปลูก
-          </h1>
-          <div className="grid grid-cols-2 gap-3 w-full sm:w-auto sm:flex">
-            <Tooltip content="ไปหน้าจัดการสายพันธุ์">
-              <Link href="/strains" className="w-full sm:w-auto">
-                <Button
-                  color="light"
-                  size="sm"
-                  className="flex justify-center items-center gap-2 w-full font-kanit shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                >
-                  <HiCollection className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                  <span className="ml-2">สายพันธุ์</span>
-                </Button>
-              </Link>
-            </Tooltip>
-            <Tooltip content="ไปหน้าจัดการชุดการปลูก">
-              <Link href="/batches" className="w-full sm:w-auto">
-                <Button
-                  color="light"
-                  size="sm"
-                  className="flex justify-center items-center gap-2 w-full font-kanit shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                >
-                  <HiOutlineBeaker className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                  <span className="ml-2">ชุดการปลูก</span>
-                </Button>
-              </Link>
-            </Tooltip>
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/50 dark:bg-black/50 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-4 p-6 rounded-2xl glass">
+            <Spinner size="xl" color="success" aria-label="กำลังโหลดข้อมูล..." />
+            <span className="text-lg font-bold text-green-700 dark:text-green-300 animate-pulse">
+              กำลังโหลดข้อมูล...
+            </span>
           </div>
         </div>
+      )}
+      
+      <main className="px-4 py-8 mx-auto w-full max-w-7xl sm:px-6 lg:px-8 pb-32">
+        {/* HERO HEADER */}
+        <div className="relative mb-12 text-center sm:text-left">
+          <div className="absolute -top-10 -left-10 w-64 h-64 bg-green-200/30 rounded-full blur-3xl -z-10 animate-pulse" />
+          <div className="absolute top-0 right-0 w-72 h-72 bg-blue-200/20 rounded-full blur-3xl -z-10" />
+          
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+              <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-green-700 to-teal-600 dark:from-green-400 dark:to-teal-300 mb-2">
+                รายการต้นไม้
+              </h1>
+              <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl">
+                ติดตามการเจริญเติบโต บันทึกพัฒนาการ และจัดการสวนของคุณในที่เดียว
+              </p>
+            </div>
+            
+            <div className="flex gap-3 justify-center md:justify-end">
+              <Link href="/strains">
+                <Button color="light" className="rounded-full shadow-sm hover:shadow-md transition-all border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+                  <HiCollection className="w-5 h-5 mr-2 text-green-600" />
+                  สายพันธุ์
+                </Button>
+              </Link>
+              <Link href="/batches">
+                <Button color="light" className="rounded-full shadow-sm hover:shadow-md transition-all border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+                  <HiOutlineBeaker className="w-5 h-5 mr-2 text-blue-600" />
+                  ชุดการปลูก
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+
         {/* Filter Bar & View Toggle */}
-        <div className="mb-6">
+        <div className="mb-8 sticky top-20 z-40 glass rounded-2xl p-2 shadow-sm transition-all duration-300">
           <FilterBar
             search={search}
             onSearchChange={debouncedSearch}
@@ -1020,7 +1020,7 @@ export default function Dashboard() {
 
         {/* CONTENT */}
         {viewMode === "table" ? (
-          <Card className="overflow-visible pb-6 w-full rounded-2xl border-none shadow-xl bg-white/80 backdrop-blur-sm dark:bg-gray-900/80">
+          <div className="glass rounded-3xl overflow-hidden shadow-xl border border-white/50 dark:border-gray-700">
             <TreeTable
               trees={pagedTrees}
               loading={loading}
@@ -1059,86 +1059,88 @@ export default function Dashboard() {
               onShowQR={handleShowQR}
             />
             {totalPages > 1 && (
-              <nav
-                aria-label="Page navigation"
-                className="flex justify-center mt-8 w-full"
-              >
-                <ul className="flex items-center -space-x-px h-10 text-base shadow-sm rounded-lg">
-                  <li>
-                    <button
-                      onClick={() =>
-                        setCurrentPage(Math.max(1, currentPage - 1))
-                      }
-                      disabled={currentPage === 1}
-                      className="flex justify-center items-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 ms-0 border-e-0 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                      <span className="sr-only">Previous</span>
-                      <svg
-                        className="w-3 h-3 rtl:rotate-180"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 6 10"
+              <div className="p-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
+                <nav
+                  aria-label="Page navigation"
+                  className="flex justify-center w-full"
+                >
+                  <ul className="flex items-center -space-x-px h-10 text-base shadow-sm rounded-lg">
+                    <li>
+                      <button
+                        onClick={() =>
+                          setCurrentPage(Math.max(1, currentPage - 1))
+                        }
+                        disabled={currentPage === 1}
+                        className="flex justify-center items-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 ms-0 border-e-0 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
-                        <path
-                          stroke="currentColor"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M5 1 1 5l4 4"
-                        />
-                      </svg>
-                    </button>
-                  </li>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                    (page) => (
-                      <li key={page}>
-                        <button
-                          onClick={() => setCurrentPage(page)}
-                          aria-current={
-                            currentPage === page ? "page" : undefined
-                          }
-                          className={`flex items-center justify-center px-4 h-10 leading-tight border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white transition-colors ${
-                            currentPage === page
-                              ? "z-10 text-green-600 border-green-300 bg-green-50 hover:bg-green-100 hover:text-green-700 dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                              : "bg-white"
-                          }`}
+                        <span className="sr-only">Previous</span>
+                        <svg
+                          className="w-3 h-3 rtl:rotate-180"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 6 10"
                         >
-                          {page}
-                        </button>
-                      </li>
-                    )
-                  )}
-                  <li>
-                    <button
-                      onClick={() =>
-                        setCurrentPage(Math.min(totalPages, currentPage + 1))
-                      }
-                      disabled={currentPage === totalPages}
-                      className="flex justify-center items-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                      <span className="sr-only">Next</span>
-                      <svg
-                        className="w-3 h-3 rtl:rotate-180"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 6 10"
+                          <path
+                            stroke="currentColor"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M5 1 1 5l4 4"
+                          />
+                        </svg>
+                      </button>
+                    </li>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                      (page) => (
+                        <li key={page}>
+                          <button
+                            onClick={() => setCurrentPage(page)}
+                            aria-current={
+                              currentPage === page ? "page" : undefined
+                            }
+                            className={`flex items-center justify-center px-4 h-10 leading-tight border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white transition-colors ${
+                              currentPage === page
+                                ? "z-10 text-green-600 border-green-300 bg-green-50 hover:bg-green-100 hover:text-green-700 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                                : "bg-white"
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        </li>
+                      )
+                    )}
+                    <li>
+                      <button
+                        onClick={() =>
+                          setCurrentPage(Math.min(totalPages, currentPage + 1))
+                        }
+                        disabled={currentPage === totalPages}
+                        className="flex justify-center items-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
-                        <path
-                          stroke="currentColor"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="m1 9 4-4-4-4"
-                        />
-                      </svg>
-                    </button>
-                  </li>
-                </ul>
-              </nav>
+                        <span className="sr-only">Next</span>
+                        <svg
+                          className="w-3 h-3 rtl:rotate-180"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 6 10"
+                        >
+                          <path
+                            stroke="currentColor"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="m1 9 4-4-4-4"
+                          />
+                        </svg>
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
             )}
-          </Card>
+          </div>
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {loading ? (
@@ -1146,10 +1148,29 @@ export default function Dashboard() {
                 <TreeCardSkeleton key={i} />
               ))
             ) : pagedTrees.length === 0 ? (
-              <div className="col-span-full py-12 text-center text-gray-400">
-                <span className="text-xl font-medium">
-                  🌱 ยังไม่มีข้อมูลต้นไม้
-                </span>
+              <div className="col-span-full py-20 text-center">
+                <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-green-100 dark:bg-green-900 mb-6 animate-bounce">
+                  <span className="text-4xl">🌱</span>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                  ยังไม่มีข้อมูลต้นไม้
+                </h3>
+                <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md mx-auto">
+                  เริ่มปลูกต้นไม้ต้นแรกของคุณได้เลย! คลิกปุ่ม + ด้านล่างเพื่อเพิ่มข้อมูล
+                </p>
+                <Button
+                  size="lg"
+                  className="mx-auto rounded-full shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 bg-linear-to-r from-green-400 to-blue-500 text-white border-none hover:from-green-500 hover:to-blue-600 focus:ring-4 focus:ring-green-200 dark:focus:ring-green-800"
+                  onClick={() => {
+                    setForm(getDefaultForm());
+                    setImageFiles([]);
+                    setSelectedTree(null);
+                    setShowAddModal(true);
+                  }}
+                >
+                  <HiPlus className="w-5 h-5 mr-2" />
+                  เพิ่มต้นไม้ใหม่
+                </Button>
               </div>
             ) : (
               pagedTrees.map((tree) => (
@@ -1168,21 +1189,24 @@ export default function Dashboard() {
             )}
           </div>
         )}
-        <div className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-1000">
-          <Button
-            size="xl"
-            className="rounded-full shadow-2xl bg-linear-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white border-none transform hover:scale-110 transition-all duration-300 w-16 h-16 flex items-center justify-center focus:ring-4 focus:ring-green-300 dark:focus:ring-green-800"
-            onClick={() => {
-              setForm(getDefaultForm());
-              setImageFiles([]);
-              setSelectedTree(null);
-              setShowAddModal(true);
-            }}
-            disabled={loading || submitting}
-            aria-label="เพิ่มต้นไม้ใหม่"
-          >
-            <HiPlus className="w-8 h-8" />
-          </Button>
+        
+        {/* Floating Action Button */}
+        <div className="fixed bottom-8 right-8 z-50">
+          <Tooltip content="เพิ่มต้นไม้ใหม่" placement="left">
+            <button
+              onClick={() => {
+                setForm(getDefaultForm());
+                setImageFiles([]);
+                setSelectedTree(null);
+                setShowAddModal(true);
+              }}
+              disabled={loading || submitting}
+              className="group relative flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg hover:shadow-2xl hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-green-300 dark:focus:ring-green-800"
+            >
+              <HiPlus className="w-8 h-8 transition-transform group-hover:rotate-90" />
+              <div className="absolute inset-0 rounded-full bg-white opacity-0 group-hover:opacity-20 transition-opacity" />
+            </button>
+          </Tooltip>
         </div>
       </main>
 
@@ -1210,8 +1234,8 @@ export default function Dashboard() {
         }}
         className="rounded-2xl border border-gray-200 shadow-2xl backdrop-blur-lg xl:max-w-2xl dark:border-gray-700 [&>div]:p-0 [&>div]:h-full [&>div]:md:h-auto [&>div]:w-full [&>div]:max-w-full [&>div]:md:max-w-4xl"
       >
-        <ModalHeader>
-          <span className="text-2xl font-extrabold text-green-700 font-kanit sm:text-3xl md:text-4xl dark:text-green-300">
+        <ModalHeader className="rounded-t-2xl border-b border-gray-100 bg-white/80 backdrop-blur-md dark:bg-gray-900/80 dark:border-gray-700">
+          <span className="text-2xl font-extrabold tracking-tight text-transparent bg-clip-text bg-linear-to-r from-green-600 to-teal-500 font-kanit sm:text-3xl md:text-4xl dark:from-green-400 dark:to-teal-300">
             เพิ่มต้นไม้ใหม่
           </span>
         </ModalHeader>
@@ -1903,20 +1927,28 @@ export default function Dashboard() {
         onClose={() => {
           setShowDetailModal(false);
           setFormError("");
-          setSuccessMessage("");
-          setErrorMessage("");
-          setImageFiles([]);
           setSelectedTree(null);
           setDetailLoading(false);
         }}
-        className="rounded-2xl border border-gray-200 shadow-2xl backdrop-blur-lg xl:max-w-2xl dark:border-gray-700 z-1000"
+        position="center"
+        className="z-[1000] backdrop-blur-sm"
+        theme={{
+          content: {
+            inner: "relative rounded-2xl bg-white/90 shadow-2xl dark:bg-gray-900/90 border border-gray-200 dark:border-gray-700 flex flex-col max-h-[90vh]"
+          }
+        }}
       >
-        <ModalHeader className="rounded-t-2xl border-b border-gray-200 bg-white/80 dark:bg-gray-900/90 dark:border-gray-700">
-          <span className="flex gap-2 items-center text-2xl font-extrabold text-green-700 font-kanit sm:text-3xl md:text-4xl dark:text-green-300">
-            🌳 รายละเอียดต้นไม้
-          </span>
+        <ModalHeader className="rounded-t-2xl border-b border-gray-100 bg-white/80 backdrop-blur-md dark:bg-gray-900/80 dark:border-gray-700">
+          <div className="flex flex-col">
+            <span className="text-sm font-medium text-green-600 dark:text-green-400 uppercase tracking-wider">
+              {selectedTree?.strain?.name || "ไม่ระบุสายพันธุ์"}
+            </span>
+            <span className="text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white font-kanit sm:text-3xl">
+              {selectedTree?.nickname}
+            </span>
+          </div>
         </ModalHeader>
-        <ModalBody className="px-4 py-6 rounded-b-2xl transition-colors duration-300 bg-slate-50 dark:bg-gray-900/95 max-h-[80vh] overflow-y-auto">
+        <ModalBody className="px-6 py-8 rounded-b-2xl transition-colors duration-300 bg-slate-50 dark:bg-gray-900/95 max-h-[80vh] overflow-y-auto">
           {detailLoading ? (
             <div className="flex justify-center items-center py-12">
               <Spinner size="xl" color="success" />
@@ -1924,10 +1956,10 @@ export default function Dashboard() {
           ) : selectedTree ? (
             <div className="space-y-8 font-kanit">
               {/* ส่วนหัว: รูปภาพและข้อมูลหลัก */}
-              <div className="flex flex-col gap-6 md:flex-row">
+              <div className="flex flex-col gap-8 md:flex-row">
                 {/* รูปภาพหลัก */}
-                <div className="shrink-0 w-full md:w-1/3">
-                  <div className="overflow-hidden relative w-full rounded-2xl shadow-lg aspect-square group">
+                <div className="shrink-0 w-full md:w-5/12">
+                  <div className="overflow-hidden relative w-full rounded-3xl shadow-xl shadow-green-900/5 aspect-square group ring-1 ring-black/5 dark:ring-white/10">
                     {selectedTree.images && selectedTree.images.length > 0 ? (
                       <>
                         <Image
@@ -1937,7 +1969,7 @@ export default function Dashboard() {
                           }
                           alt={selectedTree.nickname}
                           fill
-                          className="object-cover transition-transform duration-500 group-hover:scale-110"
+                          className="object-cover transition-transform duration-700 group-hover:scale-105"
                           onClick={() => handleOpenLightbox(galleryIndex)}
                         />
                         {/* ปุ่มเลื่อนรูป */}
@@ -1948,7 +1980,7 @@ export default function Dashboard() {
                                 e.stopPropagation();
                                 handlePrevImage();
                               }}
-                              className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors opacity-0 group-hover:opacity-100"
+                              className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white/40 transition-all opacity-0 group-hover:opacity-100 shadow-lg"
                             >
                               <svg
                                 className="w-5 h-5"
@@ -1969,7 +2001,7 @@ export default function Dashboard() {
                                 e.stopPropagation();
                                 handleNextImage();
                               }}
-                              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors opacity-0 group-hover:opacity-100"
+                              className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white/40 transition-all opacity-0 group-hover:opacity-100 shadow-lg"
                             >
                               <svg
                                 className="w-5 h-5"
@@ -1986,11 +2018,11 @@ export default function Dashboard() {
                               </svg>
                             </button>
                             {/* Dots Indicator */}
-                            <div className="flex absolute bottom-2 left-1/2 gap-1.5 -translate-x-1/2">
+                            <div className="flex absolute bottom-3 left-1/2 gap-1.5 -translate-x-1/2 px-3 py-1.5 rounded-full bg-black/20 backdrop-blur-md">
                               {selectedTree.images.map((_, idx) => (
                                 <div
                                   key={idx}
-                                  className={`w-2 h-2 rounded-full transition-all ${
+                                  className={`w-1.5 h-1.5 rounded-full transition-all ${
                                     idx === galleryIndex
                                       ? "bg-white scale-125"
                                       : "bg-white/50"
@@ -2000,10 +2032,10 @@ export default function Dashboard() {
                             </div>
                           </>
                         )}
-                        <div className="flex absolute top-2 right-2 gap-2">
+                        <div className="flex absolute top-3 right-3 gap-2">
                           <Badge
                             color="gray"
-                            className="backdrop-blur-md bg-white/30 text-white border-none shadow-sm"
+                            className="backdrop-blur-md bg-black/30 text-white border-none shadow-sm px-2 py-0.5"
                           >
                             {selectedTree.images.length} รูป
                           </Badge>
@@ -2011,21 +2043,21 @@ export default function Dashboard() {
                       </>
                     ) : (
                       <div className="flex justify-center items-center w-full h-full bg-gray-100 dark:bg-gray-800">
-                        <span className="text-4xl">🌳</span>
+                        <span className="text-5xl opacity-30">🌳</span>
                       </div>
                     )}
                   </div>
                   {/* Gallery Thumbnails */}
                   {selectedTree.images && selectedTree.images.length > 1 && (
-                    <div className="flex gap-2 mt-4 overflow-x-auto pb-2 scrollbar-hide">
+                    <div className="flex justify-center gap-2 mt-4 overflow-x-auto pb-2 scrollbar-hide">
                       {selectedTree.images.map((img, idx) => (
                         <button
                           key={img.id}
                           onClick={() => setGalleryIndex(idx)}
-                          className={`relative w-16 h-16 shrink-0 rounded-lg overflow-hidden border-2 transition-all ${
+                          className={`relative w-14 h-14 shrink-0 rounded-xl overflow-hidden transition-all duration-300 ${
                             idx === galleryIndex
-                              ? "border-green-500 ring-2 ring-green-200"
-                              : "border-transparent opacity-70 hover:opacity-100"
+                              ? "ring-2 ring-green-500 ring-offset-2 dark:ring-offset-gray-900 scale-105"
+                              : "opacity-60 hover:opacity-100 grayscale hover:grayscale-0"
                           }`}
                         >
                           <Image
@@ -2043,70 +2075,44 @@ export default function Dashboard() {
                 {/* ข้อมูลหลัก */}
                 <div className="flex-1 space-y-6">
                   {/* Header Section */}
-                  <div className="space-y-3">
-                    <div className="flex flex-wrap gap-3 items-center">
-                      <h2 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white font-kanit">
-                        {selectedTree.nickname}
-                      </h2>
-                      <div className="flex gap-2">
-                        <Badge
-                          color={
-                            selectedTree.status === "มีชีวิต"
-                              ? "success"
-                              : "failure"
-                          }
-                          size="sm"
-                          className="px-2.5 py-0.5 text-sm font-medium shadow-sm"
-                        >
-                          {selectedTree.status}
-                        </Badge>
-                        <Badge
-                          color={getSexBadgeColor(selectedTree.sex)}
-                          size="sm"
-                          className="px-2.5 py-0.5 text-sm font-medium shadow-sm"
-                        >
-                          {sexLabel(selectedTree.sex)}
-                        </Badge>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-2xl font-bold text-green-600 dark:text-green-400">
-                        <svg
-                          className="w-6 h-6"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"
-                          />
-                        </svg>
-                        {selectedTree.strain?.name || "ไม่ระบุสายพันธุ์"}
-                      </div>
-                      <div className="flex flex-wrap gap-2 text-sm text-gray-500 dark:text-gray-400 font-medium">
-                        {selectedTree.variety && (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
-                            พันธุ์: {selectedTree.variety}
-                          </span>
-                        )}
-                        {selectedTree.generation && (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
-                            รุ่น: {selectedTree.generation}
-                          </span>
-                        )}
-                      </div>
+                  <div className="space-y-4">
+                    <div className="flex flex-wrap gap-2 items-center">
+                      <Badge
+                        color={
+                          selectedTree.status === "มีชีวิต"
+                            ? "success"
+                            : "failure"
+                        }
+                        size="sm"
+                        className="px-3 py-1 text-sm font-medium shadow-sm rounded-full"
+                      >
+                        {selectedTree.status}
+                      </Badge>
+                      <Badge
+                        color={getSexBadgeColor(selectedTree.sex)}
+                        size="sm"
+                        className="px-3 py-1 text-sm font-medium shadow-sm rounded-full"
+                      >
+                        {sexLabel(selectedTree.sex)}
+                      </Badge>
+                      {selectedTree.variety && (
+                        <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+                          {selectedTree.variety}
+                        </span>
+                      )}
+                      {selectedTree.generation && (
+                        <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+                          {selectedTree.generation}
+                        </span>
+                      )}
                     </div>
                   </div>
 
                   {/* Stats Grid */}
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-3">
                     {/* Batch */}
-                    <div className="p-4 rounded-xl border border-gray-100 bg-white shadow-sm transition-shadow hover:shadow-md dark:bg-gray-800 dark:border-gray-700">
-                      <div className="flex items-center gap-2 mb-1 text-blue-600 dark:text-blue-400">
+                    <div className="p-4 rounded-2xl bg-gray-50/50 backdrop-blur-sm dark:bg-gray-800/50 transition-colors hover:bg-gray-100/80 dark:hover:bg-gray-700/80">
+                      <div className="flex items-center gap-2 mb-1.5 text-blue-600 dark:text-blue-400">
                         <svg
                           className="w-4 h-4"
                           fill="none"
@@ -2120,18 +2126,18 @@ export default function Dashboard() {
                             d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
                           />
                         </svg>
-                        <span className="text-xs font-bold uppercase tracking-wider">
+                        <span className="text-xs font-bold uppercase tracking-wider opacity-80">
                           ชุดการปลูก
                         </span>
                       </div>
-                      <p className="text-lg font-bold text-gray-900 truncate dark:text-white">
+                      <p className="text-base font-bold text-gray-900 truncate dark:text-white">
                         {selectedTree.batch?.batch_code || "-"}
                       </p>
                     </div>
 
                     {/* Location */}
-                    <div className="p-4 rounded-xl border border-gray-100 bg-white shadow-sm transition-shadow hover:shadow-md dark:bg-gray-800 dark:border-gray-700">
-                      <div className="flex items-center gap-2 mb-1 text-red-600 dark:text-red-400">
+                    <div className="p-4 rounded-2xl bg-gray-50/50 backdrop-blur-sm dark:bg-gray-800/50 transition-colors hover:bg-gray-100/80 dark:hover:bg-gray-700/80">
+                      <div className="flex items-center gap-2 mb-1.5 text-red-600 dark:text-red-400">
                         <svg
                           className="w-4 h-4"
                           fill="none"
@@ -2151,18 +2157,18 @@ export default function Dashboard() {
                             d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                           />
                         </svg>
-                        <span className="text-xs font-bold uppercase tracking-wider">
+                        <span className="text-xs font-bold uppercase tracking-wider opacity-80">
                           สถานที่
                         </span>
                       </div>
-                      <p className="text-lg font-bold text-gray-900 truncate dark:text-white">
+                      <p className="text-base font-bold text-gray-900 truncate dark:text-white">
                         {selectedTree.location || "-"}
                       </p>
                     </div>
 
                     {/* Age */}
-                    <div className="p-4 rounded-xl border border-gray-100 bg-white shadow-sm transition-shadow hover:shadow-md dark:bg-gray-800 dark:border-gray-700">
-                      <div className="flex items-center gap-2 mb-1 text-amber-600 dark:text-amber-400">
+                    <div className="p-4 rounded-2xl bg-gray-50/50 backdrop-blur-sm dark:bg-gray-800/50 transition-colors hover:bg-gray-100/80 dark:hover:bg-gray-700/80">
+                      <div className="flex items-center gap-2 mb-1.5 text-amber-600 dark:text-amber-400">
                         <svg
                           className="w-4 h-4"
                           fill="none"
@@ -2176,21 +2182,21 @@ export default function Dashboard() {
                             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                           />
                         </svg>
-                        <span className="text-xs font-bold uppercase tracking-wider">
+                        <span className="text-xs font-bold uppercase tracking-wider opacity-80">
                           อายุต้นไม้
                         </span>
                       </div>
-                      <p className="text-lg font-bold text-gray-900 dark:text-white">
+                      <p className="text-base font-bold text-gray-900 dark:text-white">
                         {calcAge(selectedTree, "day")}{" "}
-                        <span className="text-sm font-normal text-gray-500">
+                        <span className="text-xs font-normal text-gray-500">
                           วัน
                         </span>
                       </p>
                     </div>
 
                     {/* Growth Stage */}
-                    <div className="p-4 rounded-xl border border-gray-100 bg-white shadow-sm transition-shadow hover:shadow-md dark:bg-gray-800 dark:border-gray-700">
-                      <div className="flex items-center gap-2 mb-1 text-emerald-600 dark:text-emerald-400">
+                    <div className="p-4 rounded-2xl bg-gray-50/50 backdrop-blur-sm dark:bg-gray-800/50 transition-colors hover:bg-gray-100/80 dark:hover:bg-gray-700/80">
+                      <div className="flex items-center gap-2 mb-1.5 text-emerald-600 dark:text-emerald-400">
                         <svg
                           className="w-4 h-4"
                           fill="none"
@@ -2204,11 +2210,11 @@ export default function Dashboard() {
                             d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
                           />
                         </svg>
-                        <span className="text-xs font-bold uppercase tracking-wider">
-                          ระยะการเจริญเติบโต
+                        <span className="text-xs font-bold uppercase tracking-wider opacity-80">
+                          ระยะ
                         </span>
                       </div>
-                      <p className="text-lg font-bold text-gray-900 truncate dark:text-white">
+                      <p className="text-base font-bold text-gray-900 truncate dark:text-white">
                         {selectedTree.growth_stage || "-"}
                       </p>
                     </div>
@@ -2216,10 +2222,10 @@ export default function Dashboard() {
 
                   {/* Document Link */}
                   {selectedTree.document && (
-                    <div className="group flex items-center p-4 rounded-xl border border-blue-100 bg-linear-to-r from-blue-50 to-white shadow-sm transition-all hover:shadow-md dark:from-blue-900/20 dark:to-gray-800 dark:border-blue-800">
-                      <div className="p-3 mr-4 bg-white rounded-full shadow-sm ring-1 ring-blue-100 dark:bg-blue-800 dark:ring-blue-700">
+                    <div className="group flex items-center p-3 rounded-2xl border border-blue-100 bg-linear-to-r from-blue-50/50 to-white/50 shadow-sm transition-all hover:shadow-md dark:from-blue-900/10 dark:to-gray-800/50 dark:border-blue-800/30">
+                      <div className="p-2.5 mr-3 bg-white rounded-full shadow-sm ring-1 ring-blue-100 dark:bg-blue-900/30 dark:ring-blue-800">
                         <svg
-                          className="w-6 h-6 text-blue-600 dark:text-blue-300"
+                          className="w-5 h-5 text-blue-600 dark:text-blue-300"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -2233,10 +2239,10 @@ export default function Dashboard() {
                         </svg>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-base font-bold text-gray-900 truncate dark:text-white group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
+                        <p className="text-sm font-bold text-gray-900 truncate dark:text-white group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
                           {getFileName(selectedTree.document)}
                         </p>
-                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide dark:text-gray-400">
+                        <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wide dark:text-gray-400">
                           {getFileType(selectedTree.document)}
                         </p>
                       </div>
@@ -2244,7 +2250,7 @@ export default function Dashboard() {
                         href={selectedTree.document}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-4 py-2 text-sm font-semibold text-blue-700 bg-white border border-blue-200 rounded-lg shadow-sm hover:bg-blue-50 hover:border-blue-300 transition-all dark:bg-gray-800 dark:text-blue-300 dark:border-blue-700 dark:hover:bg-gray-700"
+                        className="px-3 py-1.5 text-xs font-semibold text-blue-700 bg-white border border-blue-200 rounded-lg shadow-sm hover:bg-blue-50 hover:border-blue-300 transition-all dark:bg-gray-800 dark:text-blue-300 dark:border-blue-700 dark:hover:bg-gray-700"
                       >
                         ดูไฟล์
                       </a>
@@ -2253,196 +2259,137 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              {/* แท็บข้อมูลเพิ่มเติม (Accordion style or simple sections) */}
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              {/* แท็บข้อมูลเพิ่มเติม (Clean Grid) */}
+              <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
                 {/* ข้อมูลการปลูก */}
-                <div className="p-5 rounded-2xl border border-gray-100 shadow-sm bg-white/60 dark:bg-gray-800/60 dark:border-gray-700">
-                  <h3 className="flex items-center mb-4 text-lg font-bold text-blue-700 dark:text-blue-300">
-                    <span className="mr-2 text-xl">🌱</span> ข้อมูลการปลูก
+                <div className="space-y-4">
+                  <h3 className="flex items-center text-base font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-800 pb-2">
+                    <span className="mr-2 text-lg">🌱</span> ข้อมูลการปลูก
                   </h3>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex justify-between pb-2 border-b border-gray-100 dark:border-gray-700">
-                      <span className="text-gray-500 dark:text-gray-400">
-                        วันที่เมล็ดงอก
-                      </span>
-                      <span className="font-medium text-gray-900 dark:text-white">
+                  <div className="grid grid-cols-2 gap-y-4 gap-x-2 text-sm">
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">วันที่เมล็ดงอก</p>
+                      <p className="font-medium text-gray-900 dark:text-white">
                         {selectedTree.germination_date
-                          ? new Date(
-                              selectedTree.germination_date
-                            ).toLocaleDateString("th-TH")
+                          ? new Date(selectedTree.germination_date).toLocaleDateString("th-TH")
                           : "-"}
-                      </span>
+                      </p>
                     </div>
-                    <div className="flex justify-between pb-2 border-b border-gray-100 dark:border-gray-700">
-                      <span className="text-gray-500 dark:text-gray-400">
-                        วันที่ปลูก
-                      </span>
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {new Date(selectedTree.plant_date).toLocaleDateString(
-                          "th-TH"
-                        )}
-                      </span>
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">วันที่ปลูก</p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {new Date(selectedTree.plant_date).toLocaleDateString("th-TH")}
+                      </p>
                     </div>
-                    <div className="flex justify-between pb-2 border-b border-gray-100 dark:border-gray-700">
-                      <span className="text-gray-500 dark:text-gray-400">
-                        วันที่เก็บเกี่ยว
-                      </span>
-                      <span className="font-medium text-gray-900 dark:text-white">
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">วันที่เก็บเกี่ยว</p>
+                      <p className="font-medium text-gray-900 dark:text-white">
                         {selectedTree.harvest_date
-                          ? new Date(
-                              selectedTree.harvest_date
-                            ).toLocaleDateString("th-TH")
+                          ? new Date(selectedTree.harvest_date).toLocaleDateString("th-TH")
                           : "-"}
-                      </span>
+                      </p>
                     </div>
                   </div>
                 </div>
 
                 {/* ข้อมูลพันธุกรรม */}
-                <div className="p-5 rounded-2xl border border-gray-100 shadow-sm bg-white/60 dark:bg-gray-800/60 dark:border-gray-700">
-                  <h3 className="flex items-center mb-4 text-lg font-bold text-purple-700 dark:text-purple-300">
-                    <span className="mr-2 text-xl">🧬</span> ข้อมูลพันธุกรรม
+                <div className="space-y-4">
+                  <h3 className="flex items-center text-base font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-800 pb-2">
+                    <span className="mr-2 text-lg">🧬</span> ข้อมูลพันธุกรรม
                   </h3>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex justify-between pb-2 border-b border-gray-100 dark:border-gray-700">
-                      <span className="text-gray-500 dark:text-gray-400">
-                        Genotype
-                      </span>
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {selectedTree.genotype || "-"}
-                      </span>
+                  <div className="grid grid-cols-2 gap-y-4 gap-x-2 text-sm">
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Genotype</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{selectedTree.genotype || "-"}</p>
                     </div>
-                    <div className="flex justify-between pb-2 border-b border-gray-100 dark:border-gray-700">
-                      <span className="text-gray-500 dark:text-gray-400">
-                        Phenotype
-                      </span>
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {selectedTree.phenotype || "-"}
-                      </span>
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Phenotype</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{selectedTree.phenotype || "-"}</p>
                     </div>
-                    <div className="flex justify-between pb-2 border-b border-gray-100 dark:border-gray-700">
-                      <span className="text-gray-500 dark:text-gray-400">
-                        พ่อพันธุ์
-                      </span>
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {selectedTree.parent_male_data?.nickname || "-"}
-                      </span>
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">พ่อพันธุ์</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{selectedTree.parent_male_data?.nickname || "-"}</p>
                     </div>
-                    <div className="flex justify-between pb-2 border-b border-gray-100 dark:border-gray-700">
-                      <span className="text-gray-500 dark:text-gray-400">
-                        แม่พันธุ์
-                      </span>
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {selectedTree.parent_female_data?.nickname || "-"}
-                      </span>
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">แม่พันธุ์</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{selectedTree.parent_female_data?.nickname || "-"}</p>
                     </div>
-                    <div className="flex justify-between pb-2 border-b border-gray-100 dark:border-gray-700">
-                      <span className="text-gray-500 dark:text-gray-400">
-                        ต้นแม่ที่ใช้ปักชำ
-                      </span>
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {selectedTree.clone_source
-                          ? `Tree_${selectedTree.clone_source}`
-                          : "-"}
-                      </span>
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">ต้นแม่ที่ใช้ปักชำ</p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {selectedTree.clone_source ? `Tree_${selectedTree.clone_source}` : "-"}
+                      </p>
                     </div>
-                    <div className="flex justify-between pb-2 border-b border-gray-100 dark:border-gray-700">
-                      <span className="text-gray-500 dark:text-gray-400">
-                        ผสมเกสรโดย
-                      </span>
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {selectedTree.pollinated_by
-                          ? `Tree_${selectedTree.pollinated_by}`
-                          : "-"}
-                      </span>
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">ผสมเกสรโดย</p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {selectedTree.pollinated_by ? `Tree_${selectedTree.pollinated_by}` : "-"}
+                      </p>
                     </div>
-                    <div className="flex justify-between pb-2 border-b border-gray-100 dark:border-gray-700">
-                      <span className="text-gray-500 dark:text-gray-400">
-                        วันที่ผสมเกสร
-                      </span>
-                      <span className="font-medium text-gray-900 dark:text-white">
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">วันที่ผสมเกสร</p>
+                      <p className="font-medium text-gray-900 dark:text-white">
                         {selectedTree.pollination_date
-                          ? new Date(
-                              selectedTree.pollination_date
-                            ).toLocaleDateString("th-TH")
+                          ? new Date(selectedTree.pollination_date).toLocaleDateString("th-TH")
                           : "-"}
-                      </span>
+                      </p>
                     </div>
                   </div>
                 </div>
 
                 {/* ข้อมูลผลผลิต */}
-                <div className="p-5 rounded-2xl border border-gray-100 shadow-sm bg-white/60 dark:bg-gray-800/60 dark:border-gray-700">
-                  <h3 className="flex items-center mb-4 text-lg font-bold text-amber-700 dark:text-amber-300">
-                    <span className="mr-2 text-xl">🌸</span> ข้อมูลผลผลิต
+                <div className="space-y-4">
+                  <h3 className="flex items-center text-base font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-800 pb-2">
+                    <span className="mr-2 text-lg">🌸</span> ข้อมูลผลผลิต
                   </h3>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex justify-between pb-2 border-b border-gray-100 dark:border-gray-700">
-                      <span className="text-gray-500 dark:text-gray-400">
-                        ปริมาณผลผลิต
-                      </span>
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {selectedTree.yield_amount
-                          ? `${selectedTree.yield_amount} กรัม`
-                          : "-"}
-                      </span>
+                  <div className="grid grid-cols-2 gap-y-4 gap-x-2 text-sm">
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">ปริมาณผลผลิต</p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {selectedTree.yield_amount ? `${selectedTree.yield_amount} กรัม` : "-"}
+                      </p>
                     </div>
-                    <div className="flex justify-between pb-2 border-b border-gray-100 dark:border-gray-700">
-                      <span className="text-gray-500 dark:text-gray-400">
-                        จำนวนเมล็ด
-                      </span>
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {selectedTree.seed_count || "-"}
-                      </span>
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">จำนวนเมล็ด</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{selectedTree.seed_count || "-"}</p>
                     </div>
-                    <div className="flex justify-between pb-2 border-b border-gray-100 dark:border-gray-700">
-                      <span className="text-gray-500 dark:text-gray-400">
-                        วันที่เก็บเมล็ด
-                      </span>
-                      <span className="font-medium text-gray-900 dark:text-white">
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">วันที่เก็บเมล็ด</p>
+                      <p className="font-medium text-gray-900 dark:text-white">
                         {selectedTree.seed_harvest_date
-                          ? new Date(
-                              selectedTree.seed_harvest_date
-                            ).toLocaleDateString("th-TH")
+                          ? new Date(selectedTree.seed_harvest_date).toLocaleDateString("th-TH")
                           : "-"}
-                      </span>
+                      </p>
                     </div>
-                    <div className="flex justify-between pb-2 border-b border-gray-100 dark:border-gray-700">
-                      <span className="text-gray-500 dark:text-gray-400">
-                        คุณภาพดอก
-                      </span>
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {selectedTree.flower_quality || "-"}
-                      </span>
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">คุณภาพดอก</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{selectedTree.flower_quality || "-"}</p>
                     </div>
                   </div>
                 </div>
 
-                {/* ข้อมูลสุขภาพ */}
-                <div className="p-5 rounded-2xl border border-gray-100 shadow-sm bg-white/60 dark:bg-gray-800/60 dark:border-gray-700">
-                  <h3 className="flex items-center mb-4 text-lg font-bold text-cyan-700 dark:text-cyan-300">
-                    <span className="mr-2 text-xl">🩺</span> ข้อมูลสุขภาพ
-                  </h3>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex flex-col gap-1 pb-2 border-b border-gray-100 dark:border-gray-700">
-                      <span className="text-gray-500 dark:text-gray-400">
-                        โรค/ศัตรูพืช
-                      </span>
-                      <span className="font-medium text-gray-900 dark:text-white whitespace-pre-wrap">
+                {/* ข้อมูลสุขภาพ & หมายเหตุ */}
+                <div className="space-y-6">
+                  <div className="space-y-4">
+                    <h3 className="flex items-center text-base font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-800 pb-2">
+                      <span className="mr-2 text-lg">🩺</span> ข้อมูลสุขภาพ
+                    </h3>
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">โรค/ศัตรูพืช</p>
+                      <p className="font-medium text-gray-900 dark:text-white whitespace-pre-wrap text-sm bg-red-50 dark:bg-red-900/20 p-3 rounded-xl border border-red-100 dark:border-red-800/30">
                         {selectedTree.disease_notes || "-"}
-                      </span>
+                      </p>
                     </div>
                   </div>
-                </div>
 
-                {/* หมายเหตุ */}
-                <div className="p-5 rounded-2xl border border-gray-100 shadow-sm bg-white/60 dark:bg-gray-800/60 dark:border-gray-700">
-                  <h3 className="flex items-center mb-4 text-lg font-bold text-gray-700 dark:text-gray-300">
-                    <span className="mr-2 text-xl">📝</span> หมายเหตุ
-                  </h3>
-                  <div className="space-y-3 text-sm">
-                    <div className="font-medium text-gray-900 dark:text-white whitespace-pre-wrap">
-                      {selectedTree.notes || "-"}
+                  <div className="space-y-4">
+                    <h3 className="flex items-center text-base font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-800 pb-2">
+                      <span className="mr-2 text-lg">📝</span> หมายเหตุ
+                    </h3>
+                    <div>
+                      <p className="font-medium text-gray-900 dark:text-white whitespace-pre-wrap text-sm bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-100 dark:border-gray-700">
+                        {selectedTree.notes || "-"}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -2497,8 +2444,8 @@ export default function Dashboard() {
         }}
         className="rounded-2xl border border-gray-200 shadow-2xl backdrop-blur-lg xl:max-w-2xl dark:border-gray-700 [&>div]:p-0 [&>div]:h-full [&>div]:md:h-auto [&>div]:w-full [&>div]:max-w-full [&>div]:md:max-w-4xl"
       >
-        <ModalHeader>
-          <span className="text-2xl font-extrabold text-blue-700 font-kanit sm:text-3xl md:text-4xl dark:text-blue-300">
+        <ModalHeader className="rounded-t-2xl border-b border-gray-100 bg-white/80 backdrop-blur-md dark:bg-gray-900/80 dark:border-gray-700">
+          <span className="text-2xl font-extrabold tracking-tight text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-indigo-500 font-kanit sm:text-3xl md:text-4xl dark:from-blue-400 dark:to-indigo-300">
             แก้ไขข้อมูลต้นไม้
           </span>
         </ModalHeader>
@@ -3206,7 +3153,11 @@ export default function Dashboard() {
         }}
         className="xl:max-w-2xl"
       >
-        <ModalHeader>ยืนยันการลบรูปภาพทั้งหมด</ModalHeader>
+        <ModalHeader className="rounded-t-2xl border-b border-red-100 bg-red-50/50 backdrop-blur-md dark:bg-red-900/20 dark:border-red-800">
+          <span className="text-xl font-bold text-red-600 dark:text-red-400 font-kanit">
+            ยืนยันการลบรูปภาพทั้งหมด
+          </span>
+        </ModalHeader>
         <ModalBody className="max-h-[80vh] overflow-y-auto">
           <div className="py-2 text-lg font-semibold text-center text-red-500">
             คุณต้องการลบรูปภาพทั้งหมดของต้นไม้นี้ใช่หรือไม่?
@@ -3241,7 +3192,11 @@ export default function Dashboard() {
         onClose={() => setShowDeleteDocumentModal(false)}
         className="xl:max-w-2xl"
       >
-        <ModalHeader>ยืนยันการลบเอกสาร</ModalHeader>
+        <ModalHeader className="rounded-t-2xl border-b border-red-100 bg-red-50/50 backdrop-blur-md dark:bg-red-900/20 dark:border-red-800">
+          <span className="text-xl font-bold text-red-600 dark:text-red-400 font-kanit">
+            ยืนยันการลบเอกสาร
+          </span>
+        </ModalHeader>
         <ModalBody className="max-h-[80vh] overflow-y-auto">
           <div className="py-2 text-lg font-semibold text-center text-red-500">
             คุณต้องการลบเอกสารนี้ใช่หรือไม่?
@@ -3435,7 +3390,11 @@ export default function Dashboard() {
         className="xl:max-w-2xl"
         // modalOverlayClassName="!fixed !inset-0"
       >
-        <ModalHeader>ยืนยันการลบ</ModalHeader>
+        <ModalHeader className="rounded-t-2xl border-b border-red-100 bg-red-50/50 backdrop-blur-md dark:bg-red-900/20 dark:border-red-800">
+          <span className="text-xl font-bold text-red-600 dark:text-red-400 font-kanit">
+            ยืนยันการลบ
+          </span>
+        </ModalHeader>
         <ModalBody className="max-h-[80vh] overflow-y-auto">
           <div className="py-2 text-lg font-semibold text-center text-red-500">
             คุณต้องการลบต้นไม้ &quot;{selectedTree?.strain?.name || ""} (
