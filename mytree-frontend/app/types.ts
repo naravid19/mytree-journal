@@ -3,6 +3,7 @@ export type Image = {
   image: string;
   thumbnail: string;
   uploaded_at: string;
+  is_cover?: boolean;
 };
 
 export type Strain = {

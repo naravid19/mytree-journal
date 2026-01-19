@@ -14,14 +14,19 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  /* Refined Premium Nature Palette */
-  --color-primary: #047857; /* Emerald 700 - Slightly brighter for better contrast */
+  /* Organic Biophilic Nature Palette */
+  --color-primary: #047857; /* Emerald 700 */
   --color-primary-dark: #064e3b; /* Emerald 900 */
   --color-primary-light: #10b981; /* Emerald 500 */
   --color-secondary: #f0fdf4; /* Emerald 50 */
   --color-accent: #f59e0b; /* Amber 500 */
   --color-surface: #ffffff;
   --color-surface-dark: #111827; /* Gray 900 */
+  
+  /* Earth Green Palette (from design system) */
+  --color-earth-green: #4A7C23;
+  --color-sky-blue: #3B82F6;
+  --color-cta-orange: #F97316;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -31,16 +36,24 @@
   }
 }
 
+/* Support class-based dark mode (Flowbite) */
+.dark {
+  --background: #020617; /* Slate 950 */
+  --foreground: #f1f5f9; /* Slate 100 */
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: "Kanit", Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   font-size: 16px;
-  overflow-x: hidden; /* Prevent horizontal scroll */
+  overflow-x: hidden;
 }
 
-/* Enhanced Glassmorphism */
+/* ==========================================
+   Enhanced Glassmorphism
+   ========================================== */
 .glass {
   background: rgba(255, 255, 255, 0.65);
   backdrop-filter: blur(12px);
@@ -55,7 +68,9 @@ body {
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
 }
 
-/* Card Hover Effects */
+/* ==========================================
+   Card Hover Effects
+   ========================================== */
 .hover-card {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -64,7 +79,186 @@ body {
   box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
 }
 
-/* Mobile Typography Adjustments */
+/* ==========================================
+   Animation Keyframes
+   ========================================== */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-out-right {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes scale-in {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes bounce-subtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out forwards;
+}
+
+.animate-fade-out {
+  animation: fade-out 0.2s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out forwards;
+}
+
+.animate-slide-out-right {
+  animation: slide-out-right 0.3s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.2s ease-out forwards;
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 2s ease-in-out infinite;
+}
+
+/* ==========================================
+   Focus States (Accessibility)
+   ========================================== */
+*:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Remove default focus for mouse users */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ==========================================
+   Custom Scrollbar
+   ========================================== */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.7);
+}
+
+.dark .scrollbar-thin {
+  scrollbar-color: rgba(75, 85, 99, 0.5) transparent;
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgba(75, 85, 99, 0.5);
+}
+
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ==========================================
+   Reduced Motion (Accessibility)
+   ========================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .hover-card:hover {
+    transform: none;
+  }
+  
+  .animate-bounce,
+  .animate-pulse,
+  .animate-bounce-subtle {
+    animation: none;
+  }
+}
+
+/* ==========================================
+   Mobile Typography Adjustments
+   ========================================== */
 @media (max-width: 640px) {
   h1 {
     font-size: 1.75rem !important;
@@ -76,14 +270,40 @@ body {
   }
 }
 
-/* Safe Area Spacing */
+/* ==========================================
+   Safe Area Spacing
+   ========================================== */
 main {
   padding-bottom: 80px;
 }
 
-/* Modal Overlay Fix */
+/* ==========================================
+   Modal & Overlay Fixes
+   ========================================== */
 [data-testid="modal-overlay"] {
   position: fixed !important;
   inset: 0 !important;
   z-index: 200 !important;
+}
+
+/* ==========================================
+   Clickable Elements (UX)
+   ========================================== */
+[role="button"],
+button,
+a,
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* ==========================================
+   Selection Styles
+   ========================================== */
+::selection {
+  background-color: rgba(16, 185, 129, 0.3);
+  color: inherit;
+}
+
+.dark ::selection {
+  background-color: rgba(16, 185, 129, 0.4);
 }

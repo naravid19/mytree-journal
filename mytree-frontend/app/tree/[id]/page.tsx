@@ -20,6 +20,7 @@ import Image from "next/image";
 import { Tree } from "../../types";
 import { calcAge, getSecureImageUrl, sexLabel } from "../../utils";
 
+
 export default function PublicTreePage() {
   const params = useParams();
   const [tree, setTree] = useState<Tree | null>(null);
@@ -31,9 +32,10 @@ export default function PublicTreePage() {
 
   useEffect(() => {
     if (params?.id) {
+      // Use absolute path with API_BASE to ensure connection to backend
       fetch(`${API_BASE}/api/trees/${params.id}/`)
         .then((res) => {
-          if (!res.ok) throw new Error("Tree not found");
+          if (!res.ok) throw new Error("ไม่พบข้อมูลต้นไม้");
           return res.json();
         })
         .then((data) => {
@@ -42,26 +44,81 @@ export default function PublicTreePage() {
         })
         .catch((err) => {
           console.error(err);
-          setError("ไม่พบข้อมูลต้นไม้ หรือเกิดข้อผิดพลาด");
+          setError("ไม่พบข้อมูลต้นไม้ หรือเกิดข้อผิดพลาดในการโหลดข้อมูล");
           setLoading(false);
         });
     }
-  }, [params, API_BASE]);
+  }, [params]);
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <Spinner size="xl" />
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+        <div className="max-w-5xl mx-auto px-4">
+          {/* Back Button Skeleton */}
+          <div className="w-32 h-10 bg-gray-200 dark:bg-gray-700 rounded-full mb-6 animate-pulse" />
+          
+          {/* Main Card Skeleton */}
+          <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden">
+            <div className="flex flex-col lg:flex-row">
+              {/* Image Skeleton */}
+              <div className="lg:w-1/3 p-6 flex justify-center items-center">
+                <div className="w-48 h-64 bg-gray-200 dark:bg-gray-700 rounded-2xl animate-pulse" />
+              </div>
+              
+              {/* Content Skeleton */}
+              <div className="lg:w-2/3 p-6">
+                {/* Title */}
+                <div className="w-3/4 h-8 bg-gray-200 dark:bg-gray-700 rounded-lg mb-4 animate-pulse" />
+                <div className="w-1/2 h-4 bg-gray-200 dark:bg-gray-700 rounded mb-6 animate-pulse" />
+                
+                {/* Stats Grid */}
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="p-4 bg-gray-100 dark:bg-gray-700/50 rounded-xl animate-pulse">
+                      <div className="w-16 h-3 bg-gray-200 dark:bg-gray-600 rounded mb-2" />
+                      <div className="w-24 h-6 bg-gray-200 dark:bg-gray-600 rounded" />
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Tabs Skeleton */}
+                <div className="flex gap-2 mb-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="w-24 h-10 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
+                  ))}
+                </div>
+                
+                {/* Content Area */}
+                <div className="space-y-3">
+                  <div className="w-full h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                  <div className="w-5/6 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                  <div className="w-4/6 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (error || !tree) {
     return (
-      <div className="flex h-screen flex-col items-center justify-center gap-4 bg-gray-50 dark:bg-gray-900 text-center px-4">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">😕 {error}</h1>
+      <div className="flex h-screen flex-col items-center justify-center gap-6 bg-gray-50 dark:bg-gray-900 text-center px-4">
+        <div className="relative">
+          <div className="absolute -inset-4 bg-red-100 dark:bg-red-900/20 rounded-full blur-2xl opacity-50" />
+          <div className="relative text-8xl">🌱</div>
+        </div>
+        <div className="space-y-2">
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-white font-kanit">{error || "ไม่พบข้อมูลต้นไม้"}</h1>
+          <p className="text-gray-500 dark:text-gray-400 max-w-md">
+            อาจเป็นเพราะลิงก์ไม่ถูกต้องหรือข้อมูลถูกลบไปแล้ว
+          </p>
+        </div>
         <Link href="/">
-          <Button color="gray">กลับหน้าหลัก</Button>
+          <Button color="success" size="lg" className="font-kanit shadow-lg shadow-green-200 dark:shadow-none">
+            ← กลับหน้าหลัก
+          </Button>
         </Link>
       </div>
     );
@@ -359,11 +416,11 @@ export default function PublicTreePage() {
                           🌸 ผลผลิต
                         </h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                          <div className="p-5 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl border border-green-100 dark:border-green-800/30 shadow-sm">
+                          <div className="p-5 bg-linear-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl border border-green-100 dark:border-green-800/30 shadow-sm">
                             <span className="text-sm text-green-700 dark:text-green-400 block font-bold mb-2">ปริมาณผลผลิต</span>
                             <span className="text-3xl font-bold text-green-800 dark:text-green-300">{tree.yield_amount ? `${tree.yield_amount} g` : "-"}</span>
                           </div>
-                          <div className="p-5 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-2xl border border-amber-100 dark:border-amber-800/30 shadow-sm">
+                          <div className="p-5 bg-linear-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-2xl border border-amber-100 dark:border-amber-800/30 shadow-sm">
                             <span className="text-sm text-amber-700 dark:text-amber-400 block font-bold mb-2">จำนวนเมล็ด</span>
                             <span className="text-3xl font-bold text-amber-800 dark:text-amber-300">{tree.seed_count || "-"}</span>
                           </div>

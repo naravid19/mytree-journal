@@ -1,3420 +1,432 @@
 "use client";
-import React, { useEffect, useState, useCallback, useRef } from "react";
-import {
-  Card,
-  Button,
-  ButtonGroup,
-  DarkThemeToggle,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Label,
-  TextInput,
-  Textarea,
-  FileInput,
-  Select,
-  Tooltip,
-  Badge,
-  Alert,
-  Spinner,
-  Toast,
-  ToastToggle,
-} from "flowbite-react";
-import {
-  HiSearch,
-  HiCheckCircle,
-  HiXCircle,
-  HiCollection,
-  HiOutlineBeaker,
-  HiTrash,
-  HiPlus,
-} from "react-icons/hi";
-import Image from "next/image";
-import Link from "next/link";
-import { Tree, Strain, Batch } from "./types";
-import {
-  calcAge,
-  getSortValue,
-  getFileName,
-  getFileType,
-  getSexBadgeColor,
-  sexLabel,
-} from "./utils";
+import React, { useState, useMemo } from "react";
+import { Button, Toast, ToastToggle } from "flowbite-react";
+import { HiPlus, HiCheckCircle, HiXCircle, HiCollection } from "react-icons/hi";
+import { Tree } from "./types";
+import { calcAge } from "./utils";
 import { TreeCard, TreeCardSkeleton } from "../components/TreeCard";
 import { QRCodeModal } from "../components/QRCodeModal";
 import { TreeTable } from "../components/TreeTable";
 import { FilterBar } from "../components/FilterBar";
+import { TreeFormModal } from "../components/modals/TreeFormModal";
+import { ImageViewerModal } from "../components/modals/ImageViewerModal";
+import { ConfirmDeleteModal } from "../components/modals/ConfirmDeleteModal";
 import { useDebouncedSearch } from "./hooks";
-
-const API_BASE = process.env.NODE_ENV === 'development' 
-  ? "http://127.0.0.1:8000" 
-  : (process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000").replace(/\/$/, "");
-
-const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
-const ACCEPTED_IMAGE_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/jpg",
-  "image/webp",
-];
-const ACCEPTED_DOCUMENT_TYPES = ["application/pdf", ...ACCEPTED_IMAGE_TYPES];
-
-const getDefaultForm = (todayStr = new Date().toISOString().split("T")[0]) => ({
-  strainUuid: "",
-  batch_id: null as number | null,
-  variety: "",
-  nickname: "",
-  plant_date: todayStr,
-  germination_date: "",
-  growth_stage: "",
-  harvest_date: "",
-  location: "",
-  phenotype: "",
-  status: "มีชีวิต",
-  sex: "unknown",
-  genotype: "",
-  parent_male: null as number | null,
-  parent_female: null as number | null,
-  clone_source: null as number | null,
-  pollinated_by: null as number | null,
-  pollination_date: "",
-  yield_amount: null as number | null,
-  flower_quality: "",
-  seed_count: null as number | null,
-  seed_harvest_date: "",
-  disease_notes: "",
-  document: null as File | null,
-  notes: "",
-  generation: "",
-});
+import { useTreeData } from "../hooks/useTreeData";
+import { useTreeForm } from "../hooks/useTreeForm";
+import { treeService } from "../services/treeService";
+import { DEFAULT_ITEMS_PER_PAGE, TOAST_DURATION } from "./constants";
 
 export default function Dashboard() {
-  const [trees, setTrees] = useState<Tree[]>([]);
-  const [strains, setStrains] = useState<Strain[]>([]);
-  const [batches, setBatches] = useState<Batch[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showDetailModal, setShowDetailModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
+  // Data Hook
+  const { trees, strains, batches, loading, refreshTrees, error: dataError } = useTreeData();
+  
+  // UI State
+  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedSearch(search, 300);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  
+  // Modal State
+  const [showFormModal, setShowFormModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
-  const [selectedQRTree, setSelectedQRTree] = useState<Tree | null>(null);
   const [selectedTree, setSelectedTree] = useState<Tree | null>(null);
-  const [galleryIndex, setGalleryIndex] = useState(0);
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [viewingImages, setViewingImages] = useState<string[]>([]);
+  const [viewingImageIndex, setViewingImageIndex] = useState(0);
+  
+  // Loading State
+  const [deleting, setDeleting] = useState(false);
 
-  const [showImageLightbox, setShowImageLightbox] = useState(false);
-  const [lightboxIndex, setLightboxIndex] = useState(0);
-
-  const [showDeleteAllImagesModal, setShowDeleteAllImagesModal] =
-    useState(false);
-  const [showDeleteDocumentModal, setShowDeleteDocumentModal] = useState(false);
-
-  const deleteConfirmRef = useRef<HTMLButtonElement>(null);
-  const deleteImagesConfirmRef = useRef<HTMLButtonElement>(null);
-  const deleteDocConfirmRef = useRef<HTMLButtonElement>(null);
-
-  // initial focus targets for modals
-  const addInitialRef = useRef<HTMLSelectElement>(null);
-  const editInitialRef = useRef<HTMLSelectElement>(null);
-
-  // เพิ่ม state สำหรับ form error
-  const [formError, setFormError] = useState<string>("");
-
-  // เพิ่ม state สำหรับ success message
-  const [successMessage, setSuccessMessage] = useState<string>("");
-
-  // แจ้งเตือนข้อผิดพลาดแบบ toast
-  const [errorMessage, setErrorMessage] = useState<string>("");
-
-  const [strainsLoading, setStrainsLoading] = useState(false);
-  const [batchesLoading, setBatchesLoading] = useState(false);
-
-  // State สำหรับ loading ข้อมูล detail
-  const [detailLoading, setDetailLoading] = useState(false);
-
-  // เพิ่ม state สำหรับ uploading overlay
-  const [uploading, setUploading] = useState(false);
-
-  useEffect(() => {
-    if (!successMessage) return;
-    const t = setTimeout(() => setSuccessMessage(""), 3000);
-    return () => clearTimeout(t);
-  }, [successMessage]);
-
-  useEffect(() => {
-    if (!errorMessage) return;
-    const t = setTimeout(() => setErrorMessage(""), 3000);
-    return () => clearTimeout(t);
-  }, [errorMessage]);
-
-  // เก็บ ID ของต้นไม้ที่ถูกเลือกในตาราง
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
-
-  // modal ยืนยันการลบหลายรายการ
-  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
-
-  const today = new Date();
-  const yyyy = today.getFullYear();
-  const mm = String(today.getMonth() + 1).padStart(2, "0");
-  const dd = String(today.getDate()).padStart(2, "0");
-  const todayStr = `${yyyy}-${mm}-${dd}`;
-
-  const [form, setForm] = useState({
-    strainUuid: "",
-    batch_id: null as number | null,
-    variety: "",
-    nickname: "",
-    plant_date: todayStr, // default เป็นวันนี้
-    germination_date: "",
-    growth_stage: "",
-    harvest_date: "",
-    location: "",
-    phenotype: "",
-    status: "มีชีวิต", // default เป็น 'มีชีวิต'
-    sex: "unknown",
-    genotype: "",
-    parent_male: null as number | null,
-    parent_female: null as number | null,
-    clone_source: null as number | null,
-    pollinated_by: null as number | null,
-    pollination_date: "",
-    yield_amount: null as number | null,
-    flower_quality: "",
-    seed_count: null as number | null,
-    seed_harvest_date: "",
-    disease_notes: "",
-    document: null as File | null,
-    notes: "",
-    generation: "",
-  });
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
-  const handleImageFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files ? Array.from(e.target.files) : [];
-    const valid: File[] = [];
-    for (const file of files) {
-      if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-        setFormError("รองรับเฉพาะไฟล์ JPG, PNG หรือ WEBP");
-        continue;
-      }
-      if (file.size > MAX_FILE_SIZE) {
-        setFormError("ขนาดไฟล์ต้องไม่เกิน 20MB");
-        continue;
-      }
-      valid.push(file);
-    }
-    if (valid.length === files.length) setFormError("");
-    setImageFiles(valid);
-  };
-  const handleDocumentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    if (file) {
-      if (!ACCEPTED_DOCUMENT_TYPES.includes(file.type)) {
-        setFormError("เอกสารต้องเป็น PDF หรือภาพ JPG, PNG, WEBP");
-        return;
-      }
-      if (file.size > MAX_FILE_SIZE) {
-        setFormError("ขนาดเอกสารต้องไม่เกิน 20MB");
-        return;
-      }
-    }
-    setFormError("");
-    setForm((f) => ({ ...f, document: file }));
-  };
-
-  // Drag & Drop Handlers
-  const [isDraggingDoc, setIsDraggingDoc] = useState(false);
-  const [isDraggingImages, setIsDraggingImages] = useState(false);
-
-  const handleDragOverDoc = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDraggingDoc(true);
-  };
-
-  const handleDragLeaveDoc = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDraggingDoc(false);
-  };
-
-  const handleDropDoc = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDraggingDoc(false);
-    const file = e.dataTransfer.files?.[0] || null;
-    if (file) {
-      if (!ACCEPTED_DOCUMENT_TYPES.includes(file.type)) {
-        setFormError("เอกสารต้องเป็น PDF หรือภาพ JPG, PNG, WEBP");
-        return;
-      }
-      if (file.size > MAX_FILE_SIZE) {
-        setFormError("ขนาดเอกสารต้องไม่เกิน 20MB");
-        return;
-      }
-      setFormError("");
-      setForm((f) => ({ ...f, document: file }));
-    }
-  };
-
-  const handleDragOverImages = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDraggingImages(true);
-  };
-
-  const handleDragLeaveImages = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDraggingImages(false);
-  };
-  const handleDropImages = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDraggingImages(false);
-    const files = Array.from(e.dataTransfer.files);
-    const validFiles: File[] = [];
-    let errorMsg = "";
-
-    files.forEach((file) => {
-      if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-        errorMsg = "บางไฟล์ไม่ใช่รูปภาพที่รองรับ (JPG, PNG, WEBP)";
-        return;
-      }
-      if (file.size > MAX_FILE_SIZE) {
-        errorMsg = "บางรูปภาพมีขนาดเกิน 20MB";
-        return;
-      }
-      validFiles.push(file);
-    });
-
-    if (errorMsg) {
-      setFormError(errorMsg);
-    } else {
-      setFormError("");
-    }
-
-    if (validFiles.length > 0) {
-      setImageFiles((prev) => [...prev, ...validFiles]);
-    }
-  };
-  const [submitting, setSubmitting] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
+  // Sorting
+  const [sortKey, setSortKey] = useState<keyof Tree | "strain">("id");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc"); // Default to desc (newest first)
   const [ageUnit, setAgeUnit] = useState<"day" | "month" | "year">("day");
 
-  // State สำหรับการเรียงลำดับตาราง
-  const [sortKey, setSortKey] = useState<
-    "strain" | "nickname" | "plant_date" | "variety" | "sex" | "status" | null
-  >(null);
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  // Form Hook
+  const {
+    form,
+    imageFiles,
+    imagePreviewUrls,
+    formError,
+    submitting,
+    setImageFiles,
+    setFieldValue,
+    handleInputChange,
+    handleImageFilesChange,
+    handleDocumentChange,
+    handleSubmit,
+    resetForm,
+    setFormForEdit,
+    setFormError: setHookFormError,
+    editingId
+  } = useTreeForm(async () => {
+    // On Success
+    await refreshTrees();
+    setShowFormModal(false);
+    setSuccessMessage(editingId ? "แก้ไขข้อมูลสำเร็จ" : "เพิ่มต้นไม้ใหม่สำเร็จ");
+    resetForm();
+    setTimeout(() => setSuccessMessage(""), TOAST_DURATION);
+  }, strains);
 
-  // State สำหรับ pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20;
-  const [search, setSearch] = useState("");
-  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
-  const debouncedSearch = useDebouncedSearch((val: string) => {
-    setSearch(val);
-    setCurrentPage(1);
-  }, 350);
+  // Derived State (Filtering & Sorting)
+  const filteredTrees = useMemo(() => {
+    let result = trees;
 
-  // Fetch Data
-  const fetchTrees = () => {
-    const url = `${API_BASE}/api/trees/`;
-    console.log("Fetching trees from:", url);
-    // setLoading(true); // Remove redundant loading (handled by skeleton in table)
-    fetch(url)
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        return res.json();
-      })
-      .then((data) => setTrees(data))
-      .catch((err) => {
-        console.error("Error fetching trees:", err);
-        setErrorMessage("โหลดข้อมูลไม่สำเร็จ: " + (err.message || "Unknown error"));
-      })
-      .finally(() => setLoading(false));
-  };
-
-  const fetchStrains = () => {
-    fetch(`${API_BASE}/api/strains/`)
-      .then((res) => res.json())
-      .then((data) => setStrains(data))
-      .catch(() => setErrorMessage("โหลดสายพันธุ์ไม่สำเร็จ"))
-      .finally(() => setStrainsLoading(false));
-  };
-
-  const fetchBatches = () => {
-    setBatchesLoading(true);
-    fetch(`${API_BASE}/api/batches/`)
-      .then((res) => res.json())
-      .then((data) => setBatches(data))
-      .catch(() => setErrorMessage("โหลดชุดการปลูกไม่สำเร็จ"))
-      .finally(() => setBatchesLoading(false));
-  };
-
-  useEffect(() => {
-    fetchTrees();
-    fetchStrains();
-    fetchBatches();
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    const urls = imageFiles.map((file) => URL.createObjectURL(file));
-    return () => {
-      urls.forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, [imageFiles]);
-
-  // ฟังก์ชัน filter
-  const filteredTrees = trees.filter((tree) => {
-    const q = search.toLowerCase();
-    return (
-      tree.nickname?.toLowerCase().includes(q) ||
-      tree.strain?.name?.toLowerCase().includes(q) ||
-      tree.variety?.toLowerCase().includes(q) ||
-      tree.status?.toLowerCase().includes(q) ||
-      tree.sex?.toLowerCase().includes(q)
-    );
-  });
-
-  const sortedTrees = [...filteredTrees].sort((a, b) => {
-    if (!sortKey) return 0;
-    const valA = getSortValue(a, sortKey);
-    const valB = getSortValue(b, sortKey);
-    if (valA < valB) return sortOrder === "asc" ? -1 : 1;
-    if (valA > valB) return sortOrder === "asc" ? 1 : -1;
-    return 0;
-  });
-  const pagedTrees = sortedTrees.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-  const totalPages = Math.ceil(filteredTrees.length / itemsPerPage);
-
-  useEffect(() => {
-    if (currentPage > totalPages) setCurrentPage(totalPages || 1);
-  }, [trees, totalPages, currentPage]);
-  // CRUD
-  const handleSubmit = useCallback(async () => {
-    // ตรวจสอบ required fields
-    if (!form.strainUuid) {
-      setFormError("กรุณาเลือกสายพันธุ์");
-      return;
-    }
-    if (!form.status) {
-      setFormError("กรุณาเลือกสถานะ");
-      return;
-    }
-    if (!form.sex) {
-      setFormError("กรุณาเลือกเพศ");
-      return;
-    }
-    if (!form.plant_date) {
-      setFormError("กรุณาเลือกวันที่ปลูก");
-      return;
+    // Filter by Search
+    if (debouncedSearch) {
+      const lowerSearch = debouncedSearch.toLowerCase();
+      result = result.filter(
+        (t) =>
+          t.strain?.name.toLowerCase().includes(lowerSearch) ||
+          t.nickname?.toLowerCase().includes(lowerSearch) ||
+          t.location?.toLowerCase().includes(lowerSearch) ||
+          t.batch?.batch_code.toLowerCase().includes(lowerSearch)
+      );
     }
 
-    // ตรวจสอบ yield_amount
-    if (form.yield_amount !== null && form.yield_amount < 0) {
-      setFormError("ปริมาณผลผลิตต้องไม่ติดลบ");
-      return;
-    }
+    // Sorting
+    if (sortKey) {
+      result = [...result].sort((a, b) => {
+        let valA: string | number = "";
+        let valB: string | number = "";
 
-    setFormError(""); // ล้าง error
-    setSubmitting(true);
-    setUploading(true); // แสดง overlay uploading
-    try {
-      const formData = new FormData();
-      for (const [key, value] of Object.entries(form)) {
-        if (key === "strainUuid") {
-          formData.append("strain_id", value ? value.toString() : "");
-        } else if (key === "batch_id") {
-          if (value === null || value === "") {
-            formData.append("batch_id", "");
-          } else {
-            formData.append("batch_id", value.toString());
-          }
-        } else if (key === "document") {
-          if (value === null) {
-            // ถ้าต้องการลบไฟล์ document ให้ append เป็น "" หรือไม่ส่งเลย (ขึ้นกับ backend)
-            formData.append("document", "");
-          } else if (value instanceof File) {
-            formData.append("document", value);
-          }
-        } else if (
-          [
-            "parent_male",
-            "parent_female",
-            "clone_source",
-            "pollinated_by",
-            "yield_amount",
-            "seed_count",
-          ].includes(key)
-        ) {
-          // ถ้าเป็น number field
-          if (value === null || value === "") {
-            formData.append(key, "");
-          } else {
-            formData.append(key, value.toString());
-          }
-        } else if (
-          [
-            "germination_date",
-            "harvest_date",
-            "pollination_date",
-            "seed_harvest_date",
-            "plant_date",
-          ].includes(key)
-        ) {
-          // ถ้าเป็น date field
-          if (value === null || value === "") {
-            formData.append(key, "");
-          } else {
-            formData.append(key, value.toString());
-          }
+        if (sortKey === "strain") {
+          valA = a.strain?.name || "";
+          valB = b.strain?.name || "";
+        } else if (sortKey === "plant_date") {
+           valA = a.plant_date ? new Date(a.plant_date).getTime() : 0;
+           valB = b.plant_date ? new Date(b.plant_date).getTime() : 0;
         } else {
-          // text field
-          formData.append(key, value === null ? "" : value.toString());
+           // Generic fallback for strict keys
+           const key = sortKey as keyof Tree;
+           const vA = a[key];
+           const vB = b[key];
+           if (typeof vA === 'string' || typeof vA === 'number') valA = vA;
+           if (typeof vB === 'string' || typeof vB === 'number') valB = vB;
         }
-      }
-      imageFiles.forEach((file) => {
-        formData.append("uploaded_images", file);
-      });
-      if (form.document) formData.append("document", form.document);
-      if (form.parent_male)
-        formData.append("parent_male", form.parent_male.toString());
-      const res = await fetch(`${API_BASE}/api/trees/`, {
-        method: "POST",
-        body: formData,
-      });
-      if (!res.ok) {
-        const errorText = await res.text();
-        setFormError("บันทึกข้อมูลไม่สำเร็จ: " + errorText);
-        return;
-      }
-      setShowAddModal(false);
-      setForm({
-        strainUuid: "",
-        batch_id: null as number | null,
-        variety: "",
-        nickname: "",
-        plant_date: todayStr,
-        germination_date: "",
-        growth_stage: "",
-        harvest_date: "",
-        location: "",
-        phenotype: "",
-        status: "มีชีวิต",
-        sex: "unknown",
-        genotype: "",
-        parent_male: null as number | null,
-        parent_female: null as number | null,
-        clone_source: null as number | null,
-        pollinated_by: null as number | null,
-        pollination_date: "",
-        yield_amount: null as number | null,
-        flower_quality: "",
-        seed_count: null as number | null,
-        seed_harvest_date: "",
-        disease_notes: "",
-        document: null as File | null,
-        notes: "",
-        generation: "",
-      });
-      setImageFiles([]);
-      fetchTrees();
-      setSuccessMessage("บันทึกข้อมูลสำเร็จ");
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      setFormError("บันทึกข้อมูลไม่สำเร็จ: " + message);
-    } finally {
-      setSubmitting(false);
-      setUploading(false); // ซ่อน overlay uploading
-    }
-  }, [form, imageFiles, todayStr]);
 
-  const handleShowEdit = (tree?: Tree) => {
-    const target = tree || selectedTree;
-    if (!target) return;
-    setSelectedTree(target);
-    setForm({
-      strainUuid: target.strain?.id?.toString() || "",
-      batch_id: target.batch?.id || null,
-      variety: target.variety || "",
-      nickname: target.nickname || "",
-      plant_date: target.plant_date || "",
-      germination_date: target.germination_date || "",
-      growth_stage: target.growth_stage || "",
-      harvest_date: target.harvest_date || "",
-      location: target.location || "",
-      phenotype: target.phenotype || "",
-      status: target.status || "",
-      sex: target.sex || "unknown",
-      genotype: target.genotype || "",
-      parent_male: target.parent_male,
-      parent_female: target.parent_female,
-      clone_source: target.clone_source,
-      pollinated_by: target.pollinated_by,
-      pollination_date: target.pollination_date || "",
-      yield_amount: target.yield_amount,
-      flower_quality: target.flower_quality || "",
-      seed_count: target.seed_count,
-      seed_harvest_date: target.seed_harvest_date || "",
-      disease_notes: target.disease_notes || "",
-      document: null as File | null,
-      notes: target.notes || "",
-      generation: target.generation || "",
-    });
-    setImageFiles([]);
-    setShowDetailModal(false);
-    setShowEditModal(true);
+        if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+        if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return result;
+  }, [trees, debouncedSearch, sortKey, sortOrder]);
+
+  // Handlers
+  const handleSort = (key: keyof Tree | "strain") => {
+    if (sortKey === key) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortKey(key);
+      setSortOrder("desc"); // Default new sort to desc
+    }
   };
 
-  const handleEditSubmit = useCallback(async () => {
-    if (!selectedTree) return;
-
-    // ตรวจสอบ required fields
-    if (!form.strainUuid) {
-      setFormError("กรุณาเลือกสายพันธุ์");
-      return;
+  const handleSelect = (id: number, checked: boolean) => {
+    if (checked) {
+      setSelectedIds((prev) => [...prev, id]);
+    } else {
+      setSelectedIds((prev) => prev.filter((i) => i !== id));
     }
-    if (!form.status) {
-      setFormError("กรุณาเลือกสถานะ");
-      return;
-    }
-    if (!form.sex) {
-      setFormError("กรุณาเลือกเพศ");
-      return;
-    }
-    if (!form.plant_date) {
-      setFormError("กรุณาเลือกวันที่ปลูก");
-      return;
-    }
-
-    // ตรวจสอบ yield_amount
-    if (form.yield_amount !== null && form.yield_amount < 0) {
-      setFormError("ปริมาณผลผลิตต้องไม่ติดลบ");
-      return;
-    }
-
-    setFormError(""); // ล้าง error
-    setSubmitting(true);
-    setUploading(true); // แสดง overlay uploading
-    try {
-      const formData = new FormData();
-      for (const [key, value] of Object.entries(form)) {
-        if (key === "strainUuid") {
-          formData.append("strain_id", value ? value.toString() : "");
-        } else if (key === "batch_id") {
-          if (value === null || value === "") {
-            formData.append("batch_id", "");
-          } else {
-            formData.append("batch_id", value.toString());
-          }
-        } else if (key === "document") {
-          if (value === null) {
-            // ถ้าต้องการลบไฟล์ document ให้ append เป็น "" หรือไม่ส่งเลย (ขึ้นกับ backend)
-            formData.append("document", "");
-          } else if (value instanceof File) {
-            formData.append("document", value);
-          }
-        } else if (
-          [
-            "parent_male",
-            "parent_female",
-            "clone_source",
-            "pollinated_by",
-            "yield_amount",
-            "seed_count",
-          ].includes(key)
-        ) {
-          // ถ้าเป็น number field
-          if (value === null || value === "") {
-            formData.append(key, "");
-          } else {
-            formData.append(key, value.toString());
-          }
-        } else if (
-          [
-            "germination_date",
-            "harvest_date",
-            "pollination_date",
-            "seed_harvest_date",
-            "plant_date",
-          ].includes(key)
-        ) {
-          // ถ้าเป็น date field
-          if (value === null || value === "") {
-            formData.append(key, "");
-          } else {
-            formData.append(key, value.toString());
-          }
-        } else {
-          // text field
-          formData.append(key, value === null ? "" : value.toString());
-        }
-      }
-      imageFiles.forEach((file) => {
-        formData.append("uploaded_images", file);
-      });
-      if (form.document) formData.append("document", form.document);
-      if (form.parent_male)
-        formData.append("parent_male", form.parent_male.toString());
-      const res = await fetch(`${API_BASE}/api/trees/${selectedTree.id}/`, {
-        method: "PATCH",
-        body: formData,
-      });
-      if (!res.ok) {
-        const errorText = await res.text();
-        setFormError("แก้ไขข้อมูลไม่สำเร็จ: " + errorText);
-        return;
-      }
-      setShowEditModal(false);
-      setShowDetailModal(false);
-      setForm({
-        strainUuid: "",
-        batch_id: null as number | null,
-        variety: "",
-        nickname: "",
-        plant_date: todayStr,
-        germination_date: "",
-        growth_stage: "",
-        harvest_date: "",
-        location: "",
-        phenotype: "",
-        status: "มีชีวิต",
-        sex: "unknown",
-        genotype: "",
-        parent_male: null as number | null,
-        parent_female: null as number | null,
-        clone_source: null as number | null,
-        pollinated_by: null as number | null,
-        pollination_date: "",
-        yield_amount: null as number | null,
-        flower_quality: "",
-        seed_count: null as number | null,
-        seed_harvest_date: "",
-        disease_notes: "",
-        document: null as File | null,
-        notes: "",
-        generation: selectedTree.generation || "",
-      });
-      setImageFiles([]);
-      fetchTrees();
-      setSuccessMessage("บันทึกข้อมูลสำเร็จ");
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      setFormError("แก้ไขข้อมูลไม่สำเร็จ: " + message);
-    } finally {
-      setSubmitting(false);
-      setUploading(false); // ซ่อน overlay uploading
-    }
-  }, [form, imageFiles, selectedTree, todayStr]);
-
-  const handleShowQR = (tree: Tree) => {
-    setSelectedQRTree(tree);
-    setShowQRModal(true);
   };
 
-  const handleShowDelete = (tree?: Tree) => {
-    if (tree) setSelectedTree(tree);
+  const handleSelectAll = (checked: boolean, ids: number[]) => {
+    if (checked) {
+      // Add all visible IDs that aren't already selected
+      const newIds = ids.filter(id => !selectedIds.includes(id));
+      setSelectedIds(prev => [...prev, ...newIds]);
+    } else {
+      // Remove visible IDs from selection
+      setSelectedIds(prev => prev.filter(id => !ids.includes(id)));
+    }
+  };
+
+  const handleCreate = () => {
+    resetForm();
+    setSelectedTree(null);
+    setShowFormModal(true);
+  };
+
+  const handleEdit = (tree: Tree) => {
+    resetForm();
+    setSelectedTree(tree);
+    setFormForEdit(tree);
+    setShowFormModal(true);
+  };
+
+  const handleDeleteClick = (tree: Tree) => {
+    setSelectedTree(tree);
     setShowDeleteModal(true);
   };
 
-  const handleDelete = async () => {
+  const handleDeleteConfirm = async () => {
     if (!selectedTree) return;
-    setSubmitting(true);
     try {
-      const res = await fetch(`${API_BASE}/api/trees/${selectedTree.id}/`, {
-        method: "DELETE",
-      });
-      if (!res.ok) {
-        alert("ลบไม่สำเร็จ");
-        return;
-      }
-      setShowDeleteModal(false);
-      setShowDetailModal(false);
-      setSelectedTree(null);
-      fetchTrees();
-      setSuccessMessage("ลบข้อมูลสำเร็จ");
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      setErrorMessage("ลบข้อมูลไม่สำเร็จ: " + message);
+        setDeleting(true);
+        await treeService.deleteTree(selectedTree.id);
+        await refreshTrees();
+        setSuccessMessage("ลบข้อมูลสำเร็จ");
+        setShowDeleteModal(false);
+        setSelectedTree(null);
+    } catch (err: any) {
+        setErrorMessage(err.message || "ลบข้อมูลไม่สำเร็จ");
     } finally {
-      setSubmitting(false);
+        setDeleting(false);
     }
+    setTimeout(() => {
+        setSuccessMessage("");
+        setErrorMessage("");
+    }, TOAST_DURATION);
   };
 
-  // เพิ่มฟังก์ชันลบรูปภาพ
-  const handleDeleteImage = async (id: number) => {
-    if (!selectedTree) return;
-    setSubmitting(true);
-    try {
-      const res = await fetch(`${API_BASE}/api/images/${id}/`, {
-        method: "DELETE",
-      });
-      if (!res.ok) {
-        alert("ลบรูปภาพไม่สำเร็จ");
-        return;
-      }
-      // อัปเดต selectedTree state โดยลบรูปภาพออก
-      setSelectedTree((prev) =>
-        prev
-          ? {
-              ...prev,
-              images: prev.images.filter((img) => img.id !== id),
-            }
-          : null
-      );
-      // รีเฟรชข้อมูลต้นไม้ทั้งหมด
-      fetchTrees();
-      setSuccessMessage("ลบรูปภาพสำเร็จ");
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      setErrorMessage("ลบรูปภาพไม่สำเร็จ: " + message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  // เพิ่มฟังก์ชันลบรูปภาพทั้งหมด
-  const handleDeleteAllImages = async () => {
-    if (!selectedTree || selectedTree.images.length === 0) return;
-    setSubmitting(true);
-    try {
-      // ลบรูปภาพทีละรูป
-      for (const image of selectedTree.images) {
-        const res = await fetch(`${API_BASE}/api/images/${image.id}/`, {
-          method: "DELETE",
-        });
-        if (!res.ok) {
-          alert(`ลบรูปภาพ ${image.id} ไม่สำเร็จ`);
-          return;
-        }
-      }
-      // อัปเดต selectedTree state
-      setSelectedTree((prev) =>
-        prev
-          ? {
-              ...prev,
-              images: [],
-            }
-          : null
-      );
-      // รีเฟรชข้อมูลต้นไม้ทั้งหมด
-      fetchTrees();
-      // ปิด modal ยืนยัน
-      setShowDeleteAllImagesModal(false);
-      setSuccessMessage("ลบรูปภาพทั้งหมดสำเร็จ");
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      setErrorMessage("ลบรูปภาพทั้งหมดไม่สำเร็จ: " + message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  // เพิ่มฟังก์ชันแสดง modal ยืนยันการลบรูปภาพทั้งหมด
-  const handleShowDeleteAllImagesModal = () => {
-    setShowDeleteAllImagesModal(true);
-  };
-
-  const handleShowDeleteDocumentModal = () => {
-    setShowDeleteDocumentModal(true);
-  };
-
-  const handleDeleteDocument = async () => {
-    if (!selectedTree) return;
-    setSubmitting(true);
-    try {
-      const res = await fetch(
-        `${API_BASE}/api/trees/${selectedTree.id}/delete_document/`,
-        {
-          method: "DELETE",
-        }
-      );
-      if (!res.ok) {
-        const errorText = await res.text();
-        alert("ลบเอกสารไม่สำเร็จ: " + errorText);
-        return;
-      }
-      setShowDeleteDocumentModal(false);
-      fetchTrees();
-      // อัปเดต selectedTree เพื่อให้แสดงผลถูกต้อง
-      const updatedTree = await fetch(
-        `${API_BASE}/api/trees/${selectedTree.id}/`
-      ).then((res) => res.json());
-      setSelectedTree(updatedTree);
-      setSuccessMessage("ลบเอกสารสำเร็จ");
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      setErrorMessage("ลบเอกสารไม่สำเร็จ: " + message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  // ลบต้นไม้หลายรายการตามที่เลือกในตาราง
-  const performBulkDelete = async () => {
+  const handleBulkDelete = async () => {
     if (selectedIds.length === 0) return;
-    setSubmitting(true);
+    if (!confirm(`คุณต้องการลบ ${selectedIds.length} รายการที่เลือกใช่หรือไม่?`)) return;
+
     try {
-      for (const id of selectedIds) {
-        const res = await fetch(`${API_BASE}/api/trees/${id}/`, {
-          method: "DELETE",
-        });
-        if (!res.ok) {
-          const err = await res.text();
-          throw new Error(err);
-        }
-      }
+      await treeService.bulkDeleteTrees(selectedIds);
+      await refreshTrees();
       setSelectedIds([]);
-      fetchTrees();
-      setSuccessMessage("ลบรายการที่เลือกสำเร็จ");
-      setShowBulkDeleteModal(false);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      setErrorMessage("ลบรายการไม่สำเร็จ: " + message);
-    } finally {
-      setSubmitting(false);
+      setSuccessMessage(`ลบ ${selectedIds.length} รายการสำเร็จ`);
+    } catch (err: any) {
+      setErrorMessage(err.message || "ลบข้อมูลหลายรายการไม่สำเร็จ");
+    }
+    setTimeout(() => setSuccessMessage(""), TOAST_DURATION);
+  };
+
+  const handleShowQR = (tree: Tree) => {
+    setSelectedTree(tree);
+    setShowQRModal(true);
+  };
+
+  const handleViewImages = (images: string[], index: number) => {
+    setViewingImages(images);
+    setViewingImageIndex(index);
+    setShowImageModal(true);
+  };
+
+  // Drag and Drop Handlers
+  const [isDraggingDoc, setIsDraggingDoc] = useState(false);
+  const [isDraggingImages, setIsDraggingImages] = useState(false);
+
+  const onDragOverDoc = (e: React.DragEvent) => { e.preventDefault(); setIsDraggingDoc(true); };
+  const onDragLeaveDoc = (e: React.DragEvent) => { e.preventDefault(); setIsDraggingDoc(false); };
+  const onDropDoc = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingDoc(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+        // We need a way to set document via hook. Hook has `handleDocumentChange` for events.
+        // We can manually set it if we expose `setFieldValue` or similar from hook.
+        // Hook exposes `setForm`.
+        // Let's just use `handleDocumentChange` with a fake event or update hook to accept File.
+        // For now, let's manually update form state via setFieldValue from hook.
+        setFieldValue('document', file);
     }
   };
 
-  // Gallery/Detail/Lightbox
-  const handleShowDetail = useCallback(async (tree: Tree) => {
-    setDetailLoading(true);
-    // ถ้า fetch ข้อมูล detail ใหม่จาก API ให้ใส่ logic ที่นี่
-    // const res = await fetch(`${API_BASE}/api/trees/${tree.id}/`);
-    // const data = await res.json();
-    // setSelectedTree(data);
-    setSelectedTree(tree);
-    setGalleryIndex(0);
-    setShowDetailModal(true);
-    setTimeout(() => setDetailLoading(false), 400); // simulate loading (ลบทิ้งถ้า fetch จริง)
-  }, []);
-  const handlePrevImage = useCallback(() => {
-    if (!selectedTree || selectedTree.images.length === 0) return;
-    setGalleryIndex(
-      (idx) =>
-        (idx - 1 + selectedTree.images.length) % selectedTree.images.length
-    );
-  }, [selectedTree]);
-  const handleNextImage = useCallback(() => {
-    if (!selectedTree || selectedTree.images.length === 0) return;
-    setGalleryIndex((idx) => (idx + 1) % selectedTree.images.length);
-  }, [selectedTree]);
-  const handleOpenLightbox = useCallback((idx: number) => {
-    setLightboxIndex(idx);
-    setShowImageLightbox(true);
-    setShowDetailModal(false);
-  }, []);
-  const handleCloseLightbox = useCallback(() => {
-    setShowImageLightbox(false);
-    setGalleryIndex(lightboxIndex);
-    setShowDetailModal(true);
-  }, [lightboxIndex]);
-  const handleLightboxPrev = useCallback(() => {
-    if (!selectedTree) return;
-    setLightboxIndex(
-      (idx) =>
-        (idx - 1 + selectedTree.images.length) % selectedTree.images.length
-    );
-  }, [selectedTree]);
-  const handleLightboxNext = useCallback(() => {
-    if (!selectedTree) return;
-    setLightboxIndex((idx) => (idx + 1) % selectedTree.images.length);
-  }, [selectedTree]);
-  useEffect(() => {
-    if (!showImageLightbox) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") handleCloseLightbox();
-      if (e.key === "ArrowLeft") handleLightboxPrev();
-      if (e.key === "ArrowRight") handleLightboxNext();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [
-    showImageLightbox,
-    selectedTree,
-    handleCloseLightbox,
-    handleLightboxPrev,
-    handleLightboxNext,
-  ]);
-
-  // Hotkey: submit form with Enter key when modal is open
-  useEffect(() => {
-    if (!showAddModal && !showEditModal) return;
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key !== "Enter") return;
-      const tag = (e.target as HTMLElement).tagName;
-      if (tag === "TEXTAREA") return;
-      e.preventDefault();
-      if (showAddModal) handleSubmit();
-      if (showEditModal) handleEditSubmit();
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [showAddModal, showEditModal, handleSubmit, handleEditSubmit]);
-
-
-  if (!mounted) return null;
+  const onDragOverImages = (e: React.DragEvent) => { e.preventDefault(); setIsDraggingImages(true); };
+  const onDragLeaveImages = (e: React.DragEvent) => { e.preventDefault(); setIsDraggingImages(false); };
+  const onDropImages = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingImages(false);
+    if (e.dataTransfer.files?.length) {
+        setImageFiles(Array.from(e.dataTransfer.files));
+    }
+  };
 
   return (
-    <div className="w-full min-h-screen bg-linear-to-br from-blue-50 via-white to-green-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-800 font-kanit">
-
-      {/* Overlay Spinner กลางจอ ขณะ loading */}
-      {loading && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/50 dark:bg-black/50 backdrop-blur-sm">
-          <div className="flex flex-col items-center gap-4 p-6 rounded-2xl glass">
-            <Spinner size="xl" color="success" aria-label="กำลังโหลดข้อมูล..." />
-            <span className="text-lg font-bold text-green-700 dark:text-green-300 animate-pulse">
-              กำลังโหลดข้อมูล...
-            </span>
-          </div>
-        </div>
-      )}
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 font-kanit transition-colors duration-200">
       
-      <main className="px-4 py-8 mx-auto w-full max-w-7xl sm:px-6 lg:px-8 pb-32">
-        {/* HERO HEADER */}
-        <div className="relative mb-12 text-center sm:text-left">
-          <div className="absolute -top-10 -left-10 w-64 h-64 bg-green-200/30 rounded-full blur-3xl -z-10 animate-pulse" />
-          <div className="absolute top-0 right-0 w-72 h-72 bg-blue-200/20 rounded-full blur-3xl -z-10" />
-          
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div>
-              <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-green-700 to-teal-600 dark:from-green-400 dark:to-teal-300 mb-2">
-                รายการต้นไม้
-              </h1>
-              <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl">
-                ติดตามการเจริญเติบโต บันทึกพัฒนาการ และจัดการสวนของคุณในที่เดียว
-              </p>
-            </div>
-            
-            <div className="flex gap-3 justify-center md:justify-end">
-              <Link href="/strains">
-                <Button color="light" className="rounded-full shadow-sm hover:shadow-md transition-all border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-                  <HiCollection className="w-5 h-5 mr-2 text-green-600" />
-                  สายพันธุ์
-                </Button>
-              </Link>
-              <Link href="/batches">
-                <Button color="light" className="rounded-full shadow-sm hover:shadow-md transition-all border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-                  <HiOutlineBeaker className="w-5 h-5 mr-2 text-blue-600" />
-                  ชุดการปลูก
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Filter Bar & View Toggle */}
-        <div className="mb-8 sticky top-20 z-40 glass rounded-2xl p-2 shadow-sm transition-all duration-300">
-          <FilterBar
-            search={search}
-            onSearchChange={debouncedSearch}
-            selectedCount={selectedIds.length}
-            onBulkDelete={() => setShowBulkDeleteModal(true)}
-            onClearSelection={() => setSelectedIds([])}
-            loading={loading}
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
-          />
-        </div>
-
-        {/* CONTENT */}
-        {viewMode === "table" ? (
-          <div className="glass rounded-3xl overflow-hidden shadow-xl border border-white/50 dark:border-gray-700">
-            <TreeTable
-              trees={pagedTrees}
-              loading={loading}
-              selectedIds={selectedIds}
-              onSelect={(id, checked) => {
-                if (checked) setSelectedIds((prev) => [...prev, id]);
-                else setSelectedIds((prev) => prev.filter((pid) => pid !== id));
-              }}
-              onSelectAll={(checked, ids) => {
-                if (checked)
-                  setSelectedIds((prev) => [...new Set([...prev, ...ids])]);
-                else
-                  setSelectedIds((prev) =>
-                    prev.filter((id) => !ids.includes(id))
-                  );
-              }}
-              sortKey={sortKey}
-              sortOrder={sortOrder}
-              onSort={(key) => {
-                if (sortKey === key) {
-                  setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                } else {
-                  setSortKey(key as any);
-                  setSortOrder("asc");
-                }
-              }}
-              onRowClick={handleShowDetail}
-              ageUnit={ageUnit}
-              setAgeUnit={setAgeUnit}
-              calcAge={calcAge}
-              onEdit={handleShowEdit}
-              onDelete={(t) => {
-                setSelectedTree(t);
-                setShowDeleteModal(true);
-              }}
-              onShowQR={handleShowQR}
-            />
-            {totalPages > 1 && (
-              <div className="p-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
-                <nav
-                  aria-label="Page navigation"
-                  className="flex justify-center w-full"
-                >
-                  <ul className="flex items-center -space-x-px h-10 text-base shadow-sm rounded-lg">
-                    <li>
-                      <button
-                        onClick={() =>
-                          setCurrentPage(Math.max(1, currentPage - 1))
-                        }
-                        disabled={currentPage === 1}
-                        className="flex justify-center items-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 ms-0 border-e-0 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                      >
-                        <span className="sr-only">Previous</span>
-                        <svg
-                          className="w-3 h-3 rtl:rotate-180"
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 6 10"
-                        >
-                          <path
-                            stroke="currentColor"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M5 1 1 5l4 4"
-                          />
-                        </svg>
-                      </button>
-                    </li>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                      (page) => (
-                        <li key={page}>
-                          <button
-                            onClick={() => setCurrentPage(page)}
-                            aria-current={
-                              currentPage === page ? "page" : undefined
-                            }
-                            className={`flex items-center justify-center px-4 h-10 leading-tight border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white transition-colors ${
-                              currentPage === page
-                                ? "z-10 text-green-600 border-green-300 bg-green-50 hover:bg-green-100 hover:text-green-700 dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                                : "bg-white"
-                            }`}
-                          >
-                            {page}
-                          </button>
-                        </li>
-                      )
-                    )}
-                    <li>
-                      <button
-                        onClick={() =>
-                          setCurrentPage(Math.min(totalPages, currentPage + 1))
-                        }
-                        disabled={currentPage === totalPages}
-                        className="flex justify-center items-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                      >
-                        <span className="sr-only">Next</span>
-                        <svg
-                          className="w-3 h-3 rtl:rotate-180"
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 6 10"
-                        >
-                          <path
-                            stroke="currentColor"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="m1 9 4-4-4-4"
-                          />
-                        </svg>
-                      </button>
-                    </li>
-                  </ul>
-                </nav>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {loading ? (
-              Array.from({ length: 8 }).map((_, i) => (
-                <TreeCardSkeleton key={i} />
-              ))
-            ) : pagedTrees.length === 0 ? (
-              <div className="col-span-full py-20 text-center">
-                <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-green-100 dark:bg-green-900 mb-6 animate-bounce">
-                  <span className="text-4xl">🌱</span>
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                  ยังไม่มีข้อมูลต้นไม้
-                </h3>
-                <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md mx-auto">
-                  เริ่มปลูกต้นไม้ต้นแรกของคุณได้เลย! คลิกปุ่ม + ด้านล่างเพื่อเพิ่มข้อมูล
-                </p>
-                <Button
-                  size="lg"
-                  className="mx-auto rounded-full shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 bg-linear-to-r from-green-400 to-blue-500 text-white border-none hover:from-green-500 hover:to-blue-600 focus:ring-4 focus:ring-green-200 dark:focus:ring-green-800"
-                  onClick={() => {
-                    setForm(getDefaultForm());
-                    setImageFiles([]);
-                    setSelectedTree(null);
-                    setShowAddModal(true);
-                  }}
-                >
-                  <HiPlus className="w-5 h-5 mr-2" />
-                  เพิ่มต้นไม้ใหม่
-                </Button>
-              </div>
-            ) : (
-              pagedTrees.map((tree) => (
-                <TreeCard
-                  key={tree.id}
-                  tree={tree}
-                  onEdit={handleShowEdit}
-                  onDelete={(t) => {
-                    setSelectedTree(t);
-                    setShowDeleteModal(true);
-                  }}
-                  onView={handleShowDetail}
-                  onShowQR={handleShowQR}
-                />
-              ))
-            )}
-          </div>
-        )}
-        
-        {/* Floating Action Button */}
-        <div className="fixed bottom-8 right-8 z-50">
-          <Tooltip content="เพิ่มต้นไม้ใหม่" placement="left">
-            <button
-              onClick={() => {
-                setForm(getDefaultForm());
-                setImageFiles([]);
-                setSelectedTree(null);
-                setShowAddModal(true);
-              }}
-              disabled={loading || submitting}
-              className="group relative flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg hover:shadow-2xl hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-green-300 dark:focus:ring-green-800"
-            >
-              <HiPlus className="w-8 h-8 transition-transform group-hover:rotate-90" />
-              <div className="absolute inset-0 rounded-full bg-white opacity-0 group-hover:opacity-20 transition-opacity" />
-            </button>
-          </Tooltip>
-        </div>
-      </main>
-
-      {/* QR Code Modal */}
-      <QRCodeModal
-        show={showQRModal}
-        onClose={() => setShowQRModal(false)}
-        tree={selectedQRTree}
-      />
-
-      {/* Modal เพิ่มต้นไม้ใหม่ */}
-      <Modal
-        show={showAddModal}
-        size="xl"
-        aria-modal="true"
-        initialFocus={addInitialRef}
-        onClose={() => {
-          setShowAddModal(false);
-          setForm(getDefaultForm());
-          setImageFiles([]);
-          setSelectedTree(null);
-          setFormError("");
-          setSuccessMessage("");
-          setErrorMessage("");
-        }}
-        className="rounded-2xl border border-gray-200 shadow-2xl backdrop-blur-lg xl:max-w-2xl dark:border-gray-700 [&>div]:p-0 [&>div]:h-full [&>div]:md:h-auto [&>div]:w-full [&>div]:max-w-full [&>div]:md:max-w-4xl"
-      >
-        <ModalHeader className="rounded-t-2xl border-b border-gray-100 bg-white/80 backdrop-blur-md dark:bg-gray-900/80 dark:border-gray-700">
-          <span className="text-2xl font-extrabold tracking-tight text-transparent bg-clip-text bg-linear-to-r from-green-600 to-teal-500 font-kanit sm:text-3xl md:text-4xl dark:from-green-400 dark:to-teal-300">
-            เพิ่มต้นไม้ใหม่
-          </span>
-        </ModalHeader>
-        <ModalBody className="rounded-b-2xl bg-slate-50 dark:bg-gray-900 max-h-[80vh] overflow-y-auto">
-          {/* แสดง error message */}
-          {formError && (
-            <Alert
-              id="addFormError"
-              color="failure"
-              className="mb-4"
-              onDismiss={() => setFormError("")}
-            >
-              <span className="font-medium">{formError}</span>
-            </Alert>
-          )}
-          <form
-            aria-describedby={formError ? "addFormError" : undefined}
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSubmit();
-            }}
-            className="grid grid-cols-1 gap-y-4 gap-x-8 text-base md:grid-cols-2 sm:text-lg font-kanit"
-          >
-            {/* กลุ่มที่ 1: ข้อมูลพื้นฐาน (สำคัญที่สุด) */}
-            <div className="md:col-span-2">
-              <h3 className="pb-2 mb-3 text-lg font-bold text-green-700 border-b border-green-200 dark:text-green-300 dark:border-green-700">
-                📋 ข้อมูลพื้นฐาน
-              </h3>
-            </div>
-            {/* สายพันธุ์ (required) */}
-            <div>
-              <Label className="mb-1 font-semibold">
-                สายพันธุ์ <span className="text-red-500">*</span>
-              </Label>
-              <div className="relative">
-                <Select
-                  ref={addInitialRef}
-                  required
-                  value={form.strainUuid}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, strainUuid: e.target.value }))
-                  }
-                  className="pr-10 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  autoFocus
-                  disabled={strainsLoading}
-                  aria-disabled={strainsLoading}
-                >
-                  <option value="">-- เลือกสายพันธุ์ --</option>
-                  {strains.map((strain) => (
-                    <option key={strain.id} value={strain.id.toString()}>
-                      {strain.name}
-                    </option>
-                  ))}
-                </Select>
-                {strainsLoading && (
-                  <div className="flex absolute top-2 right-3 items-center">
-                    <Spinner
-                      size="sm"
-                      color="info"
-                      aria-label="กำลังโหลดสายพันธุ์..."
-                    />
-                  </div>
-                )}
-              </div>
-              <Link href="/strains" className="text-sm text-blue-600">
-                ไปหน้าจัดการสายพันธุ์
-              </Link>
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">ชื่อเล่น</Label>
-              <TextInput
-                value={form.nickname}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, nickname: e.target.value }))
-                }
-              />
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">ชุดการปลูก</Label>
-              <div className="relative">
-                <Select
-                  value={form.batch_id ?? ""}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      batch_id: e.target.value ? Number(e.target.value) : null,
-                    }))
-                  }
-                  className="pr-10 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  disabled={batchesLoading}
-                  aria-disabled={batchesLoading}
-                >
-                  <option value="">-- เลือกชุดการปลูก --</option>
-                  {batches.map((batch) => (
-                    <option key={batch.id} value={batch.id}>
-                      {batch.batch_code}
-                    </option>
-                  ))}
-                </Select>
-                {batchesLoading && (
-                  <div className="flex absolute top-2 right-3 items-center">
-                    <Spinner
-                      size="sm"
-                      color="info"
-                      aria-label="กำลังโหลดชุดการปลูก..."
-                    />
-                  </div>
-                )}
-              </div>
-              <Link href="/batches" className="text-sm text-blue-600">
-                ไปหน้าจัดการชุดการปลูก
-              </Link>
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">พันธุ์</Label>
-              <TextInput
-                value={form.variety}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, variety: e.target.value }))
-                }
-              />
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">รุ่น (Generation)</Label>
-              <TextInput
-                value={form.generation || ""}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, generation: e.target.value }))
-                }
-                placeholder="เช่น F1, F2 ฯลฯ"
-                aria-label="รุ่นของต้นไม้"
-              />
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">สถานที่ปลูก</Label>
-              <TextInput
-                value={form.location}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, location: e.target.value }))
-                }
-              />
-            </div>
-            {/* สถานะ (required) */}
-            <div>
-              <Label className="mb-1 font-semibold">
-                สถานะ <span className="text-red-500">*</span>
-              </Label>
-              <Select
-                value={form.status}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, status: e.target.value }))
-                }
-                required
-              >
-                <option value="มีชีวิต">มีชีวิต</option>
-                <option value="ตายแล้ว">ตายแล้ว</option>
-                <option value="ถูกย้าย">ถูกย้าย</option>
-                <option value="อื่นๆ">อื่นๆ</option>
-              </Select>
-            </div>
-
-            {/* กลุ่มที่ 2: ข้อมูลการปลูก */}
-            <div className="md:col-span-2">
-              <h3 className="pb-2 mb-3 text-lg font-bold text-blue-700 border-b border-blue-200 dark:text-blue-300 dark:border-blue-700">
-                🌱 ข้อมูลการปลูก
-              </h3>
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">วันที่เมล็ดเริ่มงอก</Label>
-              <TextInput
-                type="date"
-                value={form.germination_date}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, germination_date: e.target.value }))
-                }
-              />
-            </div>
-            {/* วันที่ปลูก (required) */}
-            <div>
-              <Label className="mb-1 font-semibold">
-                วันที่ปลูก <span className="text-red-500">*</span>
-              </Label>
-              <TextInput
-                type="date"
-                required
-                value={form.plant_date}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, plant_date: e.target.value }))
-                }
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">ระยะการเจริญเติบโต</Label>
-              <TextInput
-                value={form.growth_stage}
-                placeholder="เช่น ต้นกล้า โตเต็มวัย"
-                className="mt-1"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, growth_stage: e.target.value }))
-                }
-              />
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">วันที่เก็บเกี่ยว</Label>
-              <TextInput
-                type="date"
-                value={form.harvest_date}
-                className="mt-1"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, harvest_date: e.target.value }))
-                }
-              />
-            </div>
-
-            {/* กลุ่มที่ 3: ข้อมูลพันธุกรรม */}
-            <div className="md:col-span-2">
-              <h3 className="pb-2 mb-3 text-lg font-bold text-purple-700 border-b border-purple-200 dark:text-purple-300 dark:border-purple-700">
-                🧬 ข้อมูลพันธุกรรม
-              </h3>
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">
-                เพศ <span className="text-red-500">*</span>
-              </Label>
-              <Select
-                required
-                value={form.sex}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, sex: e.target.value }))
-                }
-                className="mt-1"
-              >
-                <option value="bisexual">สมบูรณ์เพศ</option>
-                <option value="male">ตัวผู้</option>
-                <option value="female">ตัวเมีย</option>
-                <option value="monoecious">แยกเพศในต้นเดียวกัน</option>
-                <option value="mixed">ผสมหลายเพศ</option>
-                <option value="unknown">ไม่ระบุ/ไม่แน่ใจ</option>
-              </Select>
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">ข้อมูลพันธุกรรม</Label>
-              <TextInput
-                value={form.genotype}
-                placeholder="ข้อมูลทางพันธุกรรม"
-                className="mt-1"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, genotype: e.target.value }))
-                }
-              />
-            </div>
-            <div className="md:col-span-2">
-              <Label className="mb-1 font-semibold">ลักษณะเด่น</Label>
-              <Textarea
-                rows={2}
-                value={form.phenotype}
-                placeholder="เช่น ผลใหญ่ รสหวาน"
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, phenotype: e.target.value }))
-                }
-              />
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">ต้นพ่อพันธุ์</Label>
-              <Select
-                value={form.parent_male ?? ""}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    parent_male: e.target.value ? Number(e.target.value) : null,
-                  }))
-                }
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                <option value="">-- เลือกต้นพ่อพันธุ์ --</option>
-                {trees.map((tree) => (
-                  <option key={tree.id} value={tree.id}>
-                    {tree.nickname || tree.id}
-                  </option>
-                ))}
-              </Select>
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">ต้นแม่พันธุ์</Label>
-              <Select
-                value={form.parent_female ?? ""}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    parent_female: e.target.value
-                      ? Number(e.target.value)
-                      : null,
-                  }))
-                }
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                <option value="">-- เลือกต้นแม่พันธุ์ --</option>
-                {trees.map((tree) => (
-                  <option key={tree.id} value={tree.id}>
-                    {tree.nickname || tree.id}
-                  </option>
-                ))}
-              </Select>
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">ต้นแม่ที่ใช้ปักชำ</Label>
-              <Select
-                value={form.clone_source ?? ""}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    clone_source: e.target.value
-                      ? Number(e.target.value)
-                      : null,
-                  }))
-                }
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                <option value="">-- เลือกต้นแม่ที่ใช้ปักชำ --</option>
-                {trees.map((tree) => (
-                  <option key={tree.id} value={tree.id}>
-                    {tree.nickname || tree.id}
-                  </option>
-                ))}
-              </Select>
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">ต้นที่ใช้ผสมเกสร</Label>
-              <Select
-                value={form.pollinated_by ?? ""}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    pollinated_by: e.target.value
-                      ? Number(e.target.value)
-                      : null,
-                  }))
-                }
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                <option value="">-- เลือกต้นที่ใช้ผสมเกสร --</option>
-                {trees.map((tree) => (
-                  <option key={tree.id} value={tree.id}>
-                    {tree.nickname || tree.id}
-                  </option>
-                ))}
-              </Select>
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">วันที่ผสมเกสร</Label>
-              <TextInput
-                type="date"
-                value={form.pollination_date}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, pollination_date: e.target.value }))
-                }
-              />
-            </div>
-
-            {/* กลุ่มที่ 4: ข้อมูลผลผลิต */}
-            <div className="md:col-span-2">
-              <h3 className="flex gap-2 items-center pb-2 mb-3 text-lg font-bold text-amber-700 border-b border-amber-200 dark:text-amber-300 dark:border-amber-700">
-                <span>🌸</span> ข้อมูลผลผลิต
-              </h3>
-            </div>
-            {/* ปริมาณผลผลิต (ไม่ติดลบ) */}
-            <div>
-              <Label className="mb-1 font-semibold">ปริมาณผลผลิต (กรัม)</Label>
-              <TextInput
-                type="number"
-                min="0"
-                step="0.01"
-                value={form.yield_amount ?? ""}
-                onChange={(e) => {
-                  const val = e.target.value
-                    ? parseFloat(e.target.value)
-                    : null;
-                  if (val !== null && val < 0) return; // validation: ไม่ให้ติดลบ
-                  setForm((f) => ({ ...f, yield_amount: val }));
-                }}
-              />
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">จำนวนเมล็ด</Label>
-              <TextInput
-                type="number"
-                min="0"
-                value={form.seed_count ?? ""}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    seed_count: e.target.value
-                      ? parseInt(e.target.value)
-                      : null,
-                  }))
-                }
-              />
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">วันที่เก็บเมล็ด</Label>
-              <TextInput
-                type="date"
-                value={form.seed_harvest_date}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, seed_harvest_date: e.target.value }))
-                }
-              />
-            </div>
-            <div className="md:col-span-2">
-              <Label className="mb-1 font-semibold">คุณภาพ/ลักษณะของดอก</Label>
-              <Textarea
-                rows={2}
-                value={form.flower_quality}
-                placeholder="เช่น สี กลิ่น ขนาด ฯลฯ"
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, flower_quality: e.target.value }))
-                }
-              />
-            </div>
-
-            {/* กลุ่มที่ 5: ข้อมูลสุขภาพ */}
-            <div className="md:col-span-2">
-              <h3 className="flex gap-2 items-center pb-2 mb-3 text-lg font-bold text-cyan-700 border-b border-cyan-200 dark:text-cyan-300 dark:border-cyan-700">
-                <span>🩺</span> ข้อมูลสุขภาพ
-              </h3>
-            </div>
-            <div className="md:col-span-2">
-              <Label className="mb-1 font-semibold">โรค/ศัตรูพืช</Label>
-              <Textarea
-                rows={2}
-                value={form.disease_notes}
-                placeholder="บันทึกโรคหรือปัญหาศัตรูพืช"
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, disease_notes: e.target.value }))
-                }
-              />
-            </div>
-
-            {/* กลุ่มที่ 6: ไฟล์และหมายเหตุ */}
-            <div className="md:col-span-2">
-              <h3 className="pb-2 mb-3 text-lg font-bold text-gray-700 border-b border-gray-200 dark:text-gray-300 dark:border-gray-700">
-                📎 ไฟล์และหมายเหตุ
-              </h3>
-            </div>
-            <div className="md:col-span-2">
-              <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">
-                เอกสาร (PDF, JPG, PNG)
-              </Label>
-              <div className="flex items-center justify-center w-full">
-                <label
-                  htmlFor="dropzone-file-doc-add"
-                  className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
-                    isDraggingDoc
-                      ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                      : "border-gray-300 bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
-                  }`}
-                  onDragOver={handleDragOverDoc}
-                  onDragLeave={handleDragLeaveDoc}
-                  onDrop={handleDropDoc}
-                >
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <svg
-                      className={`w-8 h-8 mb-3 ${
-                        isDraggingDoc
-                          ? "text-blue-500"
-                          : "text-gray-500 dark:text-gray-400"
-                      }`}
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 20 16"
-                    >
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                      />
-                    </svg>
-                    <p
-                      className={`mb-2 text-sm ${
-                        isDraggingDoc
-                          ? "text-blue-500 font-bold"
-                          : "text-gray-500 dark:text-gray-400"
-                      }`}
-                    >
-                      <span className="font-semibold">คลิกเพื่ออัปโหลด</span>{" "}
-                      หรือลากไฟล์มาวาง
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      PDF, PNG, JPG (สูงสุด 10MB)
-                    </p>
-                  </div>
-                  <FileInput
-                    id="dropzone-file-doc-add"
-                    className="hidden"
-                    accept=".pdf,.jpg,.jpeg,.png,.webp"
-                    onChange={handleDocumentChange}
-                  />
-                </label>
-              </div>
-              {form.document && (
-                <div className="flex items-center gap-2 mt-2 text-sm text-green-600 dark:text-green-400">
-                  <HiCheckCircle className="w-5 h-5" />
-                  <span>เลือกไฟล์แล้ว: {form.document.name}</span>
-                </div>
-              )}
-            </div>
-            <div className="md:col-span-2">
-              <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">
-                รูปภาพ (เลือกได้หลายไฟล์)
-              </Label>
-              <div className="flex items-center justify-center w-full">
-                <label
-                  htmlFor="dropzone-file-images-add"
-                  className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
-                    isDraggingImages
-                      ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                      : "border-gray-300 bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
-                  }`}
-                  onDragOver={handleDragOverImages}
-                  onDragLeave={handleDragLeaveImages}
-                  onDrop={handleDropImages}
-                >
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <svg
-                      className={`w-8 h-8 mb-3 ${
-                        isDraggingImages
-                          ? "text-blue-500"
-                          : "text-gray-500 dark:text-gray-400"
-                      }`}
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 20 16"
-                    >
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                      />
-                    </svg>
-                    <p
-                      className={`mb-2 text-sm ${
-                        isDraggingImages
-                          ? "text-blue-500 font-bold"
-                          : "text-gray-500 dark:text-gray-400"
-                      }`}
-                    >
-                      <span className="font-semibold">
-                        คลิกเพื่ออัปโหลดรูปภาพ
-                      </span>{" "}
-                      หรือลากไฟล์มาวาง
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      PNG, JPG (สูงสุด 10MB)
-                    </p>
-                  </div>
-                  <FileInput
-                    id="dropzone-file-images-add"
-                    className="hidden"
-                    multiple
-                    accept="image/jpeg,image/png,image/jpg,image/webp"
-                    onChange={handleImageFilesChange}
-                  />
-                </label>
-              </div>
-              {imageFiles.length > 0 && (
-                <div className="mt-4">
-                  <p className="mb-2 text-sm font-medium text-green-600 dark:text-green-400">
-                    รูปภาพที่เลือก ({imageFiles.length} รูป):
-                  </p>
-                  <div className="flex flex-wrap gap-3">
-                    {imageFiles.map((file, idx) => (
-                      <div key={idx} className="relative">
-                        <Image
-                          src={URL.createObjectURL(file)}
-                          alt={`รูปที่ ${idx + 1}`}
-                          width={80}
-                          height={80}
-                          className="object-cover w-20 h-20 rounded-xl border border-green-200 shadow-sm"
-                        />
-                      </div>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={() => setImageFiles([])}
-                      className="flex items-center justify-center w-20 h-20 rounded-xl border-2 border-dashed border-gray-300 text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
-                    >
-                      <span className="text-xs font-medium">ยกเลิก</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-            <div className="md:col-span-2">
-              <Label className="mb-1 font-semibold">หมายเหตุ</Label>
-              <Textarea
-                rows={2}
-                value={form.notes}
-                placeholder="หมายเหตุเพิ่มเติม"
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, notes: e.target.value }))
-                }
-              />
-            </div>
-            <button type="submit" className="hidden" aria-hidden="true" />
-          </form>
-        </ModalBody>
-        <ModalFooter className="gap-3 justify-end pt-4 rounded-b-2xl bg-slate-50 dark:bg-gray-900">
-          <Button
-            color="green"
-            size="lg"
-            className="px-8 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-green-400 dark:focus:ring-green-700 active:scale-95"
-            onClick={handleSubmit}
-            disabled={submitting}
-            aria-label="บันทึกต้นไม้"
-          >
-            {submitting ? <Spinner size="sm" className="mr-2" /> : null}
-            บันทึก
-          </Button>
-          <Button
-            color="gray"
-            size="lg"
-            className="px-8 text-lg font-semibold transition-colors duration-200"
-            onClick={() => setShowAddModal(false)}
-          >
-            ยกเลิก
-          </Button>
-        </ModalFooter>
-      </Modal>
-
-      {/* Modal ยืนยันการลบหลายรายการ */}
-      <Modal
-        show={showBulkDeleteModal}
-        size="sm"
-        aria-modal="true"
-        onClose={() => {
-          setShowBulkDeleteModal(false);
-          setFormError("");
-          setSuccessMessage("");
-          setErrorMessage("");
-          setImageFiles([]);
-          setSelectedTree(null);
-        }}
-        className="xl:max-w-2xl"
-      >
-        <ModalHeader>ยืนยันการลบ</ModalHeader>
-        <ModalBody className="max-h-[80vh] overflow-y-auto">
-          <div className="py-2 text-lg font-semibold text-center text-red-500">
-            คุณต้องการลบต้นไม้ {selectedIds.length} รายการ ใช่หรือไม่?
-          </div>
-          <div className="mt-4 text-sm text-center text-gray-600">
-            การดำเนินการนี้ไม่สามารถยกเลิกได้
-          </div>
-        </ModalBody>
-        <ModalFooter className="gap-2 justify-end">
-          <Button color="red" disabled={submitting} onClick={performBulkDelete}>
-            {submitting ? "กำลังลบ..." : "ลบ"}
-          </Button>
-          <Button color="gray" onClick={() => setShowBulkDeleteModal(false)}>
-            ยกเลิก
-          </Button>
-        </ModalFooter>
-      </Modal>
-
-      {/* Modal แสดงรายละเอียดต้นไม้ */}
-      <Modal
-        show={showDetailModal}
-        size="xl"
-        aria-modal="true"
-        onClose={() => {
-          setShowDetailModal(false);
-          setFormError("");
-          setSelectedTree(null);
-          setDetailLoading(false);
-        }}
-        position="center"
-        className="z-[1000] backdrop-blur-sm"
-        theme={{
-          content: {
-            inner: "relative rounded-2xl bg-white/90 shadow-2xl dark:bg-gray-900/90 border border-gray-200 dark:border-gray-700 flex flex-col max-h-[90vh]"
-          }
-        }}
-      >
-        <ModalHeader className="rounded-t-2xl border-b border-gray-100 bg-white/80 backdrop-blur-md dark:bg-gray-900/80 dark:border-gray-700">
-          <div className="flex flex-col">
-            <span className="text-sm font-medium text-green-600 dark:text-green-400 uppercase tracking-wider">
-              {selectedTree?.strain?.name || "ไม่ระบุสายพันธุ์"}
-            </span>
-            <span className="text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white font-kanit sm:text-3xl">
-              {selectedTree?.nickname}
-            </span>
-          </div>
-        </ModalHeader>
-        <ModalBody className="px-6 py-8 rounded-b-2xl transition-colors duration-300 bg-slate-50 dark:bg-gray-900/95 max-h-[80vh] overflow-y-auto">
-          {detailLoading ? (
-            <div className="flex justify-center items-center py-12">
-              <Spinner size="xl" color="success" />
-            </div>
-          ) : selectedTree ? (
-            <div className="space-y-8 font-kanit">
-              {/* ส่วนหัว: รูปภาพและข้อมูลหลัก */}
-              <div className="flex flex-col gap-8 md:flex-row">
-                {/* รูปภาพหลัก */}
-                <div className="shrink-0 w-full md:w-5/12">
-                  <div className="overflow-hidden relative w-full rounded-3xl shadow-xl shadow-green-900/5 aspect-square group ring-1 ring-black/5 dark:ring-white/10">
-                    {selectedTree.images && selectedTree.images.length > 0 ? (
-                      <>
-                        <Image
-                          src={
-                            selectedTree.images[galleryIndex]?.image ||
-                            "/placeholder.svg"
-                          }
-                          alt={selectedTree.nickname}
-                          fill
-                          className="object-cover transition-transform duration-700 group-hover:scale-105"
-                          onClick={() => handleOpenLightbox(galleryIndex)}
-                        />
-                        {/* ปุ่มเลื่อนรูป */}
-                        {selectedTree.images.length > 1 && (
-                          <>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handlePrevImage();
-                              }}
-                              className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white/40 transition-all opacity-0 group-hover:opacity-100 shadow-lg"
-                            >
-                              <svg
-                                className="w-5 h-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M15 19l-7-7 7-7"
-                                />
-                              </svg>
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleNextImage();
-                              }}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white/40 transition-all opacity-0 group-hover:opacity-100 shadow-lg"
-                            >
-                              <svg
-                                className="w-5 h-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M9 5l7 7-7 7"
-                                />
-                              </svg>
-                            </button>
-                            {/* Dots Indicator */}
-                            <div className="flex absolute bottom-3 left-1/2 gap-1.5 -translate-x-1/2 px-3 py-1.5 rounded-full bg-black/20 backdrop-blur-md">
-                              {selectedTree.images.map((_, idx) => (
-                                <div
-                                  key={idx}
-                                  className={`w-1.5 h-1.5 rounded-full transition-all ${
-                                    idx === galleryIndex
-                                      ? "bg-white scale-125"
-                                      : "bg-white/50"
-                                  }`}
-                                />
-                              ))}
-                            </div>
-                          </>
-                        )}
-                        <div className="flex absolute top-3 right-3 gap-2">
-                          <Badge
-                            color="gray"
-                            className="backdrop-blur-md bg-black/30 text-white border-none shadow-sm px-2 py-0.5"
-                          >
-                            {selectedTree.images.length} รูป
-                          </Badge>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="flex justify-center items-center w-full h-full bg-gray-100 dark:bg-gray-800">
-                        <span className="text-5xl opacity-30">🌳</span>
-                      </div>
-                    )}
-                  </div>
-                  {/* Gallery Thumbnails */}
-                  {selectedTree.images && selectedTree.images.length > 1 && (
-                    <div className="flex justify-center gap-2 mt-4 overflow-x-auto pb-2 scrollbar-hide">
-                      {selectedTree.images.map((img, idx) => (
-                        <button
-                          key={img.id}
-                          onClick={() => setGalleryIndex(idx)}
-                          className={`relative w-14 h-14 shrink-0 rounded-xl overflow-hidden transition-all duration-300 ${
-                            idx === galleryIndex
-                              ? "ring-2 ring-green-500 ring-offset-2 dark:ring-offset-gray-900 scale-105"
-                              : "opacity-60 hover:opacity-100 grayscale hover:grayscale-0"
-                          }`}
-                        >
-                          <Image
-                            src={img.thumbnail || img.image}
-                            alt=""
-                            fill
-                            className="object-cover"
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* ข้อมูลหลัก */}
-                <div className="flex-1 space-y-6">
-                  {/* Header Section */}
-                  <div className="space-y-4">
-                    <div className="flex flex-wrap gap-2 items-center">
-                      <Badge
-                        color={
-                          selectedTree.status === "มีชีวิต"
-                            ? "success"
-                            : "failure"
-                        }
-                        size="sm"
-                        className="px-3 py-1 text-sm font-medium shadow-sm rounded-full"
-                      >
-                        {selectedTree.status}
-                      </Badge>
-                      <Badge
-                        color={getSexBadgeColor(selectedTree.sex)}
-                        size="sm"
-                        className="px-3 py-1 text-sm font-medium shadow-sm rounded-full"
-                      >
-                        {sexLabel(selectedTree.sex)}
-                      </Badge>
-                      {selectedTree.variety && (
-                        <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
-                          {selectedTree.variety}
-                        </span>
-                      )}
-                      {selectedTree.generation && (
-                        <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
-                          {selectedTree.generation}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Stats Grid */}
-                  <div className="grid grid-cols-2 gap-3">
-                    {/* Batch */}
-                    <div className="p-4 rounded-2xl bg-gray-50/50 backdrop-blur-sm dark:bg-gray-800/50 transition-colors hover:bg-gray-100/80 dark:hover:bg-gray-700/80">
-                      <div className="flex items-center gap-2 mb-1.5 text-blue-600 dark:text-blue-400">
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                          />
-                        </svg>
-                        <span className="text-xs font-bold uppercase tracking-wider opacity-80">
-                          ชุดการปลูก
-                        </span>
-                      </div>
-                      <p className="text-base font-bold text-gray-900 truncate dark:text-white">
-                        {selectedTree.batch?.batch_code || "-"}
-                      </p>
-                    </div>
-
-                    {/* Location */}
-                    <div className="p-4 rounded-2xl bg-gray-50/50 backdrop-blur-sm dark:bg-gray-800/50 transition-colors hover:bg-gray-100/80 dark:hover:bg-gray-700/80">
-                      <div className="flex items-center gap-2 mb-1.5 text-red-600 dark:text-red-400">
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                          />
-                        </svg>
-                        <span className="text-xs font-bold uppercase tracking-wider opacity-80">
-                          สถานที่
-                        </span>
-                      </div>
-                      <p className="text-base font-bold text-gray-900 truncate dark:text-white">
-                        {selectedTree.location || "-"}
-                      </p>
-                    </div>
-
-                    {/* Age */}
-                    <div className="p-4 rounded-2xl bg-gray-50/50 backdrop-blur-sm dark:bg-gray-800/50 transition-colors hover:bg-gray-100/80 dark:hover:bg-gray-700/80">
-                      <div className="flex items-center gap-2 mb-1.5 text-amber-600 dark:text-amber-400">
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                        <span className="text-xs font-bold uppercase tracking-wider opacity-80">
-                          อายุต้นไม้
-                        </span>
-                      </div>
-                      <p className="text-base font-bold text-gray-900 dark:text-white">
-                        {calcAge(selectedTree, "day")}{" "}
-                        <span className="text-xs font-normal text-gray-500">
-                          วัน
-                        </span>
-                      </p>
-                    </div>
-
-                    {/* Growth Stage */}
-                    <div className="p-4 rounded-2xl bg-gray-50/50 backdrop-blur-sm dark:bg-gray-800/50 transition-colors hover:bg-gray-100/80 dark:hover:bg-gray-700/80">
-                      <div className="flex items-center gap-2 mb-1.5 text-emerald-600 dark:text-emerald-400">
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                          />
-                        </svg>
-                        <span className="text-xs font-bold uppercase tracking-wider opacity-80">
-                          ระยะ
-                        </span>
-                      </div>
-                      <p className="text-base font-bold text-gray-900 truncate dark:text-white">
-                        {selectedTree.growth_stage || "-"}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Document Link */}
-                  {selectedTree.document && (
-                    <div className="group flex items-center p-3 rounded-2xl border border-blue-100 bg-linear-to-r from-blue-50/50 to-white/50 shadow-sm transition-all hover:shadow-md dark:from-blue-900/10 dark:to-gray-800/50 dark:border-blue-800/30">
-                      <div className="p-2.5 mr-3 bg-white rounded-full shadow-sm ring-1 ring-blue-100 dark:bg-blue-900/30 dark:ring-blue-800">
-                        <svg
-                          className="w-5 h-5 text-blue-600 dark:text-blue-300"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                          />
-                        </svg>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-gray-900 truncate dark:text-white group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
-                          {getFileName(selectedTree.document)}
-                        </p>
-                        <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wide dark:text-gray-400">
-                          {getFileType(selectedTree.document)}
-                        </p>
-                      </div>
-                      <a
-                        href={selectedTree.document}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-1.5 text-xs font-semibold text-blue-700 bg-white border border-blue-200 rounded-lg shadow-sm hover:bg-blue-50 hover:border-blue-300 transition-all dark:bg-gray-800 dark:text-blue-300 dark:border-blue-700 dark:hover:bg-gray-700"
-                      >
-                        ดูไฟล์
-                      </a>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* แท็บข้อมูลเพิ่มเติม (Clean Grid) */}
-              <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-                {/* ข้อมูลการปลูก */}
-                <div className="space-y-4">
-                  <h3 className="flex items-center text-base font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-800 pb-2">
-                    <span className="mr-2 text-lg">🌱</span> ข้อมูลการปลูก
-                  </h3>
-                  <div className="grid grid-cols-2 gap-y-4 gap-x-2 text-sm">
-                    <div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">วันที่เมล็ดงอก</p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {selectedTree.germination_date
-                          ? new Date(selectedTree.germination_date).toLocaleDateString("th-TH")
-                          : "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">วันที่ปลูก</p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {new Date(selectedTree.plant_date).toLocaleDateString("th-TH")}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">วันที่เก็บเกี่ยว</p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {selectedTree.harvest_date
-                          ? new Date(selectedTree.harvest_date).toLocaleDateString("th-TH")
-                          : "-"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* ข้อมูลพันธุกรรม */}
-                <div className="space-y-4">
-                  <h3 className="flex items-center text-base font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-800 pb-2">
-                    <span className="mr-2 text-lg">🧬</span> ข้อมูลพันธุกรรม
-                  </h3>
-                  <div className="grid grid-cols-2 gap-y-4 gap-x-2 text-sm">
-                    <div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Genotype</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{selectedTree.genotype || "-"}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Phenotype</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{selectedTree.phenotype || "-"}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">พ่อพันธุ์</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{selectedTree.parent_male_data?.nickname || "-"}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">แม่พันธุ์</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{selectedTree.parent_female_data?.nickname || "-"}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">ต้นแม่ที่ใช้ปักชำ</p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {selectedTree.clone_source ? `Tree_${selectedTree.clone_source}` : "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">ผสมเกสรโดย</p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {selectedTree.pollinated_by ? `Tree_${selectedTree.pollinated_by}` : "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">วันที่ผสมเกสร</p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {selectedTree.pollination_date
-                          ? new Date(selectedTree.pollination_date).toLocaleDateString("th-TH")
-                          : "-"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* ข้อมูลผลผลิต */}
-                <div className="space-y-4">
-                  <h3 className="flex items-center text-base font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-800 pb-2">
-                    <span className="mr-2 text-lg">🌸</span> ข้อมูลผลผลิต
-                  </h3>
-                  <div className="grid grid-cols-2 gap-y-4 gap-x-2 text-sm">
-                    <div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">ปริมาณผลผลิต</p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {selectedTree.yield_amount ? `${selectedTree.yield_amount} กรัม` : "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">จำนวนเมล็ด</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{selectedTree.seed_count || "-"}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">วันที่เก็บเมล็ด</p>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {selectedTree.seed_harvest_date
-                          ? new Date(selectedTree.seed_harvest_date).toLocaleDateString("th-TH")
-                          : "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">คุณภาพดอก</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{selectedTree.flower_quality || "-"}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* ข้อมูลสุขภาพ & หมายเหตุ */}
-                <div className="space-y-6">
-                  <div className="space-y-4">
-                    <h3 className="flex items-center text-base font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-800 pb-2">
-                      <span className="mr-2 text-lg">🩺</span> ข้อมูลสุขภาพ
-                    </h3>
-                    <div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">โรค/ศัตรูพืช</p>
-                      <p className="font-medium text-gray-900 dark:text-white whitespace-pre-wrap text-sm bg-red-50 dark:bg-red-900/20 p-3 rounded-xl border border-red-100 dark:border-red-800/30">
-                        {selectedTree.disease_notes || "-"}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <h3 className="flex items-center text-base font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-800 pb-2">
-                      <span className="mr-2 text-lg">📝</span> หมายเหตุ
-                    </h3>
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-white whitespace-pre-wrap text-sm bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-100 dark:border-gray-700">
-                        {selectedTree.notes || "-"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="py-12 text-center text-gray-500">
-              ไม่พบข้อมูลต้นไม้
-            </div>
-          )}
-        </ModalBody>
-        <ModalFooter className="justify-between rounded-b-2xl border-t border-gray-200 transition-colors duration-300 bg-slate-50 dark:bg-gray-900/95 dark:border-gray-700">
-          <div className="flex gap-2">
-            <Button
-              color="blue"
-              className="transition-colors duration-200 font-kanit dark:bg-blue-700 dark:text-white dark:hover:bg-blue-800 focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-700"
-              onClick={() => handleShowEdit()}
-            >
-              แก้ไข
-            </Button>
-            <Button
-              color="red"
-              className="transition-colors duration-200 font-kanit dark:bg-red-700 dark:text-white dark:hover:bg-red-800 focus:ring-2 focus:ring-red-400 dark:focus:ring-red-700"
-              onClick={() => handleShowDelete()}
-            >
-              ลบ
-            </Button>
-          </div>
-          <Button
-            color="gray"
-            className="transition-colors duration-200 font-kanit dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-700"
-            onClick={() => setShowDetailModal(false)}
-          >
-            ปิด
-          </Button>
-        </ModalFooter>
-      </Modal>
-
-      {/* Modal แก้ไขข้อมูลต้นไม้ */}
-      <Modal
-        show={showEditModal}
-        size="xl"
-        aria-modal="true"
-        initialFocus={editInitialRef}
-        onClose={() => {
-          setShowEditModal(false);
-          setFormError("");
-          setSuccessMessage("");
-          setErrorMessage("");
-          setImageFiles([]);
-          setSelectedTree(null);
-        }}
-        className="rounded-2xl border border-gray-200 shadow-2xl backdrop-blur-lg xl:max-w-2xl dark:border-gray-700 [&>div]:p-0 [&>div]:h-full [&>div]:md:h-auto [&>div]:w-full [&>div]:max-w-full [&>div]:md:max-w-4xl"
-      >
-        <ModalHeader className="rounded-t-2xl border-b border-gray-100 bg-white/80 backdrop-blur-md dark:bg-gray-900/80 dark:border-gray-700">
-          <span className="text-2xl font-extrabold tracking-tight text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-indigo-500 font-kanit sm:text-3xl md:text-4xl dark:from-blue-400 dark:to-indigo-300">
-            แก้ไขข้อมูลต้นไม้
-          </span>
-        </ModalHeader>
-        <ModalBody className="rounded-b-2xl bg-slate-50 dark:bg-gray-900 max-h-[80vh] overflow-y-auto">
-          {formError && (
-            <Alert
-              id="editFormError"
-              color="failure"
-              className="mb-4"
-              onDismiss={() => setFormError("")}
-            >
-              <span className="font-medium">{formError}</span>
-            </Alert>
-          )}
-          <form
-            aria-describedby={formError ? "editFormError" : undefined}
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleEditSubmit();
-            }}
-            className="grid grid-cols-1 gap-y-4 gap-x-8 text-base md:grid-cols-2 sm:text-lg font-kanit"
-          >
-            {/* กลุ่มที่ 1: ข้อมูลพื้นฐาน */}
-            <div className="md:col-span-2">
-              <h3 className="pb-2 mb-3 text-lg font-bold text-green-700 border-b border-green-200 dark:text-green-300 dark:border-green-700">
-                📋 ข้อมูลพื้นฐาน
-              </h3>
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">
-                สายพันธุ์ <span className="text-red-500">*</span>
-              </Label>
-              <div className="relative">
-                <Select
-                  ref={editInitialRef}
-                  required
-                  value={form.strainUuid}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, strainUuid: e.target.value }))
-                  }
-                  className="pr-10 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  disabled={strainsLoading}
-                >
-                  <option value="">-- เลือกสายพันธุ์ --</option>
-                  {strains.map((strain) => (
-                    <option key={strain.id} value={strain.id.toString()}>
-                      {strain.name}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">ชื่อเล่น</Label>
-              <TextInput
-                value={form.nickname}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, nickname: e.target.value }))
-                }
-              />
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">ชุดการปลูก</Label>
-              <Select
-                value={form.batch_id ?? ""}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    batch_id: e.target.value ? Number(e.target.value) : null,
-                  }))
-                }
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                disabled={batchesLoading}
-              >
-                <option value="">-- เลือกชุดการปลูก --</option>
-                {batches.map((batch) => (
-                  <option key={batch.id} value={batch.id}>
-                    {batch.batch_code}
-                  </option>
-                ))}
-              </Select>
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">พันธุ์</Label>
-              <TextInput
-                value={form.variety}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, variety: e.target.value }))
-                }
-              />
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">รุ่น (Generation)</Label>
-              <TextInput
-                value={form.generation || ""}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, generation: e.target.value }))
-                }
-              />
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">สถานที่ปลูก</Label>
-              <TextInput
-                value={form.location}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, location: e.target.value }))
-                }
-              />
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">
-                สถานะ <span className="text-red-500">*</span>
-              </Label>
-              <Select
-                value={form.status}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, status: e.target.value }))
-                }
-                required
-              >
-                <option value="มีชีวิต">มีชีวิต</option>
-                <option value="ตายแล้ว">ตายแล้ว</option>
-                <option value="ถูกย้าย">ถูกย้าย</option>
-                <option value="อื่นๆ">อื่นๆ</option>
-              </Select>
-            </div>
-
-            {/* กลุ่มที่ 2: ข้อมูลการปลูก */}
-            <div className="md:col-span-2">
-              <h3 className="pb-2 mb-3 text-lg font-bold text-blue-700 border-b border-blue-200 dark:text-blue-300 dark:border-blue-700">
-                🌱 ข้อมูลการปลูก
-              </h3>
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">วันที่เมล็ดเริ่มงอก</Label>
-              <TextInput
-                type="date"
-                value={form.germination_date}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, germination_date: e.target.value }))
-                }
-              />
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">
-                วันที่ปลูก <span className="text-red-500">*</span>
-              </Label>
-              <TextInput
-                type="date"
-                required
-                value={form.plant_date}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, plant_date: e.target.value }))
-                }
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">ระยะการเจริญเติบโต</Label>
-              <TextInput
-                value={form.growth_stage}
-                className="mt-1"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, growth_stage: e.target.value }))
-                }
-              />
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">วันที่เก็บเกี่ยว</Label>
-              <TextInput
-                type="date"
-                value={form.harvest_date}
-                className="mt-1"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, harvest_date: e.target.value }))
-                }
-              />
-            </div>
-
-            {/* กลุ่มที่ 3: ข้อมูลพันธุกรรม */}
-            <div className="md:col-span-2">
-              <h3 className="pb-2 mb-3 text-lg font-bold text-purple-700 border-b border-purple-200 dark:text-purple-300 dark:border-purple-700">
-                🧬 ข้อมูลพันธุกรรม
-              </h3>
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">
-                เพศ <span className="text-red-500">*</span>
-              </Label>
-              <Select
-                required
-                value={form.sex}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, sex: e.target.value }))
-                }
-                className="mt-1"
-              >
-                <option value="bisexual">สมบูรณ์เพศ</option>
-                <option value="male">ตัวผู้</option>
-                <option value="female">ตัวเมีย</option>
-                <option value="monoecious">แยกเพศในต้นเดียวกัน</option>
-                <option value="mixed">ผสมหลายเพศ</option>
-                <option value="unknown">ไม่ระบุ/ไม่แน่ใจ</option>
-              </Select>
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">ข้อมูลพันธุกรรม</Label>
-              <TextInput
-                value={form.genotype}
-                className="mt-1"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, genotype: e.target.value }))
-                }
-              />
-            </div>
-            <div className="md:col-span-2">
-              <Label className="mb-1 font-semibold">ลักษณะเด่น</Label>
-              <Textarea
-                rows={2}
-                value={form.phenotype}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, phenotype: e.target.value }))
-                }
-              />
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">ต้นพ่อพันธุ์</Label>
-              <Select
-                value={form.parent_male ?? ""}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    parent_male: e.target.value ? Number(e.target.value) : null,
-                  }))
-                }
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                <option value="">-- เลือกต้นพ่อพันธุ์ --</option>
-                {trees.map((tree) => (
-                  <option key={tree.id} value={tree.id}>
-                    {tree.nickname || tree.id}
-                  </option>
-                ))}
-              </Select>
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">ต้นแม่พันธุ์</Label>
-              <Select
-                value={form.parent_female ?? ""}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    parent_female: e.target.value
-                      ? Number(e.target.value)
-                      : null,
-                  }))
-                }
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                <option value="">-- เลือกต้นแม่พันธุ์ --</option>
-                {trees.map((tree) => (
-                  <option key={tree.id} value={tree.id}>
-                    {tree.nickname || tree.id}
-                  </option>
-                ))}
-              </Select>
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">ต้นแม่ที่ใช้ปักชำ</Label>
-              <Select
-                value={form.clone_source ?? ""}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    clone_source: e.target.value
-                      ? Number(e.target.value)
-                      : null,
-                  }))
-                }
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                <option value="">-- เลือกต้นแม่ที่ใช้ปักชำ --</option>
-                {trees.map((tree) => (
-                  <option key={tree.id} value={tree.id}>
-                    {tree.nickname || tree.id}
-                  </option>
-                ))}
-              </Select>
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">ต้นที่ใช้ผสมเกสร</Label>
-              <Select
-                value={form.pollinated_by ?? ""}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    pollinated_by: e.target.value
-                      ? Number(e.target.value)
-                      : null,
-                  }))
-                }
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                <option value="">-- เลือกต้นที่ใช้ผสมเกสร --</option>
-                {trees.map((tree) => (
-                  <option key={tree.id} value={tree.id}>
-                    {tree.nickname || tree.id}
-                  </option>
-                ))}
-              </Select>
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">วันที่ผสมเกสร</Label>
-              <TextInput
-                type="date"
-                value={form.pollination_date}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, pollination_date: e.target.value }))
-                }
-              />
-            </div>
-
-            {/* กลุ่มที่ 4: ข้อมูลผลผลิต */}
-            <div className="md:col-span-2">
-              <h3 className="flex gap-2 items-center pb-2 mb-3 text-lg font-bold text-amber-700 border-b border-amber-200 dark:text-amber-300 dark:border-amber-700">
-                <span>🌸</span> ข้อมูลผลผลิต
-              </h3>
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">ปริมาณผลผลิต (กรัม)</Label>
-              <TextInput
-                type="number"
-                min="0"
-                step="0.01"
-                value={form.yield_amount ?? ""}
-                onChange={(e) => {
-                  const val = e.target.value
-                    ? parseFloat(e.target.value)
-                    : null;
-                  if (val !== null && val < 0) return;
-                  setForm((f) => ({ ...f, yield_amount: val }));
-                }}
-              />
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">จำนวนเมล็ด</Label>
-              <TextInput
-                type="number"
-                min="0"
-                value={form.seed_count ?? ""}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    seed_count: e.target.value
-                      ? parseInt(e.target.value)
-                      : null,
-                  }))
-                }
-              />
-            </div>
-            <div>
-              <Label className="mb-1 font-semibold">วันที่เก็บเมล็ด</Label>
-              <TextInput
-                type="date"
-                value={form.seed_harvest_date}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, seed_harvest_date: e.target.value }))
-                }
-              />
-            </div>
-            <div className="md:col-span-2">
-              <Label className="mb-1 font-semibold">คุณภาพ/ลักษณะของดอก</Label>
-              <Textarea
-                rows={2}
-                value={form.flower_quality}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, flower_quality: e.target.value }))
-                }
-              />
-            </div>
-
-            {/* กลุ่มที่ 5: ข้อมูลสุขภาพ */}
-            <div className="md:col-span-2">
-              <h3 className="flex gap-2 items-center pb-2 mb-3 text-lg font-bold text-cyan-700 border-b border-cyan-200 dark:text-cyan-300 dark:border-cyan-700">
-                <span>🩺</span> ข้อมูลสุขภาพ
-              </h3>
-            </div>
-            <div className="md:col-span-2">
-              <Label className="mb-1 font-semibold">โรค/ศัตรูพืช</Label>
-              <Textarea
-                rows={2}
-                value={form.disease_notes}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, disease_notes: e.target.value }))
-                }
-              />
-            </div>
-
-            {/* กลุ่มที่ 6: ไฟล์และหมายเหตุ */}
-            <div className="md:col-span-2">
-              <h3 className="pb-2 mb-3 text-lg font-bold text-gray-700 border-b border-gray-200 dark:text-gray-300 dark:border-gray-700">
-                📎 ไฟล์และหมายเหตุ
-              </h3>
-            </div>
-            <div className="md:col-span-2">
-              <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">
-                เอกสาร (PDF, JPG, PNG)
-              </Label>
-              <div className="flex items-center justify-center w-full">
-                <label
-                  htmlFor="dropzone-file-doc"
-                  className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 transition-colors"
-                >
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <svg
-                      className="w-8 h-8 mb-3 text-gray-500 dark:text-gray-400"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 20 16"
-                    >
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                      />
-                    </svg>
-                    <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                      <span className="font-semibold">คลิกเพื่ออัปโหลด</span>{" "}
-                      หรือลากไฟล์มาวาง
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      PDF, PNG, JPG (สูงสุด 10MB)
-                    </p>
-                  </div>
-                  <FileInput
-                    id="dropzone-file-doc"
-                    className="hidden"
-                    accept=".pdf,.jpg,.jpeg,.png,.webp"
-                    onChange={handleDocumentChange}
-                  />
-                </label>
-              </div>
-
-              {selectedTree?.document && !form.document && (
-                <div className="flex justify-between items-center p-4 mt-3 rounded-xl border border-gray-200 shadow-sm bg-white dark:bg-gray-800 dark:border-gray-700">
-                  <div className="flex gap-4 items-center">
-                    <div className="flex justify-center items-center w-12 h-12 bg-blue-50 rounded-lg dark:bg-blue-900/50">
-                      <svg
-                        className="w-6 h-6 text-blue-600 dark:text-blue-300"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                        />
-                      </svg>
-                    </div>
-                    <div>
-                      <div className="flex gap-2 items-center">
-                        <span className="font-semibold text-gray-800 dark:text-gray-200">
-                          เอกสารปัจจุบัน
-                        </span>
-                        <Badge
-                          color={
-                            getFileType(selectedTree.document) === "PDF"
-                              ? "red"
-                              : "info"
-                          }
-                          className="ml-1"
-                        >
-                          {getFileType(selectedTree.document)}
-                        </Badge>
-                      </div>
-                      <div className="flex gap-2 items-center mt-1">
-                        <a
-                          href={selectedTree.document}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm font-medium text-blue-600 transition hover:underline hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
-                        >
-                          {getFileName(selectedTree.document)}
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                  <Tooltip content="ลบเอกสารนี้" placement="left">
-                    <Button
-                      color="failure"
-                      size="xs"
-                      onClick={handleShowDeleteDocumentModal}
-                      className="ml-4"
-                    >
-                      <HiTrash className="w-4 h-4" />
-                    </Button>
-                  </Tooltip>
-                </div>
-              )}
-              {form.document && (
-                <div className="flex items-center gap-2 mt-2 text-sm text-green-600 dark:text-green-400">
-                  <HiCheckCircle className="w-5 h-5" />
-                  <span>เลือกไฟล์แล้ว: {form.document.name}</span>
-                </div>
-              )}
-            </div>
-
-            <div className="md:col-span-2">
-              <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">
-                รูปภาพ (เลือกได้หลายไฟล์)
-              </Label>
-              <div className="flex items-center justify-center w-full">
-                <label
-                  htmlFor="dropzone-file-images"
-                  className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
-                    isDraggingImages
-                      ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                      : "border-gray-300 bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
-                  }`}
-                  onDragOver={handleDragOverImages}
-                  onDragLeave={handleDragLeaveImages}
-                  onDrop={handleDropImages}
-                >
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <svg
-                      className={`w-8 h-8 mb-3 ${
-                        isDraggingImages
-                          ? "text-blue-500"
-                          : "text-gray-500 dark:text-gray-400"
-                      }`}
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 20 16"
-                    >
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                      />
-                    </svg>
-                    <p
-                      className={`mb-2 text-sm ${
-                        isDraggingImages
-                          ? "text-blue-500 font-bold"
-                          : "text-gray-500 dark:text-gray-400"
-                      }`}
-                    >
-                      <span className="font-semibold">
-                        คลิกเพื่ออัปโหลดรูปภาพ
-                      </span>{" "}
-                      หรือลากไฟล์มาวาง
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      PNG, JPG (สูงสุด 10MB)
-                    </p>
-                  </div>
-                  <FileInput
-                    id="dropzone-file-images"
-                    className="hidden"
-                    multiple
-                    accept="image/jpeg,image/png,image/jpg,image/webp"
-                    onChange={handleImageFilesChange}
-                  />
-                </label>
-              </div>
-
-              {/* Existing Images */}
-              {(selectedTree?.images?.length ?? 0) > 0 &&
-                imageFiles.length === 0 && (
-                  <div className="mt-4">
-                    <p className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                      รูปภาพปัจจุบัน:
-                    </p>
-                    <div className="flex flex-wrap gap-3">
-                      {(selectedTree?.images ?? []).map((img, idx) => (
-                        <div key={img.id} className="relative group">
-                          <Image
-                            src={img.thumbnail || img.image}
-                            alt={`รูปที่ ${idx + 1}`}
-                            width={80}
-                            height={80}
-                            className="object-cover w-20 h-20 rounded-xl border border-gray-200 shadow-sm transition-transform hover:scale-105 cursor-pointer"
-                            onClick={() => window.open(img.image, "_blank")}
-                          />
-                          <Tooltip content="ลบรูปนี้" placement="top">
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteImage(img.id)}
-                              className="absolute -top-2 -right-2 w-6 h-6 flex items-center justify-center rounded-full bg-red-500 text-white shadow-md hover:bg-red-600 transition-colors z-10"
-                            >
-                              <HiTrash className="w-3 h-3" />
-                            </button>
-                          </Tooltip>
-                        </div>
-                      ))}
-                      <Tooltip content="ลบรูปภาพทั้งหมด" placement="top">
-                        <button
-                          type="button"
-                          onClick={handleShowDeleteAllImagesModal}
-                          className="flex items-center justify-center w-20 h-20 rounded-xl border-2 border-dashed border-red-300 text-red-500 hover:bg-red-50 hover:border-red-400 transition-colors"
-                        >
-                          <span className="text-xs font-medium">ลบทั้งหมด</span>
-                        </button>
-                      </Tooltip>
-                    </div>
-                  </div>
-                )}
-
-              {/* New Selected Images */}
-              {imageFiles.length > 0 && (
-                <div className="mt-4">
-                  <p className="mb-2 text-sm font-medium text-green-600 dark:text-green-400">
-                    รูปภาพที่เลือกใหม่ ({imageFiles.length} รูป):
-                  </p>
-                  <div className="flex flex-wrap gap-3">
-                    {imageFiles.map((file, idx) => (
-                      <div key={idx} className="relative">
-                        <Image
-                          src={URL.createObjectURL(file)}
-                          alt={`รูปที่ ${idx + 1}`}
-                          width={80}
-                          height={80}
-                          className="object-cover w-20 h-20 rounded-xl border border-green-200 shadow-sm"
-                        />
-                      </div>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={() => setImageFiles([])}
-                      className="flex items-center justify-center w-20 h-20 rounded-xl border-2 border-dashed border-gray-300 text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
-                    >
-                      <span className="text-xs font-medium">ยกเลิก</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-            <div className="md:col-span-2">
-              <Label className="mb-1 font-semibold">หมายเหตุ</Label>
-              <Textarea
-                rows={2}
-                value={form.notes}
-                className="mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, notes: e.target.value }))
-                }
-              />
-            </div>
-            <button type="submit" className="hidden" aria-hidden="true" />
-          </form>
-        </ModalBody>
-        <ModalFooter className="gap-3 justify-end pt-4 rounded-b-2xl bg-slate-50 dark:bg-gray-900">
-          <Button
-            color="blue"
-            size="lg"
-            className="px-8 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-700 active:scale-95"
-            onClick={handleEditSubmit}
-            disabled={submitting}
-          >
-            {submitting ? <Spinner size="sm" className="mr-2" /> : null}
-            บันทึกแก้ไข
-          </Button>
-          <Button
-            color="gray"
-            size="lg"
-            className="px-8 text-lg font-semibold transition-colors duration-200"
-            onClick={() => setShowEditModal(false)}
-          >
-            ยกเลิก
-          </Button>
-        </ModalFooter>
-      </Modal>
-
-      {/* Modal ยืนยันการลบรูปภาพทั้งหมด */}
-      <Modal
-        show={showDeleteAllImagesModal}
-        size="sm"
-        aria-modal="true"
-        initialFocus={deleteImagesConfirmRef}
-        onClose={() => {
-          setShowDeleteAllImagesModal(false);
-          setFormError("");
-          setSuccessMessage("");
-          setErrorMessage("");
-        }}
-        className="xl:max-w-2xl"
-      >
-        <ModalHeader className="rounded-t-2xl border-b border-red-100 bg-red-50/50 backdrop-blur-md dark:bg-red-900/20 dark:border-red-800">
-          <span className="text-xl font-bold text-red-600 dark:text-red-400 font-kanit">
-            ยืนยันการลบรูปภาพทั้งหมด
-          </span>
-        </ModalHeader>
-        <ModalBody className="max-h-[80vh] overflow-y-auto">
-          <div className="py-2 text-lg font-semibold text-center text-red-500">
-            คุณต้องการลบรูปภาพทั้งหมดของต้นไม้นี้ใช่หรือไม่?
-          </div>
-          <div className="mt-4 text-sm text-center text-gray-600">
-            การดำเนินการนี้ไม่สามารถยกเลิกได้
-          </div>
-        </ModalBody>
-        <ModalFooter className="gap-2 justify-end">
-          <Button
-            ref={deleteImagesConfirmRef}
-            color="red"
-            disabled={submitting}
-            onClick={handleDeleteAllImages}
-          >
-            {submitting ? "กำลังลบ..." : "ลบทั้งหมด"}
-          </Button>
-          <Button
-            color="gray"
-            onClick={() => setShowDeleteAllImagesModal(false)}
-          >
-            ยกเลิก
-          </Button>
-        </ModalFooter>
-      </Modal>
-
-      {/* Modal ยืนยันการลบเอกสาร */}
-      <Modal
-        show={showDeleteDocumentModal}
-        size="sm"
-        aria-modal="true"
-        onClose={() => setShowDeleteDocumentModal(false)}
-        className="xl:max-w-2xl"
-      >
-        <ModalHeader className="rounded-t-2xl border-b border-red-100 bg-red-50/50 backdrop-blur-md dark:bg-red-900/20 dark:border-red-800">
-          <span className="text-xl font-bold text-red-600 dark:text-red-400 font-kanit">
-            ยืนยันการลบเอกสาร
-          </span>
-        </ModalHeader>
-        <ModalBody className="max-h-[80vh] overflow-y-auto">
-          <div className="py-2 text-lg font-semibold text-center text-red-500">
-            คุณต้องการลบเอกสารนี้ใช่หรือไม่?
-          </div>
-          <div className="mt-4 text-sm text-center text-gray-600">
-            การดำเนินการนี้ไม่สามารถยกเลิกได้
-          </div>
-        </ModalBody>
-        <ModalFooter className="gap-2 justify-end">
-          <Button
-            color="red"
-            disabled={submitting}
-            onClick={handleDeleteDocument}
-          >
-            {submitting ? "กำลังลบ..." : "ลบเอกสาร"}
-          </Button>
-          <Button
-            color="gray"
-            onClick={() => setShowDeleteDocumentModal(false)}
-          >
-            ยกเลิก
-          </Button>
-        </ModalFooter>
-      </Modal>
-
-      {/* Image Lightbox Overlay */}
-      {showImageLightbox && selectedTree && selectedTree.images.length > 0 && (
-        <div
-          className="fixed inset-0 z-30000 flex items-center justify-center bg-black/95 backdrop-blur-md animate-fade-in"
-          onClick={handleCloseLightbox}
-        >
-          {/* Close Button */}
-          <button
-            onClick={handleCloseLightbox}
-            className="absolute top-4 right-4 z-30001 p-2 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all"
-          >
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-
-          {/* Navigation Buttons */}
-          {selectedTree.images.length > 1 && (
-            <>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleLightboxPrev();
-                }}
-                className="absolute left-4 top-1/2 -translate-y-1/2 z-30001 p-3 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all hover:scale-110"
-              >
-                <svg
-                  className="w-8 h-8"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleLightboxNext();
-                }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 z-30001 p-3 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all hover:scale-110"
-              >
-                <svg
-                  className="w-8 h-8"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
-            </>
-          )}
-
-          {/* Main Image */}
-          <div
-            className="relative w-full h-full max-w-7xl max-h-[90vh] p-4 flex items-center justify-center"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Image
-              src={
-                selectedTree.images[lightboxIndex]?.image || "/placeholder.svg"
-              }
-              alt="Full size"
-              fill
-              className="object-contain"
-              quality={100}
-              priority
-            />
-
-            {/* Image Counter */}
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 px-4 py-2 bg-black/50 backdrop-blur-sm rounded-full text-white font-medium">
-              {lightboxIndex + 1} / {selectedTree.images.length}
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Toast Notifications */}
-      <div className="fixed top-4 right-4 z-10000 space-y-2" aria-live="polite">
+      <div className="fixed top-4 right-4 z-9999 space-y-2">
         {successMessage && (
-          <Toast className="flex gap-2 items-center text-green-800 bg-green-50 border border-green-300 shadow dark:bg-green-800 dark:text-green-100">
-            <HiCheckCircle className="w-5 h-5 text-green-600 dark:text-green-300" />
-            <span className="font-semibold" aria-live="polite">
-              {successMessage}
-            </span>
+          <Toast className="animate-fade-in border border-green-200">
+            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200">
+              <HiCheckCircle className="h-5 w-5" />
+            </div>
+            <div className="ml-3 text-sm font-normal text-green-800 dark:text-green-200">{successMessage}</div>
             <ToastToggle onDismiss={() => setSuccessMessage("")} />
           </Toast>
         )}
-        {errorMessage && (
-          <Toast className="flex gap-2 items-center text-red-800 bg-red-50 border border-red-300 shadow dark:bg-red-800 dark:text-red-100">
-            <HiXCircle className="w-5 h-5 text-red-600 dark:text-red-300" />
-            <span className="font-semibold" aria-live="polite">
-              {errorMessage}
-            </span>
+        {(errorMessage || dataError) && (
+          <Toast className="animate-fade-in border border-red-200">
+             <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
+              <HiXCircle className="h-5 w-5" />
+            </div>
+            <div className="ml-3 text-sm font-normal text-red-800 dark:text-red-200">{errorMessage || dataError}</div>
             <ToastToggle onDismiss={() => setErrorMessage("")} />
           </Toast>
         )}
       </div>
 
-      {/* Uploading Overlay */}
-      {uploading && (
-        <div className="fixed inset-0 z-30000 flex flex-col items-center justify-center bg-amber-100/80 dark:bg-amber-900/80 backdrop-blur-[2px] animate-fade-in">
-          <div className="flex flex-col items-center gap-4 p-8 rounded-2xl shadow-2xl bg-white/90 dark:bg-gray-900/90 border-4 border-amber-300 dark:border-amber-700">
-            <svg
-              className="w-14 h-14 text-amber-500 animate-bounce"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+      <div className="container mx-auto p-4 max-w-7xl">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-linear-to-br from-green-500 to-teal-600 rounded-2xl shadow-lg shadow-green-200 dark:shadow-none">
+              <HiCollection className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent dark:from-white dark:to-gray-300">
+                MyTree Journal
+              </h1>
+              <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <span className="flex items-center gap-1">
+                   <div className={`w-2 h-2 rounded-full ${loading ? 'bg-yellow-400 animate-pulse' : 'bg-green-500'}`}></div>
+                   {loading ? 'กำลังโหลด...' : 'ระบบพร้อมใช้งาน'}
+                </span>
+                <span>•</span>
+                <span>{trees.length} รายการ</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <Button 
+                color="success"
+                size="lg" 
+                className="shadow-md hover:shadow-xl transition-all hover:-translate-y-0.5 w-full md:w-auto font-kanit bg-linear-to-br from-green-500 to-teal-600 border-none"
+                onClick={handleCreate}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12"
-              />
-            </svg>
-            <span className="text-2xl font-bold text-amber-700 dark:text-amber-200 font-kanit tracking-wide drop-shadow">
-              กำลังอัปโหลดข้อมูล...
-            </span>
-            <Spinner
-              size="xl"
-              color="warning"
-              aria-label="กำลังอัปโหลดข้อมูล..."
-            />
-            <span className="text-base text-amber-600 dark:text-amber-300 font-kanit">
-              โปรดรอสักครู่ ข้อมูลและไฟล์กำลังถูกส่งขึ้นระบบ
-            </span>
+              <HiPlus className="mr-2 h-5 w-5" />
+              เพิ่มต้นไม้
+            </Button>
           </div>
         </div>
-      )}
-      {/* Modal Delete confirm */}
-      <Modal
+
+        {/* Filter Bar */}
+        <div className="mb-6 sticky top-4 z-20">
+            <FilterBar 
+                search={search}
+                onSearchChange={setSearch}
+                selectedCount={selectedIds.length}
+                loading={loading}
+                onBulkDelete={handleBulkDelete}
+                onClearSelection={() => setSelectedIds([])}
+                viewMode={viewMode}
+                onViewModeChange={setViewMode}
+            />
+        </div>
+
+        {/* Content */}
+        {viewMode === "table" ? (
+            <TreeTable 
+                trees={filteredTrees}
+                loading={loading}
+                selectedIds={selectedIds}
+                onSelect={handleSelect}
+                onSelectAll={handleSelectAll}
+                sortKey={sortKey}
+                sortOrder={sortOrder}
+                onSort={handleSort}
+                onRowClick={handleEdit}
+                ageUnit={ageUnit}
+                setAgeUnit={setAgeUnit}
+                calcAge={calcAge} // Passing the utilized function
+                onEdit={handleEdit}
+                onDelete={handleDeleteClick}
+                onShowQR={handleShowQR}
+                onViewImages={handleViewImages}
+            />
+        ) : (
+
+            <div className="min-h-[50vh]">
+                {loading ? (
+                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                      {Array.from({ length: 8 }).map((_, i) => <TreeCardSkeleton key={i} />)}
+                   </div>
+                ) : filteredTrees.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-800 rounded-3xl border border-dashed border-gray-300 dark:border-gray-700 text-center">
+                        <div className="relative">
+                            <div className="absolute -inset-4 bg-green-100 dark:bg-green-900/30 rounded-full blur-xl opacity-70"></div>
+                            <HiCollection className="relative w-24 h-24 text-green-500 mb-4 opacity-80" />
+                        </div>
+                        <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2 font-kanit">ไม่พบข้อมูลต้นไม้</h3>
+                        <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-sm">
+                            {search ? `ไม่พบผลลัพธ์สำหรับ "${search}"` : "ยังไม่มีต้นไม้ในระบบ เริ่มต้นด้วยการเพิ่มต้นไม้ใหม่ได้เลย"}
+                        </p>
+                        <Button color="success" onClick={handleCreate} className="font-kanit shadow-lg shadow-green-200 dark:shadow-none">
+                            <HiPlus className="mr-2 h-5 w-5" />
+                            เพิ่มต้นไม้แรกของคุณ
+                        </Button>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {filteredTrees.map(tree => (
+                            <TreeCard 
+                                key={tree.id} 
+                                tree={tree} 
+                                onView={() => handleEdit(tree)}
+                                onEdit={() => handleEdit(tree)}
+                                onDelete={() => handleDeleteClick(tree)}
+                                onShowQR={() => handleShowQR(tree)}
+                            />
+                        ))}
+                    </div>
+                )}
+            </div>
+        )}
+      </div>
+
+      {/* Modals */}
+      <TreeFormModal 
+        show={showFormModal}
+        onClose={() => setShowFormModal(false)}
+        onSubmit={handleSubmit}
+        form={form}
+        onChange={handleInputChange}
+        onImageFilesChange={handleImageFilesChange}
+        onDocumentChange={handleDocumentChange}
+        imageFiles={imageFiles}
+        imagePreviewUrls={imagePreviewUrls}
+        clearImageFiles={() => setImageFiles([])}
+        strains={strains}
+        batches={batches}
+        submitting={submitting}
+        isEditMode={!!editingId}
+        formError={formError}
+        // Drag and Drop
+        isDraggingDoc={isDraggingDoc}
+        onDragOverDoc={onDragOverDoc}
+        onDragLeaveDoc={onDragLeaveDoc}
+        onDropDoc={onDropDoc}
+        isDraggingImages={isDraggingImages}
+        onDragOverImages={onDragOverImages}
+        onDragLeaveImages={onDragLeaveImages}
+        onDropImages={onDropImages}
+      />
+
+      <ConfirmDeleteModal 
         show={showDeleteModal}
-        size="sm"
-        aria-modal="true"
-        initialFocus={deleteConfirmRef}
-        onClose={() => {
-          setShowDeleteModal(false);
-          setFormError("");
-          setSuccessMessage("");
-          setErrorMessage("");
-          setImageFiles([]);
-          setSelectedTree(null);
-        }}
-        className="xl:max-w-2xl"
-        // modalOverlayClassName="!fixed !inset-0"
-      >
-        <ModalHeader className="rounded-t-2xl border-b border-red-100 bg-red-50/50 backdrop-blur-md dark:bg-red-900/20 dark:border-red-800">
-          <span className="text-xl font-bold text-red-600 dark:text-red-400 font-kanit">
-            ยืนยันการลบ
-          </span>
-        </ModalHeader>
-        <ModalBody className="max-h-[80vh] overflow-y-auto">
-          <div className="py-2 text-lg font-semibold text-center text-red-500">
-            คุณต้องการลบต้นไม้ &quot;{selectedTree?.strain?.name || ""} (
-            {selectedTree?.nickname})&quot; ใช่หรือไม่?
-          </div>
-        </ModalBody>
-        <ModalFooter className="gap-2 justify-end">
-          <Button
-            ref={deleteConfirmRef}
-            color="red"
-            disabled={submitting}
-            onClick={handleDelete}
-          >
-            {submitting ? "กำลังลบ..." : "ลบ"}
-          </Button>
-          <Button color="gray" onClick={() => setShowDeleteModal(false)}>
-            ยกเลิก
-          </Button>
-        </ModalFooter>
-      </Modal>
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteConfirm}
+        message={`คุณต้องการลบ "${selectedTree?.nickname || selectedTree?.strain?.name || 'ต้นไม้นี้'}" ใช่หรือไม่?`}
+        processing={deleting} // Use specific deleting state
+      />
+
+      {selectedTree && (
+        <QRCodeModal
+          show={showQRModal}
+          onClose={() => setShowQRModal(false)}
+          tree={selectedTree}
+         />
+      )}
+
+      {/* Image Viewer Modal */}
+      <ImageViewerModal
+        show={showImageModal}
+        onClose={() => setShowImageModal(false)}
+        images={viewingImages}
+        initialIndex={viewingImageIndex}
+      />
+      
     </div>
   );
 }

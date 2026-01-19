@@ -9,13 +9,14 @@
 [![MIT License][license-shield]][license-url]
 
 <!-- PROJECT LOGO -->
-<br />
 <div align="center">
   <img src="images/logo.png" alt="Logo" width="80" height="80" />
-  <h3 align="center">MyTree Journal</h3>
+  <h3 align="center">🌳 MyTree Journal</h3>
   <p align="center">
-    Simple, extensible tree record-keeping.<br />
-    <a href="https://github.com/naravid19/mytree-journal"><strong>Explore the docs »</strong></a><br />
+    <strong>Simple, extensible tree record-keeping for researchers and hobbyists.</strong>
+    <br />
+    <a href="https://github.com/naravid19/mytree-journal"><strong>📚 Explore the docs »</strong></a>
+    <br /><br />
     <a href="https://github.com/naravid19/mytree-journal">View Demo</a>
     ·
     <a href="https://github.com/naravid19/mytree-journal/issues/new?labels=bug">Report Bug</a>
@@ -24,156 +25,151 @@
   </p>
 </div>
 
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li><a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
-    </li>
-    <li><a href="#project-structure">Project Structure</a></li>
-    <li><a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-        <li><a href="#environment-variables">Environment Variables</a></li>
-      </ul>
-    </li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#nginx-deployment">Nginx Deployment</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
-  </ol>
-</details>
+---
+
+## 📖 Table of Contents
+
+- [About The Project](#about-the-project)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Environment Variables](#environment-variables)
+  - [Quick Start](#quick-start)
+- [Usage](#usage)
+- [Deployment](#deployment)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
+
+---
 
 ## About The Project
 
-[![Screenshot][product-screenshot]](images/screenshot.png)
+[![Product Screenshot][product-screenshot]](images/screenshot.png)
 
-MyTree Journal คือระบบบันทึกข้อมูลต้นไม้แบบ full-stack ที่ออกแบบมาให้ใช้งานง่าย ขยายต่อได้ เหมาะกับงานวิจัย งานอดิเรก หรือการปลูกในระดับเล็กถึงกลาง  
-**ประกอบด้วย:**
+**MyTree Journal** is a full-stack tree record-keeping system designed for simplicity and extensibility. Perfect for researchers, hobbyists, or small-to-medium scale cultivation projects.
 
-- **Backend:** Django REST API (ดูโค้ดใน `trees/`)
-- **Frontend:** Next.js + React 19 (ดูโค้ดใน `mytree-frontend/app/`)
-- **UI:** Tailwind CSS 4 + Flowbite React (รองรับ Dark Mode)
-- **Media:** รองรับการแนบรูปภาพและเอกสาร
+### Why MyTree Journal?
 
-**ฟีเจอร์หลัก**
-
-- จัดการสายพันธุ์ (Strains), ชุดการปลูก (Batches), ต้นไม้ (Trees)
-- แนบไฟล์ภาพ/เอกสารกับแต่ละต้นไม้
-- UI ทันสมัย รองรับมือถือ
-- ระบบแจ้งเตือน, Modal, Table, Datepicker ฯลฯ (Flowbite React)
-- **Smart Folder Management:** เปลี่ยนชื่อ/ลบโฟลเดอร์รูปภาพตามชื่อต้นไม้อัตโนมัติ
-- **Enhanced UI/UX (Premium Nature Theme):**
-  - **Clean & Professional:** ดีไซน์ใหม่เน้นความสะอาดตา (Solid White Navbar) และความเป็นมืออาชีพ
-  - **Mobile First:** รองรับการใช้งานบนมือถือสมบูรณ์แบบ (Full-screen Modals, Touch-friendly)
-  - **Visual Hierarchy:** จัดลำดับความสำคัญของข้อมูลชัดเจน ลดความซ้ำซ้อน
-  - **TreeCard:** แสดงอายุและสถานะด้วยดีไซน์ที่ทันสมัย
-  - **Detail Modal:** แสดงข้อมูลครบถ้วน (พันธุกรรม, ผลผลิต, สุขภาพ)
-  - **Grid/List View:** สลับมุมมองได้ตามต้องการ
-- **Performance:** ปรับปรุง Query (select_related) ลดโหลด Database และปรับปรุง Frontend Rendering
-
-### Recent Updates (2025-12-01)
-
-- **Tree Detail Modal Overhaul:**
-  - **Premium UI:** ปรับดีไซน์ใหม่ทั้งหมดให้ดูทันสมัย (Glassmorphism, Soft Shadows, Rounded Corners)
-  - **Centered Layout:** แก้ไขปัญหา Modal ชิดซ้าย ให้แสดงผลกึ่งกลางหน้าจออย่างถูกต้อง
-  - **Improved UX:**
-    - **Header:** แสดงชื่อสายพันธุ์และชื่อเล่นชัดเจน พร้อม Gradient Text
-    - **Image Gallery:** แสดงรูปภาพหลักขนาดใหญ่พร้อม Thumbnails ที่เลื่อนดูได้
-    - **Stats Grid:** แสดงข้อมูลสำคัญ (อายุ, ระยะ, สถานะ) ในรูปแบบ Grid ที่อ่านง่าย
-    - **Data Sections:** จัดกลุ่มข้อมูล (การปลูก, พันธุกรรม, ผลผลิต) ให้เป็นระเบียบ
-  - **Z-Index Fixes:** แก้ไขปัญหา Modal ถูกบังโดย Navbar หรือ Element อื่นๆ
-
-### Recent Updates (2025-11-28)
-
-- **Enhanced Dashboard:**
-
-  - เพิ่มคอลัมน์ "จัดการ" (Actions) ในมุมมองแบบ List View
-  - เพิ่มปุ่ม QR Code, Edit, Delete และ View Public Page ให้เข้าถึงได้ง่าย
-  - ปรับปรุงไอคอนให้สื่อความหมายชัดเจน (ใช้ `HiExternalLink` สำหรับหน้าสาธารณะ)
-  - ปรับปรุง Tooltip และ Hover effects ให้สวยงามและสอดคล้องกับ Grid View
-
-- **Public Tree Page Polish:**
-
-  - แก้ไขบั๊ก React Hooks Order Error
-  - ปรับปรุง Sticky Tabs ให้ใช้งานได้ลื่นไหล
-  - ปรับปรุง Layout และ Typography ให้ดูเป็นมืออาชีพ
-
-- **Code Quality:**
-
-  - Refactor โค้ดเพื่อลดความซ้ำซ้อน
-  - แก้ไข Lint errors และปรับปรุง Syntax ให้ทันสมัย (Tailwind CSS)
-
-- **Stability & Fixes:**
-  - แก้ไข Build errors และ Syntax issues ในหน้า Public Tree Page
-  - ตรวจสอบและแก้ไขการแสดงผล Header (ID, Share button) ให้ถูกต้องและสมบูรณ์
-
-### Built With
-
-- [![Django][Django-badge]][Django-url]
-- [![DRF][DRF-badge]][DRF-url]
-- [![Next.js][Next.js-badge]][Next.js-url]
-- [![React][React-badge]][React-url]
-- [![Tailwind CSS][Tailwind-badge]][Tailwind-url]
-- [![Flowbite][Flowbite-badge]][Flowbite-url]
-- [![Flowbite React][FlowbiteReact-badge]][FlowbiteReact-url]
-- [![Nginx][Nginx-badge]][Nginx-url]
+- 🎯 **Purpose-built** for tree and plant tracking
+- 📱 **Mobile-first** responsive design
+- 🌙 **Dark mode** support out of the box
+- 📸 **Media management** with automatic thumbnails
+- 🔗 **QR codes** for easy sharing and tracking
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+---
+
+## Features
+
+### Core Functionality
+
+| Feature                  | Description                            |
+| ------------------------ | -------------------------------------- |
+| 🌱 **Strain Management** | Organize plants by genetic strains     |
+| 📦 **Batch Tracking**    | Group plants by cultivation batches    |
+| 🌳 **Tree Records**      | Comprehensive individual plant records |
+| 📸 **Media Attachments** | Images and documents per tree          |
+| 📊 **QR Codes**          | Generate shareable QR codes            |
+
+### User Experience
+
+| Feature           | Description                                 |
+| ----------------- | ------------------------------------------- |
+| 🎨 **Modern UI**  | Glassmorphism design with smooth animations |
+| 📱 **Responsive** | Works on desktop, tablet, and mobile        |
+| 🌙 **Dark Mode**  | System-aware theme switching                |
+| ⚡ **Fast**       | Optimized queries and rendering             |
+| ♿ **Accessible** | ARIA labels and keyboard navigation         |
+
+### Data Management
+
+| Feature              | Description                       |
+| -------------------- | --------------------------------- |
+| 📂 **Smart Folders** | Auto-organize images by tree name |
+| 🖼️ **Thumbnails**    | Automatic thumbnail generation    |
+| 📤 **Drag & Drop**   | Upload files with drag-and-drop   |
+| ✅ **Validation**    | Client and server-side validation |
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+---
+
+## Tech Stack
+
+### Backend
+
+[![Django][Django-badge]][Django-url]
+[![DRF][DRF-badge]][DRF-url]
+
+### Frontend
+
+[![Next.js][Next.js-badge]][Next.js-url]
+[![React][React-badge]][React-url]
+[![Tailwind CSS][Tailwind-badge]][Tailwind-url]
+[![Flowbite][Flowbite-badge]][Flowbite-url]
+
+### Infrastructure
+
+[![Nginx][Nginx-badge]][Nginx-url]
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+---
 
 ## Project Structure
 
 ```
 mytree-journal/
+├── 📁 mytree_journal/        # Django project configuration
+│   └── settings.py           # Database, CORS, timezone config
 │
-├── mytree_journal/         # Django project settings, URLs, WSGI/ASGI
-│   └── settings.py         # Database, CORS, Timezone, Static/Media config
+├── 📁 trees/                 # Django app (models, views, API)
+│   ├── models.py             # Strain, Batch, Tree, Image models
+│   ├── serializers.py        # DRF serializers
+│   ├── views.py              # API ViewSets
+│   └── migrations/           # Database migrations
 │
-├── trees/                  # Django app: models, serializers, views, admin
-│   ├── models.py           # Strain, Batch, Tree, Image, Document models
-│   ├── serializers.py      # DRF serializers with validation
-│   ├── views.py            # DRF ViewSets (Strain, Batch, Tree)
-│   ├── urls.py             # App-level API routes
-│   └── migrations/         # Database migrations
-│
-├── mytree-frontend/        # Next.js 15 + React 19 frontend
+├── 📁 mytree-frontend/       # Next.js frontend
 │   ├── app/
-│   │   ├── page.tsx        # Dashboard (Tree list, add/edit/view)
-│   │   ├── strains/page.tsx# Strain management UI
-│   │   ├── batches/page.tsx# Batch management UI
-│   │   └── globals.css     # Tailwind + Flowbite styles
-│   ├── public/             # Static assets (SVG, favicon)
-│   ├── tailwind.config.js  # Tailwind CSS config
-│   └── flowbite_all_docs.txt, flowbite_react_all_docs.txt, tailwind_all_docs.txt
+│   │   ├── page.tsx          # Dashboard
+│   │   ├── strains/          # Strain management
+│   │   ├── batches/          # Batch management
+│   │   └── tree/[id]/        # Public tree page
+│   ├── components/           # Reusable UI components
+│   └── hooks/                # Custom React hooks
 │
-├── media/                  # Uploaded images & documents
-│   ├── tree_images/        # รูปภาพต้นไม้ (และ thumbnails)
-│   └── tree_documents/     # เอกสารแนบ
+├── 📁 media/                 # Uploaded files
+│   ├── tree_images/          # Tree photos & thumbnails
+│   └── tree_documents/       # Attached documents
 │
-├── nginx/                  # Nginx config for deployment
-│   └── conf/nginx.conf     # ตัวอย่าง reverse proxy + static/media
-│
-├── requirements.txt        # Python dependencies
-├── package.json            # Node.js dependencies
-└── README.md               # This file
+├── 📁 nginx/                 # Deployment config
+├── 📄 requirements.txt       # Python dependencies
+├── 📄 package.json           # Node.js dependencies
+├── 📄 CHANGELOG.md           # Version history
+└── 📄 README.md              # This file
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+---
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js `v22.13.1` + npm `10.8.3`
-- Python `3.11`
-- PostgreSQL
-- Nginx (สำหรับ production)
+| Requirement | Version           |
+| ----------- | ----------------- |
+| Node.js     | v22.13.1+         |
+| npm         | v10.8.3+          |
+| Python      | 3.11+             |
+| PostgreSQL  | 14+ (recommended) |
+| Nginx       | For production    |
 
 ### Installation
 
@@ -184,13 +180,21 @@ mytree-journal/
    cd mytree-journal
    ```
 
-2. **Install Python dependencies**
+2. **Set up the backend**
 
    ```bash
+   # Create virtual environment (recommended)
+   python -m venv venv
+   source venv/bin/activate  # Windows: venv\Scripts\activate
+
+   # Install dependencies
    pip install -r requirements.txt
+
+   # Run migrations
+   python manage.py migrate
    ```
 
-3. **Install Node dependencies**
+3. **Set up the frontend**
    ```bash
    cd mytree-frontend
    npm install
@@ -199,13 +203,13 @@ mytree-journal/
 
 ### Environment Variables
 
-สร้างไฟล์ `.env` ที่ root:
+Create `.env` in the project root:
 
 ```ini
 DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,api.example.com
 ```
 
-สร้าง `mytree-frontend/.env.local`:
+Create `mytree-frontend/.env.local`:
 
 ```ini
 NEXT_PUBLIC_FRONTEND_ORIGIN=https://www.example.com
@@ -213,147 +217,107 @@ NEXT_PUBLIC_API_BASE_URL=https://api.example.com
 NEXT_PUBLIC_MEDIA_DOMAIN=api.example.com
 ```
 
-### Running Locally
+### Quick Start
 
-**Backend:**
+**Option 1: One-click (Windows)**
 
-```bash
-python manage.py migrate
-python manage.py runserver
+```batch
+# Double-click start_app.bat
 ```
 
-**Frontend:**
+**Option 2: Manual**
 
 ```bash
+# Terminal 1: Backend
+python manage.py runserver
+
+# Terminal 2: Frontend
 cd mytree-frontend
 npm run dev
 ```
 
+Then open [http://localhost:3000](http://localhost:3000) in your browser.
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+---
 
 ## Usage
 
-- เข้าหน้า dashboard ที่ [http://localhost:3000](http://localhost:3000)
-- จัดการข้อมูลสายพันธุ์ (Strains) ที่ `/strains`
-- จัดการชุดการปลูก (Batches) ที่ `/batches`
-- เพิ่ม/แก้ไข/ลบต้นไม้ พร้อมแนบรูปภาพและเอกสาร
-- API docs อัตโนมัติที่ `/api/` (หลังรัน backend)
+| Route        | Description                           |
+| ------------ | ------------------------------------- |
+| `/`          | Dashboard - View and manage all trees |
+| `/strains`   | Manage plant strains                  |
+| `/batches`   | Manage cultivation batches            |
+| `/tree/[id]` | Public tree detail page               |
+| `/api/`      | REST API documentation                |
 
-**โครงสร้างข้อมูลหลัก**
+### Data Models
 
-- **Strain:** ชื่อสายพันธุ์, รายละเอียด
-- **Batch:** รหัสชุด, รายละเอียด, วันที่เริ่มต้น
-- **Tree:** ข้อมูลต้นไม้, ความสัมพันธ์กับ Strain/Batch, รูปภาพ, เอกสาร, หมายเหตุ ฯลฯ
+- **Strain**: Name, description, genetics information
+- **Batch**: Code, description, start date
+- **Tree**: Comprehensive plant data with relationships
 
-**Media**
+### Media Support
 
-- อัปโหลดไฟล์ภาพ (JPEG, PNG, WebP) และเอกสาร (PDF)
-- ไฟล์จะถูกเก็บใน `media/tree_images/` และ `media/tree_documents/`
-- มีระบบสร้าง thumbnail อัตโนมัติ
-
-**UI/UX**
-
-- ใช้ Flowbite React (Modal, Table, Alert, Datepicker, Toast, Tooltip ฯลฯ)
-- Tailwind CSS 4.1 (ดู config ที่ `tailwind.config.js`)
-- รองรับ Dark Mode (ปุ่ม toggle มุมขวาบน)
-- ฟอร์มมี validation ทั้ง client/server (แจ้งเตือนซ้ำ, ข้อมูลไม่ครบ ฯลฯ)
+- **Images**: JPEG, PNG, WebP (auto-thumbnails)
+- **Documents**: PDF attachments
+- **Storage**: Organized in `media/tree_images/` and `media/tree_documents/`
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Nginx Deployment
+---
 
-ตัวอย่างไฟล์ `nginx/conf/nginx.conf` สำหรับ production (ใช้โดเมนตัวอย่าง):
+## Deployment
 
-```nginx
-server {
-    listen 80;
-    server_name api.example.com;
+See the [Nginx configuration example](nginx/conf/nginx.conf) for production deployment.
 
-    # Static files
-    location /static/ {
-        alias /path/to/mytree-journal/static/;
-        autoindex off;
-        expires 30d;
-        add_header Cache-Control "public";
-    }
+**Key features:**
 
-    # Media files
-    location /media/ {
-        alias /path/to/mytree-journal/media/;
-        autoindex off;
-        expires 30d;
-        add_header Cache-Control "public";
-    }
-
-    # Proxy API to Django backend
-    location /api/ {
-        proxy_pass http://127.0.0.1:8000/api/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        client_max_body_size 20M;
-    }
-
-    # Proxy frontend (Next.js SSR)
-    location / {
-        proxy_pass http://127.0.0.1:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-Content-Type-Options "nosniff" always;
-    add_header X-XSS-Protection "1; mode=block" always;
-    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-    client_max_body_size 20M;
-}
-```
-
-**หมายเหตุ**
-
-- เปลี่ยน `/path/to/mytree-journal/` เป็น path จริงบน server
-- รองรับ static/media, API, และ SSR frontend ใน server เดียว
-- สามารถเพิ่ม HTTPS config ได้ตามต้องการ
+- Static & media file serving
+- API reverse proxy
+- Security headers
+- HTTPS support (add your SSL config)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+---
 
 ## Roadmap
 
-- [ ] Authentication support
-- [ ] Filtering & advanced search
-- [ ] Mobile layout enhancements
-- [ ] Improved batch/strain management
-- [ ] Multi-user collaboration
+- [ ] 🔐 Authentication & user management
+- [ ] 🔍 Advanced search & filtering
+- [ ] 📱 Progressive Web App (PWA)
+- [ ] 👥 Multi-user collaboration
+- [ ] 📊 Analytics dashboard
 
-ดูรายการเต็มที่ [open issues](https://github.com/naravid19/mytree-journal/issues)
+See the [open issues](https://github.com/naravid19/mytree-journal/issues) for a full list of proposed features.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+---
+
 ## Contributing
 
-Contributions make the open-source community amazing! Any contribution is **greatly appreciated**.
+Contributions are what make the open-source community amazing! Any contributions are **greatly appreciated**.
 
-1. Fork the repo
-2. Create your feature branch (`git checkout -b feature/FeatureName`)
-3. Commit your changes (`git commit -m 'Add FeatureName'`)
-4. Push to the branch (`git push origin feature/FeatureName`)
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+---
+
 ## License
 
-Distributed under the MIT License. See [`LICENSE`](LICENSE) for details.
+Distributed under the MIT License. See [`LICENSE`](LICENSE) for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+---
 
 ## Contact
 
@@ -361,12 +325,15 @@ Project Link: [https://github.com/naravid19/mytree-journal](https://github.com/n
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+---
+
 ## Acknowledgments
 
 - [Tailwind CSS](https://tailwindcss.com/)
 - [Flowbite](https://flowbite.com/)
 - [Flowbite React](https://flowbite-react.com/)
 - [Best-README-Template](https://github.com/othneildrew/Best-README-Template)
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
@@ -381,20 +348,18 @@ Project Link: [https://github.com/naravid19/mytree-journal](https://github.com/n
 [issues-url]: https://github.com/naravid19/mytree-journal/issues
 [license-shield]: https://img.shields.io/github/license/naravid19/mytree-journal.svg?style=for-the-badge
 [license-url]: https://github.com/naravid19/mytree-journal/blob/main/LICENSE
-[Django-badge]: https://img.shields.io/badge/Django-5.2.8-blue?style=for-the-badge&logo=django&logoColor=white
-[Django-url]: https://www.djangoproject.com/
-[DRF-badge]: https://img.shields.io/badge/DRF-3.16.1-blue?style=for-the-badge
-[DRF-url]: https://www.django-rest-framework.org/
-[Next.js-badge]: https://img.shields.io/badge/Next.js-16.0.3-black?style=for-the-badge&logo=next.js
-[Next.js-url]: https://nextjs.org/
-[React-badge]: https://img.shields.io/badge/React-19.2.0-61DAFB?style=for-the-badge&logo=react&logoColor=white
-[React-url]: https://react.dev/
-[Tailwind-badge]: https://img.shields.io/badge/Tailwind%20CSS-4.1.17-06B6D4?style=for-the-badge&logo=tailwindcss
-[Tailwind-url]: https://tailwindcss.com/
-[Flowbite-badge]: https://img.shields.io/badge/Flowbite-3.1.2-38BDF8?style=for-the-badge&logo=flowbite
-[Flowbite-url]: https://flowbite.com/
-[FlowbiteReact-badge]: https://img.shields.io/badge/Flowbite%20React-0.12.10-0EA5E9?style=for-the-badge&logo=react
-[FlowbiteReact-url]: https://flowbite-react.com/
-[Nginx-badge]: https://img.shields.io/badge/nginx-1.29.0-009639?style=for-the-badge&logo=nginx&logoColor=white
-[Nginx-url]: https://nginx.org/
 [product-screenshot]: images/screenshot.png
+[Django-badge]: https://img.shields.io/badge/Django-5.2-092E20?style=for-the-badge&logo=django&logoColor=white
+[Django-url]: https://www.djangoproject.com/
+[DRF-badge]: https://img.shields.io/badge/DRF-3.16-red?style=for-the-badge
+[DRF-url]: https://www.django-rest-framework.org/
+[Next.js-badge]: https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js
+[Next.js-url]: https://nextjs.org/
+[React-badge]: https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black
+[React-url]: https://react.dev/
+[Tailwind-badge]: https://img.shields.io/badge/Tailwind-4.1-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white
+[Tailwind-url]: https://tailwindcss.com/
+[Flowbite-badge]: https://img.shields.io/badge/Flowbite-3.1-38BDF8?style=for-the-badge
+[Flowbite-url]: https://flowbite.com/
+[Nginx-badge]: https://img.shields.io/badge/nginx-009639?style=for-the-badge&logo=nginx&logoColor=white
+[Nginx-url]: https://nginx.org/

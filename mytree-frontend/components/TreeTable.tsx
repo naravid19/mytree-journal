@@ -3,7 +3,7 @@ import { HiQrcode, HiExternalLink, HiPencil, HiTrash } from "react-icons/hi";
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow, Badge, ButtonGroup, Button, Tooltip } from "flowbite-react";
 import { Tree } from "../app/types";
 import Image from "next/image";
-import { calcAge, getSecureImageUrl } from "../app/utils";
+import { getSecureImageUrl } from "../app/utils";
 
 interface TreeTableProps {
   trees: Tree[];
@@ -11,9 +11,9 @@ interface TreeTableProps {
   selectedIds: number[];
   onSelect: (id: number, checked: boolean) => void;
   onSelectAll: (checked: boolean, ids: number[]) => void;
-  sortKey: string | null;
+  sortKey: keyof Tree | "strain" | null;
   sortOrder: "asc" | "desc";
-  onSort: (key: string) => void;
+  onSort: (key: keyof Tree | "strain") => void;
   onRowClick: (tree: Tree) => void;
   ageUnit: "day" | "month" | "year";
   setAgeUnit: (unit: "day" | "month" | "year") => void;
@@ -21,6 +21,7 @@ interface TreeTableProps {
   onEdit: (tree: Tree) => void;
   onDelete: (tree: Tree) => void;
   onShowQR: (tree: Tree) => void;
+  onViewImages: (images: string[], index: number) => void;
 }
 
 export const TreeTable: React.FC<TreeTableProps> = ({
@@ -40,6 +41,7 @@ export const TreeTable: React.FC<TreeTableProps> = ({
   onEdit,
   onDelete,
   onShowQR,
+  onViewImages,
 }) => {
   const SkeletonRow = () => (
     <TableRow>
@@ -214,7 +216,13 @@ export const TreeTable: React.FC<TreeTableProps> = ({
                     {tree.images && tree.images.length > 0 ? (
                       <>
                         {/* Mobile: Single Thumbnail with Badge */}
-                        <div className="relative md:hidden w-10 h-10 shrink-0">
+                        <div 
+                          className="relative md:hidden w-10 h-10 shrink-0 cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onViewImages(tree.images.map(img => getSecureImageUrl(img.image)), 0);
+                          }}
+                        >
                            <Image
                               src={getSecureImageUrl(tree.images[0].thumbnail || tree.images[0].image)}
                               alt="รูปหลัก"
@@ -234,21 +242,31 @@ export const TreeTable: React.FC<TreeTableProps> = ({
                           {tree.images.slice(0, 3).map((img, idx) => (
                             <div
                               key={img.id}
-                              className={`relative z-0 hover:z-10 transition-transform duration-300 ${
+                              className={`relative z-0 hover:z-10 transition-transform duration-300 cursor-pointer ${
                                 idx === 1 ? "group-hover:translate-x-4" : idx === 2 ? "group-hover:translate-x-8" : ""
                               }`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onViewImages(tree.images.map(img => getSecureImageUrl(img.image)), idx);
+                              }}
                             >
                               <Image
                                 src={getSecureImageUrl(img.thumbnail || img.image)}
                                 alt={`รูปที่ ${idx + 1}`}
                                 width={40}
                                 height={40}
-                                className="object-cover w-10 h-10 rounded-full border-2 border-white shadow-md transition-transform hover:scale-110 dark:border-gray-700"
+                                className="object-cover w-10 h-10 rounded-full border-2 border-white shadow-md transition-transform hover:scale-110 dark:border-gray-700 hover:ring-2 hover:ring-green-400"
                               />
                             </div>
                           ))}
                           {tree.images.length > 3 && (
-                            <div className="flex items-center justify-center w-10 h-10 text-xs font-medium text-white bg-gray-400 rounded-full border-2 border-white dark:border-gray-700 z-0 transition-transform duration-300 group-hover:translate-x-12">
+                            <div 
+                              className="flex items-center justify-center w-10 h-10 text-xs font-medium text-white bg-gray-400 rounded-full border-2 border-white dark:border-gray-700 z-0 transition-transform duration-300 group-hover:translate-x-12 cursor-pointer hover:bg-gray-500"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onViewImages(tree.images.map(img => getSecureImageUrl(img.image)), 3);
+                              }}
+                            >
                               +{tree.images.length - 3}
                             </div>
                           )}
@@ -264,6 +282,7 @@ export const TreeTable: React.FC<TreeTableProps> = ({
                         <Button
                           size="xs"
                           color="light"
+                          aria-label="เปิดหน้าสาธารณะของต้นไม้นี้"
                           className="p-1! border-gray-200 dark:border-gray-600 hover:bg-green-50 dark:hover:bg-green-900/30"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -277,6 +296,7 @@ export const TreeTable: React.FC<TreeTableProps> = ({
                         <Button
                           size="xs"
                           color="light"
+                          aria-label="แสดง QR Code"
                           className="p-1! border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -290,6 +310,7 @@ export const TreeTable: React.FC<TreeTableProps> = ({
                         <Button
                           size="xs"
                           color="light"
+                          aria-label="แก้ไขข้อมูลต้นไม้"
                           className="p-1! border-gray-200 dark:border-gray-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/30"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -303,6 +324,7 @@ export const TreeTable: React.FC<TreeTableProps> = ({
                         <Button
                           size="xs"
                           color="light"
+                          aria-label="ลบต้นไม้นี้"
                           className="p-1! border-gray-200 dark:border-gray-600 hover:bg-red-50 dark:hover:bg-red-900/30"
                           onClick={(e) => {
                             e.stopPropagation();

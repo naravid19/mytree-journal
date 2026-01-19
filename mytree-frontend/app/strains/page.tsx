@@ -18,8 +18,6 @@ import {
   Alert,
   Toast,
   Tooltip,
-  Card,
-  Badge,
 } from "flowbite-react";
 import { HiCheckCircle, HiXCircle, HiTrash, HiArrowLeft, HiPencil, HiPlus, HiCollection } from "react-icons/hi";
 import { useRouter } from "next/navigation";
@@ -216,18 +214,18 @@ export default function StrainsPage() {
                           <span className="text-base">{strain.name}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="px-6 py-4 max-w-md truncate text-gray-600 dark:text-gray-300">
-                        {strain.description || <span className="italic text-gray-400 opacity-70">ไม่มีรายละเอียด</span>}
+                      <TableCell className="px-6 py-4 max-w-md text-gray-600 dark:text-gray-300">
+                        <span className="line-clamp-2">{strain.description || <span className="italic text-gray-400 opacity-70">ไม่มีรายละเอียด</span>}</span>
                       </TableCell>
                       <TableCell className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2">
                           <Tooltip content="แก้ไข">
-                            <Button size="xs" color="light" className="rounded-full w-8 h-8 p-0 flex items-center justify-center border-gray-200 hover:bg-blue-50 hover:text-blue-600 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:text-blue-400 transition-all" onClick={() => handleShowEdit(strain)}>
+                            <Button size="xs" color="light" aria-label="แก้ไขสายพันธุ์" className="rounded-full w-8 h-8 p-0 flex items-center justify-center border-gray-200 hover:bg-blue-50 hover:text-blue-600 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:text-blue-400 transition-all" onClick={() => handleShowEdit(strain)}>
                               <HiPencil className="w-4 h-4" />
                             </Button>
                           </Tooltip>
                           <Tooltip content="ลบ">
-                            <Button size="xs" color="light" className="rounded-full w-8 h-8 p-0 flex items-center justify-center border-gray-200 hover:bg-red-50 hover:text-red-600 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:text-red-400 transition-all" onClick={() => { setSelectedStrain(strain); setShowDeleteModal(true); }}>
+                            <Button size="xs" color="light" aria-label="ลบสายพันธุ์" className="rounded-full w-8 h-8 p-0 flex items-center justify-center border-gray-200 hover:bg-red-50 hover:text-red-600 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:text-red-400 transition-all" onClick={() => { setSelectedStrain(strain); setShowDeleteModal(true); }}>
                               <HiTrash className="w-4 h-4" />
                             </Button>
                           </Tooltip>

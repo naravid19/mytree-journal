@@ -192,3 +192,7 @@ mytree-frontend/.env.local
 # Images
 media/tree_images/
 problem.txt
+
+.agent
+.shared
+antigravity

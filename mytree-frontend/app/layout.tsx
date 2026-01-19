@@ -38,18 +38,11 @@ export default function RootLayout({
         <ThemeModeScript />
       </head>
       <body
-        className={`
-          ${geistSans.variable} ${geistMono.variable} ${kanit.variable}
-          font-sans antialiased 
-          bg-linear-to-br from-secondary via-white to-blue-50
-          dark:from-gray-950 dark:via-gray-900 dark:to-primary-dark
-          min-h-screen w-full
-          text-foreground
-          selection:bg-primary-light selection:text-white
-        `}
+        className={`${geistSans.variable} ${geistMono.variable} ${kanit.variable} font-sans antialiased bg-linear-to-br from-secondary via-white to-blue-50 dark:from-gray-950 dark:via-gray-900 dark:to-primary-dark min-h-screen w-full text-foreground selection:bg-primary-light selection:text-white`}
         style={{
           fontFamily: 'Kanit, var(--font-geist-sans), var(--font-geist-mono), sans-serif',
         }}
+        suppressHydrationWarning
       >
         <AppNavbar />
         <div className="pt-20 pb-8 min-h-screen">

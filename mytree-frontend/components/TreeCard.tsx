@@ -129,7 +129,7 @@ export const TreeCard: React.FC<TreeCardProps> = ({ tree, onEdit, onDelete, onVi
           <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-600 dark:text-gray-300 font-kanit mt-1 bg-gray-50/50 dark:bg-gray-800/50 p-3 rounded-xl">
             <div className="flex items-center gap-2">
               <HiLocationMarker className="w-4 h-4 text-primary/70 shrink-0" />
-              <span className="truncate font-medium">{tree.location || "-"}</span>
+              <span className="truncate font-medium">{tree.location || "ไม่ระบุสถานที่"}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-gray-400 uppercase tracking-wide">อายุ</span>
@@ -146,33 +146,33 @@ export const TreeCard: React.FC<TreeCardProps> = ({ tree, onEdit, onDelete, onVi
           {/* Actions - Visible on Hover (Desktop) / Always (Mobile) */}
           <div className="flex justify-end gap-2 mt-2 pt-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300 transform sm:translate-y-2 sm:group-hover:translate-y-0" onClick={(e) => e.stopPropagation()}>
             <Tooltip content="ดูรายละเอียด">
-              <Button size="xs" color="gray" onClick={() => onView(tree)} className="rounded-full w-8 h-8 p-0 flex items-center justify-center transition-all hover:bg-gray-100 dark:hover:bg-gray-700">
+              <Button size="xs" color="gray" aria-label="ดูรายละเอียดต้นไม้" onClick={() => onView(tree)} className="rounded-full w-8 h-8 p-0 flex items-center justify-center transition-all hover:bg-gray-100 dark:hover:bg-gray-700">
                 <HiEye className="w-4 h-4" />
               </Button>
             </Tooltip>
             
             <Tooltip content="QR Code">
-              <Button size="xs" color="light" onClick={() => onShowQR(tree)} className="rounded-full w-8 h-8 p-0 flex items-center justify-center transition-all hover:text-purple-600 hover:bg-purple-50">
+              <Button size="xs" color="light" aria-label="แสดง QR Code" onClick={() => onShowQR(tree)} className="rounded-full w-8 h-8 p-0 flex items-center justify-center transition-all hover:text-purple-600 hover:bg-purple-50">
                 <HiQrcode className="w-4 h-4" />
               </Button>
             </Tooltip>
 
             <Tooltip content="หน้าสาธารณะ">
               <Link href={`/tree/${tree.id}`} passHref>
-                <Button size="xs" color="light" className="rounded-full w-8 h-8 p-0 flex items-center justify-center transition-all hover:text-green-600 hover:bg-green-50">
+                <Button size="xs" color="light" aria-label="เปิดหน้าสาธารณะ" className="rounded-full w-8 h-8 p-0 flex items-center justify-center transition-all hover:text-green-600 hover:bg-green-50">
                   <HiExternalLink className="w-4 h-4" />
                 </Button>
               </Link>
             </Tooltip>
 
             <Tooltip content="แก้ไข">
-              <Button size="xs" color="light" onClick={() => onEdit(tree)} className="rounded-full w-8 h-8 p-0 flex items-center justify-center transition-all hover:text-blue-600 hover:bg-blue-50">
+              <Button size="xs" color="light" aria-label="แก้ไขข้อมูลต้นไม้" onClick={() => onEdit(tree)} className="rounded-full w-8 h-8 p-0 flex items-center justify-center transition-all hover:text-blue-600 hover:bg-blue-50">
                 <HiPencil className="w-4 h-4" />
               </Button>
             </Tooltip>
 
             <Tooltip content="ลบ">
-              <Button size="xs" color="failure" onClick={() => onDelete(tree)} className="rounded-full w-8 h-8 p-0 flex items-center justify-center transition-all hover:bg-red-700">
+              <Button size="xs" color="failure" aria-label="ลบต้นไม้นี้" onClick={() => onDelete(tree)} className="rounded-full w-8 h-8 p-0 flex items-center justify-center transition-all hover:bg-red-700">
                 <HiTrash className="w-4 h-4" />
               </Button>
             </Tooltip>

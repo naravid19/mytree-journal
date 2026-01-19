@@ -1,5 +1,5 @@
 import React from "react";
-import { TextInput, Button } from "flowbite-react";
+import { Button } from "flowbite-react";
 import { HiSearch, HiViewGrid, HiViewList } from "react-icons/hi";
 
 interface FilterBarProps {

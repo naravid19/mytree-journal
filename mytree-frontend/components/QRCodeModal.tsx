@@ -40,7 +40,7 @@ export function QRCodeModal({ show, onClose, tree }: QRCodeModalProps) {
             QR Code สำหรับต้นไม้: <span className="font-bold text-gray-900 dark:text-white">{tree.nickname || tree.strain?.name}</span>
           </h3>
           
-          <div className="flex justify-center mb-6 p-4 bg-white rounded-xl shadow-inner inline-block mx-auto">
+          <div className="flex justify-center mb-6 p-4 bg-white rounded-xl shadow-inner mx-auto">
             <QRCodeCanvas
               ref={qrRef}
               value={publicUrl}

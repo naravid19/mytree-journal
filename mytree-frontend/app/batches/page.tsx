@@ -19,7 +19,6 @@ import {
   Alert,
   Toast,
   Tooltip,
-  Card,
 } from "flowbite-react";
 import { HiCheckCircle, HiXCircle, HiTrash, HiArrowLeft, HiPlus, HiPencil, HiOutlineBeaker } from "react-icons/hi";
 import { useRouter } from "next/navigation";
@@ -40,6 +39,20 @@ function formatDateLocal(date: Date | null): string {
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const day = date.getDate().toString().padStart(2, "0");
   return `${year}-${month}-${day}`;
+}
+
+// Format date to Thai display format (e.g., "30 พ.ย. 2568")
+function formatThaiDate(dateStr: string | null): string {
+  if (!dateStr) return "ไม่ระบุ";
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return dateStr;
+  
+  const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", 
+                      "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+  const day = date.getDate();
+  const month = thaiMonths[date.getMonth()];
+  const year = date.getFullYear() + 543; // Buddhist Era
+  return `${day} ${month} ${year}`;
 }
 
 export default function BatchesPage() {
@@ -240,21 +253,21 @@ export default function BatchesPage() {
                           <span className="text-base font-mono">{batch.batch_code}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="px-6 py-4 max-w-md truncate text-gray-600 dark:text-gray-300">
-                        {batch.description || <span className="italic text-gray-400 opacity-70">ไม่มีรายละเอียด</span>}
+                      <TableCell className="px-6 py-4 max-w-md text-gray-600 dark:text-gray-300">
+                        <span className="line-clamp-2">{batch.description || <span className="italic text-gray-400 opacity-70">ไม่มีรายละเอียด</span>}</span>
                       </TableCell>
-                      <TableCell className="px-6 py-4 font-medium text-gray-700 dark:text-gray-300">
-                        {batch.started_date}
+                      <TableCell className="px-6 py-4 font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                        {formatThaiDate(batch.started_date)}
                       </TableCell>
                       <TableCell className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2">
                           <Tooltip content="แก้ไข">
-                            <Button size="xs" color="light" className="rounded-full w-8 h-8 p-0 flex items-center justify-center border-gray-200 hover:bg-blue-50 hover:text-blue-600 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:text-blue-400 transition-all" onClick={() => handleShowEdit(batch)}>
+                            <Button size="xs" color="light" aria-label="แก้ไขชุดการปลูก" className="rounded-full w-8 h-8 p-0 flex items-center justify-center border-gray-200 hover:bg-blue-50 hover:text-blue-600 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:text-blue-400 transition-all" onClick={() => handleShowEdit(batch)}>
                               <HiPencil className="w-4 h-4" />
                             </Button>
                           </Tooltip>
                           <Tooltip content="ลบ">
-                            <Button size="xs" color="light" className="rounded-full w-8 h-8 p-0 flex items-center justify-center border-gray-200 hover:bg-red-50 hover:text-red-600 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:text-red-400 transition-all" onClick={() => { setSelectedBatch(batch); setShowDeleteModal(true); }}>
+                            <Button size="xs" color="light" aria-label="ลบชุดการปลูก" className="rounded-full w-8 h-8 p-0 flex items-center justify-center border-gray-200 hover:bg-red-50 hover:text-red-600 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:text-red-400 transition-all" onClick={() => { setSelectedBatch(batch); setShowDeleteModal(true); }}>
                               <HiTrash className="w-4 h-4" />
                             </Button>
                           </Tooltip>
@@ -339,7 +352,7 @@ export default function BatchesPage() {
                 theme={{
                   popup: {
                     header: {
-                      base: "z-[10000] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl p-4 flex items-center justify-between gap-2 mt-2"
+                      base: "z-9999 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl p-4 flex items-center justify-between gap-2 mt-2"
                     },
                     view: {
                       base: ""

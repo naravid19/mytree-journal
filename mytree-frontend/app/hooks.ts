@@ -1,11 +1,17 @@
-import { useRef } from "react";
+import { useState, useEffect } from "react";
 
-export function useDebouncedSearch(callback: (s: string) => void, delay = 300) {
-  const timer = useRef<NodeJS.Timeout | null>(null);
-  return (val: string) => {
-    if (timer.current) {
-      clearTimeout(timer.current);
-    }
-    timer.current = setTimeout(() => callback(val), delay) as unknown as NodeJS.Timeout;
-  };
+export function useDebouncedSearch(value: string, delay = 300): string {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
 }
