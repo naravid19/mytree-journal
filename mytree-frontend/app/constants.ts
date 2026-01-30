@@ -137,3 +137,23 @@ export const Z_INDEX = {
   LIGHTBOX: 400,
   UPLOADING_OVERLAY: 500,
 } as const;
+
+// ==========================================
+// Journal Constants
+// ==========================================
+export const ACTION_LABELS: Record<string, string> = {
+  water: "รดน้ำเปล่า",
+  feed: "รดน้ำใส่ปุ๋ย",
+  flush: "Flush (ล้างดิน)",
+  prune: "ตัดแต่ง (Pruning)",
+  train: "ดัดกิ่ง (Training)",
+  flip: "ทำดอก (Flip)",
+  harvest: "เก็บเกี่ยว (Harvest)",
+  dry: "ตาก (Drying)",
+  cure: "บ่ม (Curing)",
+  photo: "อัปเดตรูป",
+  issue: "พบปัญหา/แมลง",
+  environment: "สภาพแวดล้อม",
+  note: "บันทึกทั่วไป",
+  other: "อื่นๆ"
+};

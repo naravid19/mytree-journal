@@ -170,21 +170,21 @@ export default function StrainsPage() {
       <main className="space-y-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-linear-to-r from-green-600 to-teal-600 dark:from-green-400 dark:to-teal-400">
+            <h1 className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-linear-to-r from-primary to-secondary">
               จัดการสายพันธุ์
             </h1>
-            <p className="mt-1 text-gray-500 dark:text-gray-400">
+            <p className="mt-1 text-text-muted">
               เพิ่มและแก้ไขข้อมูลสายพันธุ์พืชของคุณ
             </p>
           </div>
           <div className="flex gap-3">
-            <Button color="gray" size="sm" className="shadow-sm hover:bg-gray-100 dark:hover:bg-gray-700 border-0" onClick={() => router.push('/')}> 
+            <Button color="gray" size="sm" className="shadow-sm hover:bg-surface-dark dark:hover:bg-gray-700 border-0" onClick={() => router.push('/')}> 
               <HiArrowLeft className="mr-2 w-4 h-4" />
               กลับหน้าหลัก
             </Button>
             <Button 
               onClick={() => { resetForm(); setShowAddModal(true); }}
-              className="shadow-lg transition-transform hover:scale-105 bg-linear-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white border-none"
+              className="shadow-lg transition-transform hover:scale-105 bg-linear-to-r from-primary to-secondary hover:from-primary-dark hover:to-secondary-dark text-white border-none"
             >
               <HiPlus className="mr-2 w-5 h-5" />
               เพิ่มสายพันธุ์
@@ -194,8 +194,8 @@ export default function StrainsPage() {
 
         <div className="glass rounded-3xl overflow-hidden shadow-xl border border-white/50 dark:border-gray-700">
           <div className="overflow-x-auto">
-            <Table hoverable className="w-full text-left text-gray-500 dark:text-gray-400">
-              <TableHead className="text-gray-700 uppercase bg-gray-50/50 dark:bg-gray-800/50 dark:text-gray-400 backdrop-blur-sm">
+            <Table hoverable className="w-full text-left text-text-muted">
+              <TableHead className="text-text-muted uppercase bg-surface/50 dark:bg-surface-dark/50 backdrop-blur-sm">
                 <TableRow>
                   <TableHeadCell className="px-6 py-4 text-sm font-bold">ชื่อสายพันธุ์</TableHeadCell>
                   <TableHeadCell className="px-6 py-4 text-sm font-bold">รายละเอียด</TableHeadCell>
@@ -208,14 +208,14 @@ export default function StrainsPage() {
                 {strains.length > 0 ? (
                   strains.map((strain) => (
                     <TableRow key={strain.id} className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-sm transition-colors hover:bg-white/80 dark:hover:bg-gray-800/80">
-                      <TableCell className="px-6 py-4 font-semibold text-gray-900 whitespace-nowrap dark:text-white">
+                      <TableCell className="px-6 py-4 font-semibold text-text whitespace-nowrap dark:text-text-dark">
                         <div className="flex items-center gap-3">
-                          <div className="w-3 h-3 bg-green-500 rounded-full shadow-sm shadow-green-500/50"></div>
+                          <div className="w-3 h-3 bg-primary rounded-full shadow-sm shadow-primary/50"></div>
                           <span className="text-base">{strain.name}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="px-6 py-4 max-w-md text-gray-600 dark:text-gray-300">
-                        <span className="line-clamp-2">{strain.description || <span className="italic text-gray-400 opacity-70">ไม่มีรายละเอียด</span>}</span>
+                      <TableCell className="px-6 py-4 max-w-md text-text-muted">
+                        <span className="line-clamp-2">{strain.description || <span className="italic opacity-70">ไม่มีรายละเอียด</span>}</span>
                       </TableCell>
                       <TableCell className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2">
@@ -235,13 +235,13 @@ export default function StrainsPage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={3} className="py-12 text-center text-gray-500">
+                    <TableCell colSpan={3} className="py-12 text-center text-text-muted">
                       <div className="flex flex-col items-center justify-center">
-                        <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-3">
-                          <HiCollection className="w-8 h-8 text-gray-400" />
+                        <div className="w-16 h-16 bg-surface dark:bg-surface-dark rounded-full flex items-center justify-center mb-3">
+                          <HiCollection className="w-8 h-8 text-text-muted" />
                         </div>
                         <span className="text-lg font-medium">ไม่พบข้อมูลสายพันธุ์</span>
-                        <p className="text-sm text-gray-400 mt-1">เริ่มเพิ่มสายพันธุ์ใหม่ได้เลย</p>
+                        <p className="text-sm text-text-muted/70 mt-1">เริ่มเพิ่มสายพันธุ์ใหม่ได้เลย</p>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -255,7 +255,7 @@ export default function StrainsPage() {
       {/* Add Modal */}
       <Modal show={showAddModal} onClose={() => setShowAddModal(false)} initialFocus={addNameRef} size="md">
         <ModalHeader className="border-b-0">
-          <span className="text-xl font-bold text-green-700 dark:text-green-400">เพิ่มสายพันธุ์ใหม่</span>
+          <span className="text-xl font-bold text-primary dark:text-primary-light">เพิ่มสายพันธุ์ใหม่</span>
         </ModalHeader>
         <ModalBody>
           {formError && (
@@ -270,7 +270,7 @@ export default function StrainsPage() {
           )}
           <div className="space-y-4">
             <div>
-              <Label htmlFor="name" className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">ชื่อสายพันธุ์ <span className="text-red-500">*</span></Label>
+              <Label htmlFor="name" className="mb-2 block font-semibold text-text dark:text-text-dark">ชื่อสายพันธุ์ <span className="text-red-500">*</span></Label>
               <TextInput
                 ref={addNameRef}
                 id="name"
@@ -280,19 +280,19 @@ export default function StrainsPage() {
                   setFormName(e.target.value);
                   setStrainDuplicateError(checkDuplicateStrainName(e.target.value));
                 }}
-                className="focus:ring-green-500"
+                className="focus:ring-primary"
                 shadow
               />
             </div>
             <div>
-              <Label htmlFor="desc" className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">รายละเอียด</Label>
+              <Label htmlFor="desc" className="mb-2 block font-semibold text-text dark:text-text-dark">รายละเอียด</Label>
               <Textarea 
                 id="desc" 
                 rows={4} 
                 placeholder="รายละเอียดเพิ่มเติมเกี่ยวกับสายพันธุ์นี้..."
                 value={formDescription} 
                 onChange={(e) => setFormDescription(e.target.value)} 
-                className="focus:ring-green-500"
+                className="focus:ring-primary"
                 shadow
               />
             </div>
@@ -302,7 +302,7 @@ export default function StrainsPage() {
           <Button color="gray" onClick={() => setShowAddModal(false)}>
             ยกเลิก
           </Button>
-          <Button className="bg-linear-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white border-none" onClick={handleAddSubmit} disabled={!!strainDuplicateError || !formName.trim()}>
+          <Button className="bg-linear-to-r from-primary to-secondary hover:from-primary-dark hover:to-secondary-dark text-white border-none" onClick={handleAddSubmit} disabled={!!strainDuplicateError || !formName.trim()}>
             บันทึกข้อมูล
           </Button>
         </ModalFooter>
@@ -311,7 +311,7 @@ export default function StrainsPage() {
       {/* Edit Modal */}
       <Modal show={showEditModal} onClose={() => setShowEditModal(false)} initialFocus={editNameRef} size="md">
         <ModalHeader className="border-b-0">
-          <span className="text-xl font-bold text-blue-700 dark:text-blue-400">แก้ไขสายพันธุ์</span>
+          <span className="text-xl font-bold text-primary dark:text-primary-light">แก้ไขสายพันธุ์</span>
         </ModalHeader>
         <ModalBody>
           {formError && (
@@ -326,7 +326,7 @@ export default function StrainsPage() {
           )}
           <div className="space-y-4">
             <div>
-              <Label htmlFor="nameEdit" className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">ชื่อสายพันธุ์ <span className="text-red-500">*</span></Label>
+              <Label htmlFor="nameEdit" className="mb-2 block font-semibold text-text dark:text-text-dark">ชื่อสายพันธุ์ <span className="text-red-500">*</span></Label>
               <TextInput
                 ref={editNameRef}
                 id="nameEdit"
@@ -335,18 +335,18 @@ export default function StrainsPage() {
                   setFormName(e.target.value);
                   setStrainDuplicateError(checkDuplicateStrainName(e.target.value, selectedStrain?.id));
                 }}
-                className="focus:ring-blue-500"
+                className="focus:ring-primary"
                 shadow
               />
             </div>
             <div>
-              <Label htmlFor="descEdit" className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">รายละเอียด</Label>
+              <Label htmlFor="descEdit" className="mb-2 block font-semibold text-text dark:text-text-dark">รายละเอียด</Label>
               <Textarea 
                 id="descEdit" 
                 rows={4} 
                 value={formDescription} 
                 onChange={(e) => setFormDescription(e.target.value)} 
-                className="focus:ring-blue-500"
+                className="focus:ring-primary"
                 shadow
               />
             </div>
@@ -356,7 +356,7 @@ export default function StrainsPage() {
           <Button color="gray" onClick={() => setShowEditModal(false)}>
             ยกเลิก
           </Button>
-          <Button className="bg-linear-to-r from-cyan-400 to-blue-500 hover:from-cyan-500 hover:to-blue-600 text-white border-none" onClick={handleEditSubmit} disabled={!!strainDuplicateError || !formName.trim()}>
+          <Button className="bg-linear-to-r from-primary to-secondary hover:from-primary-dark hover:to-secondary-dark text-white border-none" onClick={handleEditSubmit} disabled={!!strainDuplicateError || !formName.trim()}>
             บันทึกการแก้ไข
           </Button>
         </ModalFooter>
@@ -368,8 +368,8 @@ export default function StrainsPage() {
         <ModalBody>
           <div className="text-center">
             <HiTrash className="mx-auto mb-4 h-14 w-14 text-red-600 dark:text-red-200" />
-            <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-              คุณต้องการลบสายพันธุ์ <span className="font-bold text-gray-900 dark:text-white">"{selectedStrain?.name}"</span> ใช่หรือไม่?
+            <h3 className="mb-5 text-lg font-normal text-text-muted">
+              คุณต้องการลบสายพันธุ์ <span className="font-bold text-text dark:text-text-dark">"{selectedStrain?.name}"</span> ใช่หรือไม่?
             </h3>
             <div className="flex justify-center gap-4">
               <Button color="failure" onClick={handleDeleteSubmit}>

@@ -1,0 +1,57 @@
+{
+  "common": {
+    "home": "Home",
+    "strains": "Strains",
+    "batches": "Batches",
+    "addTree": "Add New Tree",
+    "search": "Search...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "back": "Back"
+  },
+  "dashboard": {
+    "title": "MyTree Journal",
+    "subtitle": "Complete plant tracking and strain comparison system",
+    "totalTrees": "Total Trees",
+    "activeTrees": "Active",
+    "harvestReady": "Ready to Harvest",
+    "completed": "Harvested",
+    "totalYield": "Total Yield",
+    "avgYield": "Avg. Yield/Plant",
+    "bestStrain": "Best Strain"
+  },
+  "tree": {
+    "nickname": "Nickname",
+    "strain": "Strain",
+    "batch": "Batch",
+    "status": "Status",
+    "location": "Location",
+    "plantDate": "Plant Date",
+    "harvestDate": "Harvest Date",
+    "age": "Age",
+    "days": "Days",
+    "yield": "Yield",
+    "sex": "Sex",
+    "growthStage": "Growth Stage",
+    "qrCode": "QR Code",
+    "plantInfo": "Plant Info",
+    "timeline": "Timeline & Journal",
+    "addNote": "Add Note"
+  },
+  "sex": {
+    "male": "Male",
+    "female": "Female",
+    "bisexual": "Bisexual",
+    "monoecious": "Monoecious",
+    "mixed": "Mixed",
+    "unknown": "Unknown"
+  },
+  "status": {
+    "alive": "Alive",
+    "dead": "Dead",
+    "harvested": "Harvested"
+  }
+}

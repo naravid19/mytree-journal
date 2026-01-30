@@ -1,6 +1,6 @@
 
 import { getApiBaseUrl } from "../app/constants";
-import { Tree, Strain, Batch } from "../app/types";
+import { Tree, Strain, Batch, TreeLog } from "../app/types";
 
 const API_BASE = getApiBaseUrl();
 
@@ -16,6 +16,11 @@ export interface TreeService {
   deleteTreeImage: (id: number) => Promise<void>;
   deleteAllTreeImages: (treeId: number) => Promise<void>;
   deleteTreeDocument: (treeId: number) => Promise<void>;
+  
+  // Logs
+  getLogs: (treeId: number) => Promise<TreeLog[]>;
+  createLog: (formData: FormData) => Promise<TreeLog>;
+  deleteLog: (id: number) => Promise<void>;
 }
 
 const handleResponse = async (res: Response) => {
@@ -111,6 +116,26 @@ export const treeService: TreeService = {
      // Based on page.tsx: `${API_BASE}/api/trees/${selectedTree.id}/delete_document/`
     const res = await fetch(`${API_BASE}/api/trees/${treeId}/delete_document/`, {
       method: "POST", // or DELETE
+    });
+    return handleResponse(res);
+  },
+
+  getLogs: async (treeId) => {
+    const res = await fetch(`${API_BASE}/api/logs/?tree=${treeId}`);
+    return handleResponse(res);
+  },
+
+  createLog: async (formData) => {
+    const res = await fetch(`${API_BASE}/api/logs/`, {
+      method: "POST",
+      body: formData,
+    });
+    return handleResponse(res);
+  },
+
+  deleteLog: async (id) => {
+    const res = await fetch(`${API_BASE}/api/logs/${id}/`, {
+      method: "DELETE",
     });
     return handleResponse(res);
   }

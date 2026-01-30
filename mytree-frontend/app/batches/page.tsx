@@ -208,21 +208,21 @@ export default function BatchesPage() {
       <main className="space-y-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400">
+            <h1 className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-linear-to-r from-primary to-secondary">
               จัดการชุดการปลูก
             </h1>
-            <p className="mt-1 text-gray-500 dark:text-gray-400">
+            <p className="mt-1 text-text-muted">
               เพิ่มและแก้ไขข้อมูลชุดการปลูกพืชของคุณ
             </p>
           </div>
           <div className="flex gap-3">
-            <Button color="gray" size="sm" className="shadow-sm hover:bg-gray-100 dark:hover:bg-gray-700 border-0" onClick={() => router.push('/')}> 
+            <Button color="gray" size="sm" className="shadow-sm hover:bg-surface-dark dark:hover:bg-gray-700 border-0" onClick={() => router.push('/')}> 
               <HiArrowLeft className="mr-2 w-4 h-4" />
               กลับหน้าหลัก
             </Button>
             <Button 
               onClick={() => { resetForm(); setShowAddModal(true); }}
-              className="shadow-lg transition-transform hover:scale-105 bg-linear-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white border-none"
+              className="shadow-lg transition-transform hover:scale-105 bg-linear-to-r from-primary to-secondary hover:from-primary-dark hover:to-secondary-dark text-white border-none"
             >
               <HiPlus className="mr-2 w-5 h-5" />
               เพิ่มชุดการปลูก
@@ -232,8 +232,8 @@ export default function BatchesPage() {
 
         <div className="glass rounded-3xl overflow-hidden shadow-xl border border-white/50 dark:border-gray-700">
           <div className="overflow-x-auto">
-            <Table hoverable className="w-full text-left text-gray-500 dark:text-gray-400">
-              <TableHead className="text-gray-700 uppercase bg-gray-50/50 dark:bg-gray-800/50 dark:text-gray-400 backdrop-blur-sm">
+            <Table hoverable className="w-full text-left text-text-muted">
+              <TableHead className="text-text-muted uppercase bg-surface/50 dark:bg-surface-dark/50 backdrop-blur-sm">
                 <TableRow>
                   <TableHeadCell className="px-6 py-4 text-sm font-bold">รหัสชุด</TableHeadCell>
                   <TableHeadCell className="px-6 py-4 text-sm font-bold">รายละเอียด</TableHeadCell>
@@ -247,16 +247,16 @@ export default function BatchesPage() {
                 {batches.length > 0 ? (
                   batches.map((batch) => (
                     <TableRow key={batch.id} className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-sm transition-colors hover:bg-white/80 dark:hover:bg-gray-800/80">
-                      <TableCell className="px-6 py-4 font-semibold text-gray-900 whitespace-nowrap dark:text-white">
+                      <TableCell className="px-6 py-4 font-semibold text-text whitespace-nowrap dark:text-text-dark">
                         <div className="flex items-center gap-3">
-                          <div className="w-3 h-3 bg-blue-500 rounded-full shadow-sm shadow-blue-500/50"></div>
+                          <div className="w-3 h-3 bg-primary rounded-full shadow-sm shadow-primary/50"></div>
                           <span className="text-base font-mono">{batch.batch_code}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="px-6 py-4 max-w-md text-gray-600 dark:text-gray-300">
-                        <span className="line-clamp-2">{batch.description || <span className="italic text-gray-400 opacity-70">ไม่มีรายละเอียด</span>}</span>
+                      <TableCell className="px-6 py-4 max-w-md text-text-muted">
+                        <span className="line-clamp-2">{batch.description || <span className="italic opacity-70">ไม่มีรายละเอียด</span>}</span>
                       </TableCell>
-                      <TableCell className="px-6 py-4 font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                      <TableCell className="px-6 py-4 font-medium text-text dark:text-text-dark whitespace-nowrap">
                         {formatThaiDate(batch.started_date)}
                       </TableCell>
                       <TableCell className="px-6 py-4 text-right">
@@ -277,13 +277,13 @@ export default function BatchesPage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4} className="py-12 text-center text-gray-500">
+                    <TableCell colSpan={4} className="py-12 text-center text-text-muted">
                       <div className="flex flex-col items-center justify-center">
-                        <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-3">
-                          <HiOutlineBeaker className="w-8 h-8 text-gray-400" />
+                        <div className="w-16 h-16 bg-surface dark:bg-surface-dark rounded-full flex items-center justify-center mb-3">
+                          <HiOutlineBeaker className="w-8 h-8 text-text-muted" />
                         </div>
                         <span className="text-lg font-medium">ไม่พบข้อมูลชุดการปลูก</span>
-                        <p className="text-sm text-gray-400 mt-1">เริ่มเพิ่มชุดการปลูกใหม่ได้เลย</p>
+                        <p className="text-sm text-text-muted/70 mt-1">เริ่มเพิ่มชุดการปลูกใหม่ได้เลย</p>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -297,7 +297,7 @@ export default function BatchesPage() {
       {/* Add Modal */}
       <Modal show={showAddModal} onClose={() => setShowAddModal(false)} initialFocus={addCodeRef} size="md">
         <ModalHeader className="border-b-0">
-          <span className="text-xl font-bold text-green-700 dark:text-green-400">เพิ่มชุดการปลูก</span>
+          <span className="text-xl font-bold text-primary dark:text-primary-light">เพิ่มชุดการปลูก</span>
         </ModalHeader>
         <ModalBody>
           {formError && (
@@ -312,7 +312,7 @@ export default function BatchesPage() {
           )}
           <div className="space-y-4">
             <div>
-              <Label htmlFor="code" className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">รหัสชุดการปลูก <span className="text-red-500">*</span></Label>
+              <Label htmlFor="code" className="mb-2 block font-semibold text-text dark:text-text-dark">รหัสชุดการปลูก <span className="text-red-500">*</span></Label>
               <TextInput
                 ref={addCodeRef}
                 id="code"
@@ -322,24 +322,24 @@ export default function BatchesPage() {
                   setFormCode(e.target.value);
                   setDuplicateError(checkDuplicateBatchCode(e.target.value));
                 }}
-                className="focus:ring-green-500"
+                className="focus:ring-primary"
                 shadow
               />
             </div>
             <div>
-              <Label htmlFor="desc" className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">รายละเอียด</Label>
+              <Label htmlFor="desc" className="mb-2 block font-semibold text-text dark:text-text-dark">รายละเอียด</Label>
               <Textarea 
                 id="desc" 
                 rows={4} 
                 placeholder="รายละเอียดเกี่ยวกับชุดการปลูกนี้..."
                 value={formDescription} 
                 onChange={(e) => setFormDescription(e.target.value)} 
-                className="focus:ring-green-500"
+                className="focus:ring-primary"
                 shadow
               />
             </div>
             <div>
-              <Label htmlFor="started" className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">วันที่เริ่มต้น</Label>
+              <Label htmlFor="started" className="mb-2 block font-semibold text-text dark:text-text-dark">วันที่เริ่มต้น</Label>
               <Datepicker
                 id="started"
                 value={formStartedDate}
@@ -347,12 +347,12 @@ export default function BatchesPage() {
                 placeholder="เลือกวันที่เริ่มต้น"
                 className="w-full"
                 showClearButton={true}
-                weekStart={0}
+                weekStart={0} // Changed from 1 Monday to 0 Sunday to fix type error if library expects 0-6
                 autoHide={true}
                 theme={{
                   popup: {
                     header: {
-                      base: "z-9999 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl p-4 flex items-center justify-between gap-2 mt-2"
+                      base: "z-9999 bg-surface dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl p-4 flex items-center justify-between gap-2 mt-2"
                     },
                     view: {
                       base: ""
@@ -370,7 +370,7 @@ export default function BatchesPage() {
           <Button color="gray" onClick={() => setShowAddModal(false)}>
             ยกเลิก
           </Button>
-          <Button className="bg-linear-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white border-none" onClick={handleAddSubmit} disabled={!!duplicateError || !!formError}>
+          <Button className="bg-linear-to-r from-primary to-secondary hover:from-primary-dark hover:to-secondary-dark text-white border-none" onClick={handleAddSubmit} disabled={!!duplicateError || !!formError}>
             บันทึกข้อมูล
           </Button>
         </ModalFooter>
@@ -379,7 +379,7 @@ export default function BatchesPage() {
       {/* Edit Modal */}
       <Modal show={showEditModal} onClose={() => setShowEditModal(false)} initialFocus={editCodeRef} size="md">
         <ModalHeader className="border-b-0">
-          <span className="text-xl font-bold text-blue-700 dark:text-blue-400">แก้ไขชุดการปลูก</span>
+          <span className="text-xl font-bold text-primary dark:text-primary-light">แก้ไขชุดการปลูก</span>
         </ModalHeader>
         <ModalBody>
           {formError && (
@@ -394,7 +394,7 @@ export default function BatchesPage() {
           )}
           <div className="space-y-4">
             <div>
-              <Label htmlFor="codeEdit" className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">รหัสชุดการปลูก <span className="text-red-500">*</span></Label>
+              <Label htmlFor="codeEdit" className="mb-2 block font-semibold text-text dark:text-text-dark">รหัสชุดการปลูก <span className="text-red-500">*</span></Label>
               <TextInput
                 ref={editCodeRef}
                 id="codeEdit"
@@ -403,23 +403,23 @@ export default function BatchesPage() {
                   setFormCode(e.target.value);
                   setDuplicateError(checkDuplicateBatchCode(e.target.value, selectedBatch?.id));
                 }}
-                className="focus:ring-blue-500"
+                className="focus:ring-primary"
                 shadow
               />
             </div>
             <div>
-              <Label htmlFor="descEdit" className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">รายละเอียด</Label>
+              <Label htmlFor="descEdit" className="mb-2 block font-semibold text-text dark:text-text-dark">รายละเอียด</Label>
               <Textarea 
                 id="descEdit" 
                 rows={4} 
                 value={formDescription} 
                 onChange={(e) => setFormDescription(e.target.value)} 
-                className="focus:ring-blue-500"
+                className="focus:ring-primary"
                 shadow
               />
             </div>
             <div>
-              <Label htmlFor="startedEdit" className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">วันที่เริ่มต้น</Label>
+              <Label htmlFor="startedEdit" className="mb-2 block font-semibold text-text dark:text-text-dark">วันที่เริ่มต้น</Label>
               <Datepicker
                 id="startedEdit"
                 value={formStartedDate}
@@ -433,7 +433,7 @@ export default function BatchesPage() {
           <Button color="gray" onClick={() => setShowEditModal(false)}>
             ยกเลิก
           </Button>
-          <Button className="bg-linear-to-r from-cyan-400 to-blue-500 hover:from-cyan-500 hover:to-blue-600 text-white border-none" onClick={handleEditSubmit} disabled={!!duplicateError || !!formError}>
+          <Button className="bg-linear-to-r from-primary to-secondary hover:from-primary-dark hover:to-secondary-dark text-white border-none" onClick={handleEditSubmit} disabled={!!duplicateError || !!formError}>
             บันทึกการแก้ไข
           </Button>
         </ModalFooter>
@@ -445,8 +445,8 @@ export default function BatchesPage() {
         <ModalBody>
           <div className="text-center">
             <HiTrash className="mx-auto mb-4 h-14 w-14 text-red-600 dark:text-red-200" />
-            <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-              คุณต้องการลบชุดการปลูก <span className="font-bold text-gray-900 dark:text-white">"{selectedBatch?.batch_code}"</span> ใช่หรือไม่?
+            <h3 className="mb-5 text-lg font-normal text-text-muted">
+              คุณต้องการลบชุดการปลูก <span className="font-bold text-text dark:text-text-dark">"{selectedBatch?.batch_code}"</span> ใช่หรือไม่?
             </h3>
             <div className="flex justify-center gap-4">
               <Button color="failure" onClick={handleDeleteSubmit}>

@@ -9,14 +9,24 @@ export const useTreeData = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true);
+      
+      // Create individual fetch promises with abort support
+      const fetchWithSignal = async <T,>(fetcher: () => Promise<T>): Promise<T> => {
+        if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
+        return fetcher();
+      };
+      
       const [treesData, strainsData, batchesData] = await Promise.all([
-        treeService.getTrees(),
-        treeService.getStrains(),
-        treeService.getBatches(),
+        fetchWithSignal(() => treeService.getTrees()),
+        fetchWithSignal(() => treeService.getStrains()),
+        fetchWithSignal(() => treeService.getBatches()),
       ]);
+
+      // Check if aborted before setting state
+      if (signal?.aborted) return;
 
       // Sort trees by ID descending (newest first) by default
       const sortedTrees = Array.isArray(treesData) 
@@ -27,9 +37,13 @@ export const useTreeData = () => {
       setStrains(Array.isArray(strainsData) ? strainsData : []);
       setBatches(Array.isArray(batchesData) ? batchesData : []);
       setError(null);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      // Ignore abort errors
+      if (err instanceof DOMException && err.name === 'AbortError') return;
+      
+      const message = err instanceof Error ? err.message : "Failed to load data";
       console.error("Error fetching data:", err);
-      setError(err.message || "Failed to load data");
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -42,13 +56,18 @@ export const useTreeData = () => {
         ? treesData.sort((a, b) => b.id - a.id) 
         : [];
       setTrees(sortedTrees);
-    } catch (err: any) {
-      console.error("Error refreshing trees:", err);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Error refreshing trees";
+      console.error("Error refreshing trees:", message);
     }
   }, []);
 
   useEffect(() => {
-    fetchData();
+    const controller = new AbortController();
+    fetchData(controller.signal);
+    
+    // Cleanup: abort fetch on unmount
+    return () => controller.abort();
   }, [fetchData]);
 
   return {

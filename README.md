@@ -81,7 +81,8 @@
 
 | Feature           | Description                                 |
 | ----------------- | ------------------------------------------- |
-| 🎨 **Modern UI**  | Glassmorphism design with smooth animations |
+| 🎨 **Modern UI**  | Organic Biophilic design with Glassmorphism |
+| 🌐 **Multi-lang** | **Thai (TH) & English (EN)** support        |
 | 📱 **Responsive** | Works on desktop, tablet, and mobile        |
 | 🌙 **Dark Mode**  | System-aware theme switching                |
 | ⚡ **Fast**       | Optimized queries and rendering             |
@@ -89,12 +90,14 @@
 
 ### Data Management
 
-| Feature              | Description                       |
-| -------------------- | --------------------------------- |
-| 📂 **Smart Folders** | Auto-organize images by tree name |
-| 🖼️ **Thumbnails**    | Automatic thumbnail generation    |
-| 📤 **Drag & Drop**   | Upload files with drag-and-drop   |
-| ✅ **Validation**    | Client and server-side validation |
+| Feature              | Description                         |
+| -------------------- | ----------------------------------- |
+| 🧬 **Genetics**      | Track lineage, parents, and strains |
+| 📅 **Timeline**      | Detailed lifecycle tracking         |
+| 🌸 **Pollination**   | Breeding and seed harvest records   |
+| 📂 **Smart Folders** | Auto-organize images by tree name   |
+| 🖼️ **Thumbnails**    | Automatic thumbnail generation      |
+| 📤 **Drag & Drop**   | Upload files with drag-and-drop     |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

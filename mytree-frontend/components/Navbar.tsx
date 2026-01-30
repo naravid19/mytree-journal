@@ -3,13 +3,19 @@
 import { DarkThemeToggle } from "flowbite-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { HiHome, HiCollection, HiOutlineBeaker, HiMenu, HiX } from "react-icons/hi";
+import { HiHome, HiCollection, HiOutlineBeaker, HiMenu, HiX, HiTranslate } from "react-icons/hi";
 import { useState, useEffect } from "react";
+import { useLanguage } from "../contexts/LanguageContext";
 
 export function AppNavbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { language, setLanguage, t } = useLanguage();
+
+  const toggleLanguage = () => {
+    setLanguage(language === "th" ? "en" : "th");
+  };
 
   // Handle scroll effect with performance optimization
   useEffect(() => {
@@ -29,8 +35,8 @@ export function AppNavbar() {
 
   const isActive = (path: string) => 
     pathname === path 
-      ? "text-primary-dark dark:text-primary-light bg-primary-light/10 dark:bg-primary/20" 
-      : "text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light hover:bg-gray-50 dark:hover:bg-gray-800/50";
+      ? "text-primary dark:text-primary-light bg-primary/10 dark:bg-primary/20 font-bold" 
+      : "text-text-muted hover:text-primary dark:hover:text-primary-light hover:bg-surface-dark/5 dark:hover:bg-surface/5";
 
   const navLinkClasses = (path: string) => 
     `flex items-center gap-2 px-4 py-2 rounded-full font-kanit font-medium transition-all duration-300 ${isActive(path)}`;
@@ -40,7 +46,7 @@ export function AppNavbar() {
       className={`
         fixed top-0 left-0 right-0 z-50 transition-all duration-300
         ${scrolled 
-          ? "bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-md py-2 border-b border-gray-200/50 dark:border-gray-800/50" 
+          ? "bg-surface/80 dark:bg-surface-dark/80 backdrop-blur-xl shadow-sm py-2 border-b border-gray-200/50 dark:border-gray-800/50 supports-backdrop-filter:bg-surface/60" 
           : "bg-transparent py-4"
         }
       `}
@@ -51,7 +57,7 @@ export function AppNavbar() {
           <div className="shrink-0 flex items-center">
             <Link 
               href="/" 
-              className="group flex items-center gap-2 text-xl font-bold tracking-tight text-primary-dark dark:text-emerald-400 font-kanit transition-transform hover:scale-105"
+              className="group flex items-center gap-2 text-xl font-bold tracking-tight text-primary-dark dark:text-primary-light font-kanit transition-transform hover:scale-105"
             >
               <span className="text-2xl group-hover:rotate-12 transition-transform duration-300">🌳</span>
               <span>MyTree Journal</span>
@@ -62,27 +68,37 @@ export function AppNavbar() {
           <div className="hidden md:flex items-center space-x-2">
             <Link href="/" className={navLinkClasses("/")}>
               <HiHome className="w-5 h-5" />
-              หน้าหลัก
+              {t("common.home")}
             </Link>
             <Link href="/strains" className={navLinkClasses("/strains")}>
               <HiCollection className="w-5 h-5" />
-              สายพันธุ์
+              {t("common.strains")}
             </Link>
             <Link href="/batches" className={navLinkClasses("/batches")}>
               <HiOutlineBeaker className="w-5 h-5" />
-              ชุดการปลูก
+              {t("common.batches")}
             </Link>
-            <div className="pl-4 ml-2 border-l border-gray-200 dark:border-gray-700">
-              <DarkThemeToggle className="focus:ring-0 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full p-2 transition-colors" />
+            <div className="pl-4 ml-2 border-l border-gray-200 dark:border-gray-700 flex items-center gap-1">
+              {/* Language Toggle */}
+              <button
+                onClick={toggleLanguage}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium text-text-muted hover:text-primary hover:bg-surface-dark/5 dark:hover:bg-surface/5 transition-colors"
+                title={language === "th" ? "Switch to English" : "เปลี่ยนเป็นภาษาไทย"}
+              >
+                <HiTranslate className="w-4 h-4" />
+                <span className="uppercase">{language}</span>
+              </button>
+              {/* Dark Mode Toggle */}
+              <DarkThemeToggle className="focus:ring-0 hover:bg-surface-dark/5 dark:hover:bg-surface/5 rounded-full p-2 transition-colors text-text-muted hover:text-primary" />
             </div>
           </div>
 
           {/* Mobile Menu Button */}
           <div className="flex items-center md:hidden gap-2">
-            <DarkThemeToggle className="focus:ring-0 rounded-full" />
+            <DarkThemeToggle className="focus:ring-0 rounded-full text-text-muted" />
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-full text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none transition-colors"
+              className="inline-flex items-center justify-center p-2 rounded-full text-text-muted hover:bg-surface-dark/5 dark:hover:bg-surface/5 focus:outline-none transition-colors"
             >
               {isOpen ? <HiX className="w-6 h-6" /> : <HiMenu className="w-6 h-6" />}
             </button>
@@ -97,7 +113,7 @@ export function AppNavbar() {
           ${isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}
         `}
       >
-        <div className="mx-4 mt-2 mb-4 rounded-2xl glass border border-white/20 dark:border-gray-700/50 p-2 space-y-1 shadow-lg">
+        <div className="mx-4 mt-2 mb-4 rounded-2xl glass border border-white/20 dark:border-gray-700/50 p-2 space-y-1 shadow-lg bg-surface/90 dark:bg-surface-dark/90 backdrop-blur-md">
           <Link 
             href="/" 
             className={`block px-4 py-3 rounded-xl text-base font-medium transition-all ${isActive("/")}`} 

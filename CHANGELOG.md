@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.0] - 2026-01-30
+
+### Added
+
+- **Internationalization (i18n)**: Complete Thai/English language support
+  - Language switcher in Navbar
+  - Context-based translation system (`LanguageContext`)
+  - Persistent language preference
+- **Tree Detail Enhancement**: Comprehensive 6-card layout displaying 20+ data points
+  - **Dates**: Germination, planting, harvest dates, and age
+  - **Genetics**: Strain, variety, genotype, phenotype, generation
+  - **Lineage**: Male/Female parents, clone source
+  - **Pollination**: pollination date, pollinator, seed count
+  - **Yield**: Weight, flower quality, tree code
+  - **Notes**: General and disease/issue notes
+- **Design System**: "Organic Biophilic" styling foundation (colors, rounded corners)
+
+### Changed
+
+- **Dark Mode**: Improved contrast ratios for text and cards in dark mode
+- **Performance**: Optimized `useTreeData` hook with `AbortController` for request cancellation
+- **Type Safety**: Enhanced `Tree` interface with strict typing for all new fields
+
+### Fixed
+
+- **Hydration Errors**: Resolved `next-themes` hydration mismatch by properly wrapping `ThemeProvider`
+- **Sex Badges**: Corrected Thai translations for plant sex labels
+
+---
+
 ## [1.3.0] - 2026-01-19
 
 ### Added
@@ -107,6 +137,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[1.4.0]: https://github.com/naravid19/mytree-journal/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/naravid19/mytree-journal/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/naravid19/mytree-journal/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/naravid19/mytree-journal/compare/v1.0.0...v1.1.0

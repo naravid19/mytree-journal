@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 from PIL import Image as PilImage, ImageOps
 from io import BytesIO
 from django.core.files.base import ContentFile
@@ -13,6 +14,23 @@ SEX_CHOICES = [
     ("monoecious", "แยกเพศในต้นเดียวกัน"),
     ("mixed", "ผสมหลายเพศ"),
     ("unknown", "ไม่ระบุ/ไม่แน่ใจ"),
+]
+
+LOG_ACTION_CHOICES = [
+    ("water", "รดน้ำเปล่า"),
+    ("feed", "รดน้ำใส่ปุ๋ย"),
+    ("flush", "Flush (ล้างดิน)"),
+    ("prune", "Pruning/Defoliation (ตัดแต่ง)"),
+    ("train", "LST/HST (ดัดกิ่ง)"),
+    ("flip", "Flip to Flower (ทำดอก)"),
+    ("harvest", "Harvest (เก็บเกี่ยว)"),
+    ("dry", "Start Drying (ตาก)"),
+    ("cure", "Start Curing (บ่ม)"),
+    ("note", "Note (บันทึกทั่วไป)"),
+    ("photo", "Photo Update (อัปเดตรูป)"),
+    ("issue", "Issue/Pest (พบปัญหา/แมลง)"),
+    ("environment", "Environment (สภาพแวดล้อม)"),
+    ("other", "อื่นๆ"),
 ]
 
 class Strain(models.Model):
@@ -67,10 +85,56 @@ def tree_thumbnail_path(instance, filename):
         return f'tree_images/{folder_name}/thumbnails/{filename}'
     return f'tree_images/unassigned/thumbnails/{filename}'
 
+class TreeLog(models.Model):
+    """บันทึกเหตุการณ์รายวัน (Journal/Timeline)"""
+    tree = models.ForeignKey(
+        'Tree', on_delete=models.CASCADE, related_name='logs',
+        help_text="ต้นไม้ที่บันทึก"
+    )
+    action_date = models.DateTimeField(
+        default=timezone.now,
+        help_text="วัน-เวลาที่เกิดเหตุการณ์"
+    )
+    action_type = models.CharField(
+        max_length=50, choices=LOG_ACTION_CHOICES, default="note",
+        help_text="ประเภทของกิจกรรม"
+    )
+    title = models.CharField(
+        max_length=200, blank=True,
+        help_text="หัวข้อสั้นๆ (ถ้ามี)"
+    )
+    notes = models.TextField(
+        blank=True,
+        help_text="รายละเอียด"
+    )
+    
+    # Environment stats (Optional)
+    ph = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True, help_text="ค่า pH")
+    ec = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="ค่า EC (uS/cm หรือ ppm)")
+    temp = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True, help_text="อุณหภูมิ (°C)")
+    humidity = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True, help_text="ความชื้น (%)")
+    
+    # Harvest stats (Optional)
+    wet_weight = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True, help_text="น้ำหนักสด (g)")
+    dry_weight = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True, help_text="น้ำหนักแห้ง (g)")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-action_date']
+
+    def __str__(self):
+        return f"{self.tree.nickname} - {self.get_action_type_display()} ({self.action_date.strftime('%Y-%m-%d')})"
+
 class Image(models.Model):
     tree = models.ForeignKey(
         'Tree', on_delete=models.CASCADE, related_name='images_set', null=True, blank=True,
         help_text="ต้นไม้ที่เป็นเจ้าของรูปภาพนี้"
+    )
+    log = models.ForeignKey(
+        TreeLog, on_delete=models.SET_NULL, related_name='images', null=True, blank=True,
+        help_text="ลิงก์กับบันทึกเหตุการณ์ (ถ้ามี)"
     )
     image = models.ImageField(
         upload_to=tree_image_path,

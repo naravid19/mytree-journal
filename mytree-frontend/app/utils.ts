@@ -76,3 +76,15 @@ export function sexLabel(sex: string): string {
     default: return '-';
   }
 }
+
+export function formatDate(dateString: string) {
+  return new Date(dateString).toLocaleDateString('th-TH', {
+      day: 'numeric', month: 'short', year: 'numeric'
+  });
+}
+
+export function formatTime(dateString: string) {
+  return new Date(dateString).toLocaleTimeString('th-TH', {
+      hour: '2-digit', minute: '2-digit'
+  });
+}

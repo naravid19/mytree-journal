@@ -1,0 +1,57 @@
+{
+  "common": {
+    "home": "หน้าหลัก",
+    "strains": "สายพันธุ์",
+    "batches": "ชุดการปลูก",
+    "addTree": "เพิ่มต้นไม้ใหม่",
+    "search": "ค้นหา...",
+    "save": "บันทึก",
+    "cancel": "ยกเลิก",
+    "delete": "ลบ",
+    "edit": "แก้ไข",
+    "view": "ดู",
+    "back": "กลับ"
+  },
+  "dashboard": {
+    "title": "MyTree Journal",
+    "subtitle": "ระบบจัดการและเปรียบเทียบสายพันธุ์ต้นไม้แบบครบวงจร",
+    "totalTrees": "ต้นไม้ทั้งหมด",
+    "activeTrees": "กำลังปลูก",
+    "harvestReady": "พร้อมเก็บเกี่ยว",
+    "completed": "เก็บเกี่ยวแล้ว",
+    "totalYield": "ผลผลิตรวม",
+    "avgYield": "ผลผลิตเฉลี่ย/ต้น",
+    "bestStrain": "สายพันธุ์ดีที่สุด"
+  },
+  "tree": {
+    "nickname": "ชื่อเล่น",
+    "strain": "สายพันธุ์",
+    "batch": "ชุดการปลูก",
+    "status": "สถานะ",
+    "location": "สถานที่",
+    "plantDate": "วันที่ปลูก",
+    "harvestDate": "วันที่เก็บเกี่ยว",
+    "age": "อายุ",
+    "days": "วัน",
+    "yield": "ผลผลิต",
+    "sex": "เพศ",
+    "growthStage": "ระยะการเจริญเติบโต",
+    "qrCode": "QR Code",
+    "plantInfo": "ข้อมูลการปลูก",
+    "timeline": "ไทม์ไลน์และบันทึก",
+    "addNote": "เพิ่มบันทึก"
+  },
+  "sex": {
+    "male": "ตัวผู้",
+    "female": "ตัวเมีย",
+    "bisexual": "สมบูรณ์เพศ",
+    "monoecious": "แยกเพศในต้นเดียวกัน",
+    "mixed": "ผสมหลายเพศ",
+    "unknown": "ไม่ระบุ/ไม่แน่ใจ"
+  },
+  "status": {
+    "alive": "มีชีวิต",
+    "dead": "ตายแล้ว",
+    "harvested": "เก็บเกี่ยวแล้ว"
+  }
+}

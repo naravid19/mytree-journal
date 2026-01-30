@@ -22,17 +22,25 @@
   --color-accent: #f59e0b; /* Amber 500 */
   --color-surface: #ffffff;
   --color-surface-dark: #111827; /* Gray 900 */
-  
+
   /* Earth Green Palette (from design system) */
-  --color-earth-green: #4A7C23;
-  --color-sky-blue: #3B82F6;
-  --color-cta-orange: #F97316;
+  --color-earth-green: #4a7c23;
+  --color-sky-blue: #3b82f6;
+  --color-cta-orange: #f97316;
+
+  /* Semantic Aliases */
+  --color-text: var(--foreground);
+  --color-text-muted: #64748b; /* Slate 500 */
+  --color-text-light: #94a3b8; /* Slate 400 */
+  --color-background-soft: #f1f5f9; /* Slate 100 */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #020617; /* Slate 950 */
     --foreground: #f1f5f9; /* Slate 100 */
+    --color-text-muted: #94a3b8; /* Slate 400 */
+    --color-background-soft: #1e293b; /* Slate 800 */
   }
 }
 
@@ -40,6 +48,8 @@
 .dark {
   --background: #020617; /* Slate 950 */
   --foreground: #f1f5f9; /* Slate 100 */
+  --color-text-muted: #94a3b8; /* Slate 400 */
+  --color-background-soft: #1e293b; /* Slate 800 */
 }
 
 body {
@@ -134,7 +144,8 @@ body {
 }
 
 @keyframes bounce-subtle {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -244,11 +255,11 @@ textarea:focus-visible {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  
+
   .hover-card:hover {
     transform: none;
   }
-  
+
   .animate-bounce,
   .animate-pulse,
   .animate-bounce-subtle {

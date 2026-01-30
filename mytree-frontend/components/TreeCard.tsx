@@ -40,7 +40,7 @@ const getSexColorClass = (sex: string) => {
 
 export const TreeCardSkeleton = () => (
   <div className="h-full w-full max-w-sm">
-    <Card className="h-full border-gray-200 shadow-sm dark:border-gray-700 dark:bg-gray-800 overflow-hidden">
+    <Card className="h-full border-gray-200 shadow-sm dark:border-gray-700 bg-surface dark:bg-surface-dark overflow-hidden">
       <div className="relative w-full h-56 bg-gray-200 animate-pulse dark:bg-gray-700" />
       <div className="flex flex-col gap-3 p-1">
         <div className="space-y-2">
@@ -117,28 +117,28 @@ export const TreeCard: React.FC<TreeCardProps> = ({ tree, onEdit, onDelete, onVi
         {/* Content Section */}
         <div className="p-4 flex flex-col gap-3">
           <div>
-            <h5 className="text-xl font-bold tracking-tight text-gray-900 font-kanit dark:text-white group-hover:text-primary dark:group-hover:text-primary-light transition-colors line-clamp-1">
+            <h5 className="text-xl font-bold tracking-tight text-text font-heading dark:text-text-dark group-hover:text-primary dark:group-hover:text-primary-light transition-colors line-clamp-1">
               {tree.nickname || "Unnamed Tree"}
             </h5>
-            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mt-1 flex items-center gap-1">
+            <p className="text-sm text-text-muted font-medium mt-1 flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-primary/50 inline-block" />
               {tree.strain?.name || "Unknown Strain"}
             </p>
           </div>
           
-          <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-600 dark:text-gray-300 font-kanit mt-1 bg-gray-50/50 dark:bg-gray-800/50 p-3 rounded-xl">
+          <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-text-muted font-kanit mt-1 bg-background/50 dark:bg-background-dark/50 p-3 rounded-xl">
             <div className="flex items-center gap-2">
               <HiLocationMarker className="w-4 h-4 text-primary/70 shrink-0" />
               <span className="truncate font-medium">{tree.location || "ไม่ระบุสถานที่"}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-wide">อายุ</span>
-              <span className="font-bold text-gray-900 dark:text-white">
+              <span className="text-xs font-bold text-text-muted/70 uppercase tracking-wide">อายุ</span>
+              <span className="font-bold text-text dark:text-text-dark">
                 {calcAge(tree, "day")} วัน
               </span>
             </div>
-            <div className="col-span-2 flex items-center gap-2 text-xs text-gray-500 border-t border-gray-200 dark:border-gray-700 pt-2 mt-1">
-              <HiCalendar className="w-4 h-4 text-gray-400 shrink-0" />
+            <div className="col-span-2 flex items-center gap-2 text-xs text-text-muted/80 border-t border-gray-200 dark:border-gray-700 pt-2 mt-1">
+              <HiCalendar className="w-4 h-4 text-text-muted/60 shrink-0" />
               <span className="font-medium">ปลูกเมื่อ {tree.plant_date}</span>
             </div>
           </div>

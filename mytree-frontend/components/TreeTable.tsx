@@ -61,49 +61,49 @@ export const TreeTable: React.FC<TreeTableProps> = ({
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 shadow-lg dark:border-gray-700">
       <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent">
-        <Table hoverable className="min-w-full text-base font-kanit dark:bg-gray-800 dark:text-gray-100">
-          <TableHead className="bg-linear-to-r from-green-50 to-blue-50 text-gray-700 uppercase dark:from-gray-700 dark:to-gray-800 dark:text-gray-200">
+        <Table hoverable className="min-w-full text-base font-kanit bg-surface text-text dark:bg-surface-dark dark:text-text-dark">
+          <TableHead className="bg-linear-to-r from-green-50 to-blue-50 text-text-muted uppercase dark:from-gray-800 dark:to-gray-900 dark:text-gray-300">
             <TableRow className="border-b border-gray-200 dark:border-gray-600">
-              <TableHeadCell className="p-2 md:p-4 w-4">
+              <TableHeadCell className="p-2 md:p-4 w-4 bg-transparent text-current">
                 <input
                   type="checkbox"
-                  className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                  className="w-4 h-4 text-primary bg-background border-gray-300 rounded focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                   checked={trees.length > 0 && trees.every((tree) => selectedIds.includes(tree.id))}
                   onChange={(e) => onSelectAll(e.target.checked, trees.map((t) => t.id))}
                   aria-label="เลือกต้นไม้ทั้งหมดในหน้านี้"
                 />
               </TableHeadCell>
               <TableHeadCell
-                className="py-2 px-2 md:py-4 md:px-6 font-bold cursor-pointer select-none hover:text-green-700 dark:hover:text-green-400 transition-colors whitespace-nowrap"
+                className="py-2 px-2 md:py-4 md:px-6 font-bold cursor-pointer select-none hover:text-primary dark:hover:text-primary-light transition-colors whitespace-nowrap bg-transparent text-current"
                 onClick={() => onSort("strain")}
               >
                 ชื่อ/สายพันธุ์ {renderSortIcon("strain")}
               </TableHeadCell>
               <TableHeadCell
-                className="py-3 px-3 md:py-4 md:px-6 font-bold cursor-pointer select-none hover:text-green-700 dark:hover:text-green-400 transition-colors hidden xl:table-cell whitespace-nowrap"
+                className="py-3 px-3 md:py-4 md:px-6 font-bold cursor-pointer select-none hover:text-primary dark:hover:text-primary-light transition-colors hidden xl:table-cell whitespace-nowrap bg-transparent text-current"
                 onClick={() => onSort("variety")}
               >
                 พันธุ์ {renderSortIcon("variety")}
               </TableHeadCell>
               <TableHeadCell
-                className="py-3 px-3 md:py-4 md:px-6 font-bold cursor-pointer select-none hover:text-green-700 dark:hover:text-green-400 transition-colors hidden lg:table-cell whitespace-nowrap"
+                className="py-3 px-3 md:py-4 md:px-6 font-bold cursor-pointer select-none hover:text-primary dark:hover:text-primary-light transition-colors hidden lg:table-cell whitespace-nowrap bg-transparent text-current"
                 onClick={() => onSort("nickname")}
               >
                 ชื่อเล่น {renderSortIcon("nickname")}
               </TableHeadCell>
               <TableHeadCell
-                className="py-3 px-3 md:py-4 md:px-6 font-bold cursor-pointer select-none hover:text-green-700 dark:hover:text-green-400 transition-colors hidden md:table-cell whitespace-nowrap"
+                className="py-3 px-3 md:py-4 md:px-6 font-bold cursor-pointer select-none hover:text-primary dark:hover:text-primary-light transition-colors hidden md:table-cell whitespace-nowrap bg-transparent text-current"
                 onClick={() => onSort("sex")}
               >
                 เพศ {renderSortIcon("sex")}
               </TableHeadCell>
               <TableHeadCell
-                className="py-3 px-3 md:py-4 md:px-6 font-bold cursor-pointer select-none hover:text-green-700 dark:hover:text-green-400 transition-colors whitespace-nowrap hidden sm:table-cell"
+                className="py-3 px-3 md:py-4 md:px-6 font-bold cursor-pointer select-none hover:text-primary dark:hover:text-primary-light transition-colors whitespace-nowrap hidden sm:table-cell bg-transparent text-current"
                 onClick={() => onSort("plant_date")}
               >
                 <div className="flex gap-3 items-center">
                   <span className="flex gap-1 items-center">
-                    <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-primary dark:text-primary-light" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z"/>
                     </svg>
                     <span>อายุ {renderSortIcon("plant_date")}</span>
@@ -118,7 +118,7 @@ export const TreeTable: React.FC<TreeTableProps> = ({
                           e.stopPropagation();
                           setAgeUnit(unit);
                         }}
-                        className={`transition-all font-kanit ${ageUnit === unit ? "font-bold ring-1 ring-green-500" : "hover:bg-gray-100 dark:hover:bg-gray-600"}`}
+                        className={`transition-all font-kanit ${ageUnit === unit ? "font-bold ring-1 ring-primary" : "hover:bg-gray-100 dark:hover:bg-gray-600"}`}
                       >
                         {unit === "day" ? "วัน" : unit === "month" ? "ด." : "ปี"}
                       </Button>
@@ -127,13 +127,13 @@ export const TreeTable: React.FC<TreeTableProps> = ({
                 </div>
               </TableHeadCell>
               <TableHeadCell
-                className="py-2 px-2 md:py-4 md:px-6 font-bold cursor-pointer select-none hover:text-green-700 dark:hover:text-green-400 transition-colors whitespace-nowrap"
+                className="py-2 px-2 md:py-4 md:px-6 font-bold cursor-pointer select-none hover:text-primary dark:hover:text-primary-light transition-colors whitespace-nowrap bg-transparent text-current"
                 onClick={() => onSort("status")}
               >
                 สถานะ {renderSortIcon("status")}
               </TableHeadCell>
-              <TableHeadCell className="py-2 px-2 md:py-4 md:px-6 font-bold whitespace-nowrap">รูป</TableHeadCell>
-              <TableHeadCell className="py-2 px-2 md:py-4 md:px-6 font-bold whitespace-nowrap text-center">จัดการ</TableHeadCell>
+              <TableHeadCell className="py-2 px-2 md:py-4 md:px-6 font-bold whitespace-nowrap bg-transparent text-current">รูป</TableHeadCell>
+              <TableHeadCell className="py-2 px-2 md:py-4 md:px-6 font-bold whitespace-nowrap text-center bg-transparent text-current">จัดการ</TableHeadCell>
             </TableRow>
           </TableHead>
           <TableBody className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -141,7 +141,7 @@ export const TreeTable: React.FC<TreeTableProps> = ({
               Array.from({ length: 3 }).map((_, i) => <SkeletonRow key={i} />)
             ) : trees.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="py-12 text-center text-gray-400 bg-white dark:bg-gray-800">
+                <TableCell colSpan={9} className="py-12 text-center text-text-muted bg-surface dark:bg-surface-dark">
                   <div className="flex flex-col items-center gap-3">
                     <span className="text-4xl">🌱</span>
                     <span className="text-lg font-medium">ยังไม่มีข้อมูลต้นไม้</span>
@@ -152,30 +152,30 @@ export const TreeTable: React.FC<TreeTableProps> = ({
               trees.map((tree) => (
                 <TableRow
                   key={tree.id}
-                  className="bg-white dark:bg-gray-800 transition-colors duration-200 cursor-pointer hover:bg-green-50/50 dark:hover:bg-gray-700/50"
+                  className="bg-surface dark:bg-surface-dark transition-colors duration-200 cursor-pointer hover:bg-green-50/50 dark:hover:bg-gray-700/50"
                   onClick={() => onRowClick(tree)}
                 >
                   <TableCell className="p-2 md:p-4 w-4">
                     <input
                       type="checkbox"
-                      className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                      className="w-4 h-4 text-primary bg-background border-gray-300 rounded focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                       checked={selectedIds.includes(tree.id)}
                       onChange={(e) => onSelect(tree.id, e.target.checked)}
                       onClick={(e) => e.stopPropagation()}
                     />
                   </TableCell>
-                  <TableCell className="px-2 py-2 md:px-6 md:py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap">
+                  <TableCell className="px-2 py-2 md:px-6 md:py-4 font-medium text-text dark:text-text-dark whitespace-nowrap">
                     <div className="flex flex-col">
                       <span className="text-sm md:text-base">{tree.nickname || tree.strain?.name || "-"}</span>
                       {tree.nickname && (
-                        <span className="text-xs text-gray-500 dark:text-gray-400 font-normal md:hidden">
+                        <span className="text-xs text-text-muted font-normal md:hidden">
                           {tree.strain?.name}
                         </span>
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="px-3 py-3 md:px-6 md:py-4 text-gray-600 dark:text-gray-300 hidden xl:table-cell whitespace-nowrap">{tree.variety}</TableCell>
-                  <TableCell className="px-3 py-3 md:px-6 md:py-4 text-gray-600 dark:text-gray-300 hidden lg:table-cell whitespace-nowrap">{tree.nickname}</TableCell>
+                  <TableCell className="px-3 py-3 md:px-6 md:py-4 text-text-muted hidden xl:table-cell whitespace-nowrap">{tree.variety}</TableCell>
+                  <TableCell className="px-3 py-3 md:px-6 md:py-4 text-text-muted hidden lg:table-cell whitespace-nowrap">{tree.nickname}</TableCell>
                   <TableCell className="px-3 py-3 md:px-6 md:py-4 hidden md:table-cell">
                     <Badge
                       className="w-fit shadow-sm"
@@ -198,7 +198,7 @@ export const TreeTable: React.FC<TreeTableProps> = ({
                       }[tree.sex] || "-"}
                     </Badge>
                   </TableCell>
-                  <TableCell className="px-3 py-3 md:px-6 md:py-4 font-mono text-gray-600 dark:text-gray-300 whitespace-nowrap hidden sm:table-cell">{calcAge(tree, ageUnit)}</TableCell>
+                  <TableCell className="px-3 py-3 md:px-6 md:py-4 font-mono text-text-muted whitespace-nowrap hidden sm:table-cell">{calcAge(tree, ageUnit)}</TableCell>
                   <TableCell className="px-2 py-2 md:px-6 md:py-4 whitespace-nowrap">
                     <Badge
                       className="w-fit shadow-sm"
@@ -273,11 +273,12 @@ export const TreeTable: React.FC<TreeTableProps> = ({
                         </div>
                       </>
                     ) : (
-                      <span className="text-xs text-gray-400 dark:text-gray-500 italic">ไม่มีรูป</span>
+                      <span className="text-xs text-text-muted italic">ไม่มีรูป</span>
                     )}
                   </TableCell>
                   <TableCell className="px-2 py-2 md:px-6 md:py-4">
                     <div className="flex items-center justify-center gap-2">
+                       {/* Render Actions */}
                       <Tooltip content="หน้าสาธารณะ">
                         <Button
                           size="xs"
@@ -289,7 +290,7 @@ export const TreeTable: React.FC<TreeTableProps> = ({
                             window.open(`/tree/${tree.id}`, '_blank');
                           }}
                         >
-                          <HiExternalLink className="w-4 h-4 text-green-600 dark:text-green-400" />
+                          <HiExternalLink className="w-4 h-4 text-primary dark:text-primary-light" />
                         </Button>
                       </Tooltip>
                        <Tooltip content="QR Code">
@@ -303,7 +304,7 @@ export const TreeTable: React.FC<TreeTableProps> = ({
                             onShowQR(tree);
                           }}
                         >
-                          <HiQrcode className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                          <HiQrcode className="w-4 h-4 text-text-muted" />
                         </Button>
                       </Tooltip>
                       <Tooltip content="แก้ไข">

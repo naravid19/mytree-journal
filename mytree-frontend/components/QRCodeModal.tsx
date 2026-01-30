@@ -17,7 +17,7 @@ export function QRCodeModal({ show, onClose, tree }: QRCodeModalProps) {
 
   if (!tree) return null;
 
-  const publicUrl = `${window.location.origin}/tree/${tree.id}`;
+  const publicUrl = `${window.location.origin}/verify/${tree.id}`;
 
   const downloadQRCode = () => {
     if (!qrRef.current) return;
@@ -36,8 +36,8 @@ export function QRCodeModal({ show, onClose, tree }: QRCodeModalProps) {
       <ModalHeader />
       <ModalBody>
         <div className="text-center">
-          <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-            QR Code สำหรับต้นไม้: <span className="font-bold text-gray-900 dark:text-white">{tree.nickname || tree.strain?.name}</span>
+          <h3 className="mb-5 text-lg font-normal text-text-muted">
+            QR Code สำหรับต้นไม้: <span className="font-bold text-text dark:text-text-dark">{tree.nickname || tree.strain?.name}</span>
           </h3>
           
           <div className="flex justify-center mb-6 p-4 bg-white rounded-xl shadow-inner mx-auto">
@@ -58,10 +58,10 @@ export function QRCodeModal({ show, onClose, tree }: QRCodeModalProps) {
             />
           </div>
           
-          <p className="text-sm text-gray-500 mb-6">
+          <p className="text-sm text-text-muted mb-6">
             สแกนเพื่อดูข้อมูลต้นไม้นี้
             <br />
-            <span className="text-xs text-gray-400">{publicUrl}</span>
+            <span className="text-xs text-text-muted/70">{publicUrl}</span>
           </p>
 
           <div className="flex justify-center gap-4">

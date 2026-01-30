@@ -91,7 +91,7 @@ export const TreeFormModal: React.FC<TreeFormModalProps> = ({
           {isEditMode ? "แก้ไขข้อมูลต้นไม้" : "เพิ่มต้นไม้ใหม่"}
         </span>
       </ModalHeader>
-      <ModalBody className="p-0 overflow-y-auto max-h-[80vh] scrollbar-thin bg-gray-50/50 dark:bg-gray-900/50">
+      <ModalBody className="p-0 overflow-y-auto max-h-[80vh] scrollbar-thin bg-background-soft/50 dark:bg-background-soft/50">
         {formError && (
           <div className="mx-6 mt-6 mb-2 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg shadow-sm dark:bg-red-900/20 dark:text-red-300">
             <div className="flex items-center">
@@ -104,15 +104,15 @@ export const TreeFormModal: React.FC<TreeFormModalProps> = ({
 
         <form onSubmit={onSubmit} className="p-6">
           {/* ข้อมูลทั่วไป */}
-          <div className="mb-8 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
-            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-6 flex items-center gap-2 border-b pb-2 dark:border-gray-700">
+          <div className="mb-8 bg-surface p-6 rounded-2xl shadow-sm border border-gray-100 dark:bg-surface-dark dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-text dark:text-text-dark mb-6 flex items-center gap-2 border-b pb-2 dark:border-gray-700">
               <span className="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-sm dark:bg-green-900 dark:text-green-300">1</span>
               ข้อมูลทั่วไป
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Strain */}
               <div>
-                <Label htmlFor="strain" className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">
+                <Label htmlFor="strain" className="mb-2 block font-semibold text-text-muted dark:text-gray-300">
                   สายพันธุ์ (Strain) <span className="text-red-500">*</span>
                 </Label>
                 <div className="relative">
@@ -135,7 +135,7 @@ export const TreeFormModal: React.FC<TreeFormModalProps> = ({
 
               {/* Batch */}
               <div>
-                <Label htmlFor="batch" className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">Batch Code</Label>
+                <Label htmlFor="batch" className="mb-2 block font-semibold text-text-muted dark:text-gray-300">Batch Code</Label>
                 <Select id="batch" name="batch_id" value={form.batch_id || ""} onChange={onChange}>
                   <option value="">-- เลือก Batch --</option>
                   {batches.map((b) => (
@@ -148,7 +148,7 @@ export const TreeFormModal: React.FC<TreeFormModalProps> = ({
 
               {/* Variety */}
               <div>
-                <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">Variety Type</Label>
+                <Label className="mb-2 block font-semibold text-text-muted dark:text-gray-300">Variety Type</Label>
                 <Select name="variety" value={form.variety} onChange={onChange}>
                   <option value="Photoperiod">Photoperiod</option>
                   <option value="Auto-flowering">Auto-flowering</option>
@@ -157,7 +157,7 @@ export const TreeFormModal: React.FC<TreeFormModalProps> = ({
 
               {/* Nickname */}
               <div>
-                <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">ชื่อเล่น (Nickname)</Label>
+                <Label className="mb-2 block font-semibold text-text-muted dark:text-gray-300">ชื่อเล่น (Nickname)</Label>
                 <TextInput
                   name="nickname"
                   value={form.nickname}
@@ -168,7 +168,7 @@ export const TreeFormModal: React.FC<TreeFormModalProps> = ({
 
               {/* Sex */}
               <div>
-                <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">เพศ (Sex)</Label>
+                <Label className="mb-2 block font-semibold text-text-muted dark:text-gray-300">เพศ (Sex)</Label>
                 <Select name="sex" value={form.sex} onChange={onChange} ref={initialRef}>
                    {SEX_OPTIONS.map((option) => (
                       <option key={option.value} value={option.value}>{option.label}</option>
@@ -178,7 +178,7 @@ export const TreeFormModal: React.FC<TreeFormModalProps> = ({
 
               {/* Clone Source */}
               <div>
-                <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">ต้นแม่ (Clone Source ID)</Label>
+                <Label className="mb-2 block font-semibold text-text-muted dark:text-gray-300">ต้นแม่ (Clone Source ID)</Label>
                 <TextInput
                   type="number"
                   name="clone_source"
@@ -190,7 +190,7 @@ export const TreeFormModal: React.FC<TreeFormModalProps> = ({
 
               {/* Generation */}
               <div>
-                <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">รุ่น (Generation)</Label>
+                <Label className="mb-2 block font-semibold text-text-muted dark:text-gray-300">รุ่น (Generation)</Label>
                 <TextInput
                   name="generation"
                   value={form.generation}
@@ -201,7 +201,7 @@ export const TreeFormModal: React.FC<TreeFormModalProps> = ({
 
               {/* Location */}
               <div>
-                <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">สถานที่ปลูก</Label>
+                <Label className="mb-2 block font-semibold text-text-muted dark:text-gray-300">สถานที่ปลูก</Label>
                 <TextInput
                   name="location"
                   value={form.location}
@@ -212,7 +212,7 @@ export const TreeFormModal: React.FC<TreeFormModalProps> = ({
 
               {/* Status */}
               <div>
-                <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">สถานะ</Label>
+                <Label className="mb-2 block font-semibold text-text-muted dark:text-gray-300">สถานะ</Label>
                 <Select name="status" value={form.status} onChange={onChange}>
                    {Object.values(TREE_STATUS).map((status) => (
                         <option key={status} value={status}>{status}</option>
@@ -223,14 +223,14 @@ export const TreeFormModal: React.FC<TreeFormModalProps> = ({
           </div>
 
           {/* ไทม์ไลน์และการเติบโต */}
-          <div className="mb-8 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
-            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-6 flex items-center gap-2 border-b pb-2 dark:border-gray-700">
+          <div className="mb-8 bg-surface p-6 rounded-2xl shadow-sm border border-gray-100 dark:bg-surface-dark dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-text dark:text-text-dark mb-6 flex items-center gap-2 border-b pb-2 dark:border-gray-700">
               <span className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm dark:bg-blue-900 dark:text-blue-300">2</span>
               ไทม์ไลน์ & การเติบโต
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
-                <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">วันที่เริ่มงอก</Label>
+                <Label className="mb-2 block font-semibold text-text-muted dark:text-gray-300">วันที่เริ่มงอก</Label>
                 <TextInput
                   type="date"
                   name="germination_date"
@@ -239,7 +239,7 @@ export const TreeFormModal: React.FC<TreeFormModalProps> = ({
                 />
               </div>
               <div>
-                <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">วันที่ปลูก (Plant Date)</Label>
+                <Label className="mb-2 block font-semibold text-text-muted dark:text-gray-300">วันที่ปลูก (Plant Date)</Label>
                 <TextInput
                   type="date"
                   name="plant_date"
@@ -249,7 +249,7 @@ export const TreeFormModal: React.FC<TreeFormModalProps> = ({
                 />
               </div>
               <div>
-                <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">ระยะการเจริญเติบโต</Label>
+                <Label className="mb-2 block font-semibold text-text-muted dark:text-gray-300">ระยะการเจริญเติบโต</Label>
                 <Select name="growth_stage" value={form.growth_stage} onChange={onChange}>
                     {GROWTH_STAGE_OPTIONS.map((option) => (
                         <option key={option.value} value={option.value}>{option.label}</option>
@@ -260,56 +260,56 @@ export const TreeFormModal: React.FC<TreeFormModalProps> = ({
           </div>
 
            {/* พันธุกรรมและการผสมพันธุ์ */}
-           <div className="mb-8 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
-            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-6 flex items-center gap-2 border-b pb-2 dark:border-gray-700">
+           <div className="mb-8 bg-surface p-6 rounded-2xl shadow-sm border border-gray-100 dark:bg-surface-dark dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-text dark:text-text-dark mb-6 flex items-center gap-2 border-b pb-2 dark:border-gray-700">
               <span className="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-sm dark:bg-purple-900 dark:text-purple-300">3</span>
               พันธุกรรม & การผสมพันธุ์
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                  <div>
-                    <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">พ่อพันธุ์ (Male ID)</Label>
+                    <Label className="mb-2 block font-semibold text-text-muted dark:text-gray-300">พ่อพันธุ์ (Male ID)</Label>
                     <TextInput type="number" name="parent_male" value={form.parent_male || ""} onChange={onChange} placeholder="ID" />
                  </div>
                  <div>
-                    <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">แม่พันธุ์ (Female ID)</Label>
+                    <Label className="mb-2 block font-semibold text-text-muted dark:text-gray-300">แม่พันธุ์ (Female ID)</Label>
                     <TextInput type="number" name="parent_female" value={form.parent_female || ""} onChange={onChange} placeholder="ID" />
                  </div>
                  <div>
-                    <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">ผสมโดย (Pollinated By ID)</Label>
+                    <Label className="mb-2 block font-semibold text-text-muted dark:text-gray-300">ผสมโดย (Pollinated By ID)</Label>
                     <TextInput type="number" name="pollinated_by" value={form.pollinated_by || ""} onChange={onChange} placeholder="ID" />
                  </div>
                  <div>
-                    <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">วันที่ผสมเกสร</Label>
+                    <Label className="mb-2 block font-semibold text-text-muted dark:text-gray-300">วันที่ผสมเกสร</Label>
                     <TextInput type="date" name="pollination_date" value={form.pollination_date} onChange={onChange} />
                  </div>
             </div>
           </div>
 
           {/* การเก็บเกี่ยว */}
-          <div className="mb-8 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
-            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-6 flex items-center gap-2 border-b pb-2 dark:border-gray-700">
+          <div className="mb-8 bg-surface p-6 rounded-2xl shadow-sm border border-gray-100 dark:bg-surface-dark dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-text dark:text-text-dark mb-6 flex items-center gap-2 border-b pb-2 dark:border-gray-700">
               <span className="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-sm dark:bg-amber-900 dark:text-amber-300">4</span>
               การเก็บเกี่ยว
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                  <div>
-                    <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">วันที่เก็บเกี่ยว</Label>
+                    <Label className="mb-2 block font-semibold text-text-muted dark:text-gray-300">วันที่เก็บเกี่ยว</Label>
                     <TextInput type="date" name="harvest_date" value={form.harvest_date} onChange={onChange} />
                  </div>
                  <div>
-                    <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">ปริมาณผลผลิต (g)</Label>
+                    <Label className="mb-2 block font-semibold text-text-muted dark:text-gray-300">ปริมาณผลผลิต (g)</Label>
                     <TextInput type="number" name="yield_amount" value={form.yield_amount || ""} onChange={onChange} step="0.01" />
                  </div>
                  <div>
-                    <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">คุณภาพดอก</Label>
+                    <Label className="mb-2 block font-semibold text-text-muted dark:text-gray-300">คุณภาพดอก</Label>
                     <TextInput name="flower_quality" value={form.flower_quality} onChange={onChange} />
                  </div>
                  <div>
-                    <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">จำนวนเมล็ดที่ได้</Label>
+                    <Label className="mb-2 block font-semibold text-text-muted dark:text-gray-300">จำนวนเมล็ดที่ได้</Label>
                     <TextInput type="number" name="seed_count" value={form.seed_count || ""} onChange={onChange} />
                  </div>
                  <div>
-                    <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">วันที่เก็บเมล็ด</Label>
+                    <Label className="mb-2 block font-semibold text-text-muted dark:text-gray-300">วันที่เก็บเมล็ด</Label>
                     <TextInput type="date" name="seed_harvest_date" value={form.seed_harvest_date} onChange={onChange} />
                  </div>
             </div>
@@ -317,8 +317,8 @@ export const TreeFormModal: React.FC<TreeFormModalProps> = ({
 
 
           {/* Documents & Images */}
-          <div className="mb-8 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
-             <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-6 flex items-center gap-2 border-b pb-2 dark:border-gray-700">
+          <div className="mb-8 bg-surface p-6 rounded-2xl shadow-sm border border-gray-100 dark:bg-surface-dark dark:border-gray-700">
+             <h3 className="text-lg font-semibold text-text dark:text-text-dark mb-6 flex items-center gap-2 border-b pb-2 dark:border-gray-700">
               <span className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm dark:bg-indigo-900 dark:text-indigo-300">5</span>
               เอกสาร & รูปภาพ
             </h3>
@@ -326,9 +326,9 @@ export const TreeFormModal: React.FC<TreeFormModalProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                {/* Document Upload */}
                <div>
-                  <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">เอกสารแนบ (PDF/Image)</Label>
+                  <Label className="mb-2 block font-semibold text-text-muted dark:text-gray-300">เอกสารแนบ (PDF/Image)</Label>
                   <div
-                    className={`flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all ${
+                    className={`flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-xl cursor-pointer bg-background-soft hover:bg-gray-100 transition-all ${
                       isDraggingDoc 
                       ? "border-green-500 bg-green-50 dark:bg-green-900/10" 
                       : "border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
@@ -340,10 +340,10 @@ export const TreeFormModal: React.FC<TreeFormModalProps> = ({
                   >
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
                       <HiUpload className={`w-8 h-8 mb-3 ${isDraggingDoc ? "text-green-500" : "text-gray-400"}`} />
-                      <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                      <p className="mb-2 text-sm text-text-muted dark:text-gray-400">
                         <span className="font-semibold">คลิกเพื่ออัปโหลด</span> หรือลากไฟล์มาวาง
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">PDF, PNG, JPG (MAX. 20MB)</p>
+                      <p className="text-xs text-text-muted dark:text-gray-400">PDF, PNG, JPG (MAX. 20MB)</p>
                     </div>
                     <FileInput
                       id="document"
@@ -363,9 +363,9 @@ export const TreeFormModal: React.FC<TreeFormModalProps> = ({
 
                {/* Image Upload */}
                <div>
-                  <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">รูปภาพ (Multi-upload)</Label>
+                  <Label className="mb-2 block font-semibold text-text-muted dark:text-gray-300">รูปภาพ (Multi-upload)</Label>
                   <div
-                    className={`flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all ${
+                    className={`flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-xl cursor-pointer bg-background-soft hover:bg-gray-100 transition-all ${
                       isDraggingImages
                       ? "border-green-500 bg-green-50 dark:bg-green-900/10" 
                       : "border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
@@ -377,10 +377,10 @@ export const TreeFormModal: React.FC<TreeFormModalProps> = ({
                   >
                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
                       <HiUpload className={`w-8 h-8 mb-3 ${isDraggingImages ? "text-green-500" : "text-gray-400"}`} />
-                      <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                      <p className="mb-2 text-sm text-text-muted dark:text-gray-400">
                         <span className="font-semibold">คลิกเพื่ออัปโหลด</span> หรือลากไฟล์มาวาง
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">PNG, JPG (MAX. 20MB)</p>
+                      <p className="text-xs text-text-muted dark:text-gray-400">PNG, JPG (MAX. 20MB)</p>
                     </div>
                     <FileInput
                       id="images"
@@ -427,8 +427,8 @@ export const TreeFormModal: React.FC<TreeFormModalProps> = ({
           </div>
           
           {/* หมายเหตุ */}
-          <div className="mb-8 p-6 rounded-2xl border border-gray-100 bg-white dark:bg-gray-800 dark:border-gray-700">
-             <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">หมายเหตุเพิ่มเติม</Label>
+          <div className="mb-8 p-6 rounded-2xl border border-gray-100 bg-surface dark:bg-surface-dark dark:border-gray-700">
+             <Label className="mb-2 block font-semibold text-text-muted dark:text-gray-300">หมายเหตุเพิ่มเติม</Label>
              <Textarea
                 name="notes"
                 value={form.notes}
@@ -441,7 +441,7 @@ export const TreeFormModal: React.FC<TreeFormModalProps> = ({
           <button type="submit" className="hidden" aria-hidden="true" />
         </form>
       </ModalBody>
-      <ModalFooter className="gap-3 justify-end pt-4 rounded-b-2xl bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-700">
+      <ModalFooter className="gap-3 justify-end pt-4 rounded-b-2xl bg-surface dark:bg-gray-900 border-t border-gray-100 dark:border-gray-700">
         <Button
            onClick={onSubmit}
            disabled={submitting}

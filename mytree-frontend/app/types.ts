@@ -1,3 +1,4 @@
+
 export type Image = {
   id: number;
   image: string;
@@ -19,6 +20,28 @@ export type Batch = {
   started_date: string;
 };
 
+export interface TreeLog {
+  id: number;
+  tree: number;
+  action_date: string;
+  action_type: "water" | "feed" | "flush" | "prune" | "train" | "flip" | "harvest" | "dry" | "cure" | "note" | "photo" | "issue" | "environment" | "other";
+  title?: string;
+  notes?: string;
+  ph?: number;
+  ec?: number;
+  temp?: number;
+  humidity?: number;
+  // Harvest Data
+  wet_weight?: number; // Grams
+  dry_weight?: number; // Grams
+  trim_weight?: number; // Grams
+  created_at: string;
+  images: Image[];
+}
+
+
+export type SexType = "bisexual" | "male" | "female" | "monoecious" | "mixed" | "unknown";
+
 export type Tree = {
   id: number;
   nickname: string;
@@ -33,7 +56,7 @@ export type Tree = {
   plant_date: string;
   growth_stage: string;
   harvest_date: string;
-  sex: string;
+  sex: SexType;
   genotype: string;
   phenotype: string;
   parent_male: number | null;
@@ -53,4 +76,5 @@ export type Tree = {
   notes: string;
   generation?: string;
   code?: string;
+  latest_log?: TreeLog;
 };
