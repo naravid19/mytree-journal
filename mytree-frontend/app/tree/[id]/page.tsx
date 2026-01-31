@@ -1,48 +1,60 @@
+'use client';
 
-"use client";
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { Tree, TreeLog } from '../../types';
+import { treeService } from '../../../services/treeService';
+import { TreeTimeline } from '../../../components/TreeTimeline';
+import { Button, Spinner } from 'flowbite-react';
+import {
+  HiChevronLeft,
+  HiQrcode,
+  HiCalendar,
+  HiBeaker,
+  HiUserGroup,
+  HiSparkles,
+  HiChartBar,
+  HiDocumentText,
+} from 'react-icons/hi';
+import { formatDate, calcAge, sexLabel } from '../../utils';
+import { QRCodeModal } from '../../../components/QRCodeModal';
 
-import React, { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { Tree, TreeLog } from "../../types";
-import { treeService } from "../../../services/treeService";
-import { TreeTimeline } from "../../../components/TreeTimeline";
-import { Button, Spinner } from "flowbite-react";
-import { HiHome, HiChevronLeft, HiChevronRight, HiPencil, HiQrcode } from "react-icons/hi";
-import { formatDate, calcAge, sexLabel } from "../../utils";
-import { QRCodeModal } from "../../../components/QRCodeModal";
-
+/**
+ * TreeDetailPage - Displays detailed information about a single tree
+ * Includes hero image, main info card, timeline, and metadata sections
+ */
 export default function TreeDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = params?.id as string;
-  
+
   const [tree, setTree] = useState<Tree | null>(null);
   const [logs, setLogs] = useState<TreeLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [showQRModal, setShowQRModal] = useState(false);
 
-  const fetchData = async () => {
+  // Memoized fetch function to prevent recreation on every render
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       const [treeData, logsData] = await Promise.all([
         treeService.getTree(id),
-        treeService.getLogs(Number(id))
+        treeService.getLogs(Number(id)),
       ]);
       setTree(treeData);
       setLogs(logsData);
     } catch (error) {
-      console.error(error);
-      // alert("ไม่สามารถโหลดข้อมูลได้");
+      console.error('Failed to fetch tree data:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     if (id) {
       fetchData();
     }
-  }, [id]);
+  }, [id, fetchData]);
 
   const handleAddLog = async (formData: FormData) => {
     try {
@@ -185,10 +197,13 @@ export default function TreeDetailPage() {
           {/* 🌟 Detailed Information Grid */}
           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
              
-             {/* 📅 วันที่สำคัญ */}
-             <div className="bg-surface dark:bg-surface-dark rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-                <h3 className="font-bold text-text dark:text-text-dark mb-4 flex items-center gap-2">
-                   <span className="text-lg">📅</span> วันที่สำคัญ
+             {/* วันที่สำคัญ */}
+             <div className="clay-card-sm p-6">
+                <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
+                   <div className="w-8 h-8 rounded-lg bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white">
+                      <HiCalendar className="w-4 h-4" />
+                   </div>
+                   วันที่สำคัญ
                 </h3>
                 <ul className="space-y-3 text-sm">
                    <li className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
@@ -210,10 +225,13 @@ export default function TreeDetailPage() {
                 </ul>
              </div>
 
-             {/* 🧬 พันธุกรรม & การผสมพันธุ์ */}
-             <div className="bg-surface dark:bg-surface-dark rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-                <h3 className="font-bold text-text dark:text-text-dark mb-4 flex items-center gap-2">
-                   <span className="text-lg">🧬</span> พันธุกรรม
+             {/* พันธุกรรม */}
+             <div className="clay-card-sm p-6">
+                <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
+                   <div className="w-8 h-8 rounded-lg bg-linear-to-br from-purple-500 to-pink-600 flex items-center justify-center text-white">
+                      <HiBeaker className="w-4 h-4" />
+                   </div>
+                   พันธุกรรม
                 </h3>
                 <ul className="space-y-3 text-sm">
                    <li className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
@@ -239,10 +257,13 @@ export default function TreeDetailPage() {
                 </ul>
              </div>
 
-             {/* 👨‍👩‍👧 สายเลือด & Clone */}
-             <div className="bg-surface dark:bg-surface-dark rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-                <h3 className="font-bold text-text dark:text-text-dark mb-4 flex items-center gap-2">
-                   <span className="text-lg">👨‍👩‍👧</span> สายเลือด
+             {/* สายเลือด */}
+             <div className="clay-card-sm p-6">
+                <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
+                   <div className="w-8 h-8 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white">
+                      <HiUserGroup className="w-4 h-4" />
+                   </div>
+                   สายเลือด
                 </h3>
                 <ul className="space-y-3 text-sm">
                    <li className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
@@ -264,10 +285,13 @@ export default function TreeDetailPage() {
                 </ul>
              </div>
 
-             {/* 🌸 การผสมเกสร & เมล็ด */}
-             <div className="bg-surface dark:bg-surface-dark rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-                <h3 className="font-bold text-text dark:text-text-dark mb-4 flex items-center gap-2">
-                   <span className="text-lg">🌸</span> การผสมเกสร & เมล็ด
+             {/* การผสมเกสร & เมล็ด */}
+             <div className="clay-card-sm p-6">
+                <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
+                   <div className="w-8 h-8 rounded-lg bg-linear-to-br from-pink-500 to-rose-600 flex items-center justify-center text-white">
+                      <HiSparkles className="w-4 h-4" />
+                   </div>
+                   การผสมเกสร & เมล็ด
                 </h3>
                 <ul className="space-y-3 text-sm">
                    <li className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
@@ -289,10 +313,13 @@ export default function TreeDetailPage() {
                 </ul>
              </div>
 
-             {/* 📊 ผลผลิต & คุณภาพ */}
-             <div className="bg-surface dark:bg-surface-dark rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-                <h3 className="font-bold text-text dark:text-text-dark mb-4 flex items-center gap-2">
-                   <span className="text-lg">📊</span> ผลผลิต & คุณภาพ
+             {/* ผลผลิต & คุณภาพ */}
+             <div className="clay-card-sm p-6">
+                <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
+                   <div className="w-8 h-8 rounded-lg bg-linear-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white">
+                      <HiChartBar className="w-4 h-4" />
+                   </div>
+                   ผลผลิต & คุณภาพ
                 </h3>
                 <ul className="space-y-3 text-sm">
                    <li className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
@@ -310,10 +337,13 @@ export default function TreeDetailPage() {
                 </ul>
              </div>
 
-             {/* 📝 หมายเหตุ */}
-             <div className="bg-surface dark:bg-surface-dark rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-                <h3 className="font-bold text-text dark:text-text-dark mb-4 flex items-center gap-2">
-                   <span className="text-lg">📝</span> หมายเหตุ
+             {/* หมายเหตุ */}
+             <div className="clay-card-sm p-6">
+                <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
+                   <div className="w-8 h-8 rounded-lg bg-linear-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white">
+                      <HiDocumentText className="w-4 h-4" />
+                   </div>
+                   หมายเหตุ
                 </h3>
                 <div className="space-y-4 text-sm">
                    {tree.notes && (

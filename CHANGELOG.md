@@ -7,6 +7,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.5.0] - 2026-01-31
+
+### Added
+
+- **Design System**: "Organic Biophilic + Bento Grids + Claymorphism" implementation
+  - `.clay-card` and `.clay-card-sm` CSS classes for soft 3D shadows
+  - `.clay-btn` for premium button styling
+  - `.bento-grid` responsive grid layout with hero cards
+- **Type Definitions**: Comprehensive TypeScript types in `types.ts`
+  - Base types (`BaseEntity`, `TimestampedEntity`)
+  - Enum-like types (`TreeStatus`, `GrowthStage`, `LogActionType`)
+  - Utility types (`TreeInput`, `TreeListItem`, `TreeLogInput`)
+- **Constants**: New `constants/treeStatus.ts` with centralized status values
+- **Components**: Reusable `InfoCard` component for tree detail sections
+- **API Service**: Custom `ApiError` class with HTTP status codes
+
+### Changed
+
+- **Performance Optimizations**:
+  - `useCallback` for stable function references in `Navbar` and `TreeDetailPage`
+  - `useMemo` for computed values in `TreeCard` (thumbnail, statusBadgeClass)
+  - Passive scroll event listeners for better scroll performance
+  - `{ passive: true }` on scroll handlers
+- **Code Quality**:
+  - Removed unused imports across all components
+  - Extracted magic strings to constants (`TREE_STATUS`, `ENDPOINTS`)
+  - Added JSDoc documentation to all services and key components
+  - Consistent single-quote strings and formatting
+- **Navbar**: Extracted nav items to array, added mobile language toggle
+- **TreeService**: Refactored with `ENDPOINTS` constant, typed `handleResponse<T>`
+- **DashboardStats**: Uses `StatItem` interface and `treeStatus` constants
+
+### Fixed
+
+- **Lint Errors**: Replaced `bg-gradient-to-br` with `bg-linear-to-br` (Tailwind CSS v4 syntax)
+- **TreeCardSkeleton**: Changed from `Card` component to div with clay-card styling
+- **Accessibility**: Added `aria-hidden`, `aria-label`, `aria-expanded` across components
+- **ESLint Warning**: Fixed missing dependencies in useEffect hooks
+
+---
+
 ## [1.4.0] - 2026-01-30
 
 ### Added
@@ -137,6 +178,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[1.5.0]: https://github.com/naravid19/mytree-journal/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/naravid19/mytree-journal/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/naravid19/mytree-journal/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/naravid19/mytree-journal/compare/v1.1.0...v1.2.0

@@ -1,11 +1,26 @@
-import React from "react";
-import { Card, Badge, Button, Tooltip } from "flowbite-react";
-import { Tree } from "../app/types";
-import { HiPencil, HiTrash, HiEye, HiPhotograph, HiCalendar, HiLocationMarker, HiQrcode, HiExternalLink } from "react-icons/hi";
-import { TbGenderMale, TbGenderFemale, TbGenderBigender, TbGenderAgender, TbHelp } from "react-icons/tb";
-import Image from "next/image";
-import Link from "next/link";
-import { calcAge, sexLabel, getSecureImageUrl } from "../app/utils";
+import React, { useMemo } from 'react';
+import { Button, Tooltip } from 'flowbite-react';
+import { Tree } from '../app/types';
+import {
+  HiPencil,
+  HiTrash,
+  HiEye,
+  HiPhotograph,
+  HiCalendar,
+  HiLocationMarker,
+  HiQrcode,
+  HiExternalLink,
+} from 'react-icons/hi';
+import {
+  TbGenderMale,
+  TbGenderFemale,
+  TbGenderBigender,
+  TbHelp,
+} from 'react-icons/tb';
+import Image from 'next/image';
+import Link from 'next/link';
+import { calcAge, sexLabel, getSecureImageUrl, getSexColorClass } from '../app/utils';
+import { TREE_STATUS } from '../constants/treeStatus';
 
 interface TreeCardProps {
   tree: Tree;
@@ -15,34 +30,35 @@ interface TreeCardProps {
   onShowQR: (tree: Tree) => void;
 }
 
-const getSexIcon = (sex: string) => {
+/**
+ * Get the appropriate gender icon for a tree
+ */
+const getSexIcon = (sex: string): React.ReactNode => {
+  const iconClass = 'w-4 h-4';
   switch (sex) {
-    case 'male': return <TbGenderMale className="w-4 h-4" />;
-    case 'female': return <TbGenderFemale className="w-4 h-4" />;
-    case 'bisexual': return <TbGenderBigender className="w-4 h-4" />;
-    case 'mixed': return <TbGenderBigender className="w-4 h-4" />; // Using Bigender for mixed as well
-    case 'monoecious': return <TbGenderBigender className="w-4 h-4" />; // Using Bigender for monoecious
-    case 'unknown': return <TbHelp className="w-4 h-4" />;
-    default: return <TbHelp className="w-4 h-4" />;
+    case 'male':
+      return <TbGenderMale className={iconClass} aria-hidden="true" />;
+    case 'female':
+      return <TbGenderFemale className={iconClass} aria-hidden="true" />;
+    case 'bisexual':
+    case 'mixed':
+    case 'monoecious':
+      return <TbGenderBigender className={iconClass} aria-hidden="true" />;
+    default:
+      return <TbHelp className={iconClass} aria-hidden="true" />;
   }
 };
 
-const getSexColorClass = (sex: string) => {
-  switch (sex) {
-    case 'male': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 border-blue-200 dark:border-blue-800';
-    case 'female': return 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-300 border-pink-200 dark:border-pink-800';
-    case 'bisexual': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300 border-purple-200 dark:border-purple-800';
-    case 'mixed': return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300 border-orange-200 dark:border-orange-800';
-    case 'monoecious': return 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300 border-teal-200 dark:border-teal-800';
-    default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600';
-  }
-};
 
-export const TreeCardSkeleton = () => (
-  <div className="h-full w-full max-w-sm">
-    <Card className="h-full border-gray-200 shadow-sm dark:border-gray-700 bg-surface dark:bg-surface-dark overflow-hidden">
-      <div className="relative w-full h-56 bg-gray-200 animate-pulse dark:bg-gray-700" />
-      <div className="flex flex-col gap-3 p-1">
+/**
+ * TreeCardSkeleton - Loading placeholder for TreeCard
+ * Uses clay-card styling for consistent appearance
+ */
+export const TreeCardSkeleton: React.FC = () => (
+  <div className="h-full w-full max-w-sm" role="status" aria-label="กำลังโหลด">
+    <div className="h-full clay-card overflow-hidden">
+      <div className="relative w-full aspect-4/3 bg-gray-200 animate-pulse dark:bg-gray-700" />
+      <div className="flex flex-col gap-3 p-4">
         <div className="space-y-2">
           <div className="h-6 w-3/4 bg-gray-200 rounded animate-pulse dark:bg-gray-700" />
           <div className="h-4 w-1/2 bg-gray-200 rounded animate-pulse dark:bg-gray-700" />
@@ -54,23 +70,39 @@ export const TreeCardSkeleton = () => (
         </div>
         <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
           <div className="h-8 w-16 bg-gray-200 rounded animate-pulse dark:bg-gray-700" />
-          <div className="h-8 w-8 bg-gray-200 rounded animate-pulse dark:bg-gray-700" />
-          <div className="h-8 w-8 bg-gray-200 rounded animate-pulse dark:bg-gray-700" />
+          <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse dark:bg-gray-700" />
+          <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse dark:bg-gray-700" />
         </div>
       </div>
-    </Card>
+    </div>
   </div>
 );
 
+/**
+ * TreeCard - Displays a single tree in a card format
+ * Uses Claymorphism styling with hover effects
+ */
 export const TreeCard: React.FC<TreeCardProps> = ({ tree, onEdit, onDelete, onView, onShowQR }) => {
-  const thumbnail = tree.images.length > 0 ? getSecureImageUrl(tree.images[0].thumbnail || tree.images[0].image) : null;
+  // Memoize thumbnail URL to prevent recalculation on every render
+  const thumbnail = useMemo(() => {
+    if (tree.images.length === 0) return null;
+    return getSecureImageUrl(tree.images[0].thumbnail || tree.images[0].image);
+  }, [tree.images]);
+
+  // Memoize status badge class for performance
+  const statusBadgeClass = useMemo(() => {
+    return tree.status === TREE_STATUS.ALIVE
+      ? 'bg-green-500/90 text-white'
+      : 'bg-red-500/90 text-white';
+  }, [tree.status]);
+
 
   return (
     <div 
       onClick={() => onView(tree)}
-      className="group relative h-full w-full max-w-sm cursor-pointer hover-card"
+      className="group relative h-full w-full max-w-sm cursor-pointer"
     >
-      <div className="h-full rounded-2xl overflow-hidden glass border border-white/40 dark:border-gray-700 transition-all duration-300">
+      <div className="h-full clay-card overflow-hidden transition-all duration-300">
         {/* Image Section */}
         <div className="relative w-full aspect-4/3 bg-gray-100 overflow-hidden dark:bg-gray-800">
           {thumbnail ? (
@@ -89,12 +121,9 @@ export const TreeCard: React.FC<TreeCardProps> = ({ tree, onEdit, onDelete, onVi
           
           {/* Status Badge (Top Right) */}
           <div className="absolute top-3 right-3 z-10">
-            <span className={`
-              px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm backdrop-blur-md
-              ${tree.status === "มีชีวิต" 
-                ? "bg-green-500/90 text-white" 
-                : "bg-red-500/90 text-white"}
-            `}>
+            <span
+              className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm backdrop-blur-md ${statusBadgeClass}`}
+            >
               {tree.status}
             </span>
           </div>

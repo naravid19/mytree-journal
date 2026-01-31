@@ -79,14 +79,15 @@
 
 ### User Experience
 
-| Feature           | Description                                 |
-| ----------------- | ------------------------------------------- |
-| 🎨 **Modern UI**  | Organic Biophilic design with Glassmorphism |
-| 🌐 **Multi-lang** | **Thai (TH) & English (EN)** support        |
-| 📱 **Responsive** | Works on desktop, tablet, and mobile        |
-| 🌙 **Dark Mode**  | System-aware theme switching                |
-| ⚡ **Fast**       | Optimized queries and rendering             |
-| ♿ **Accessible** | ARIA labels and keyboard navigation         |
+| Feature           | Description                             |
+| ----------------- | --------------------------------------- |
+| 🎨 **Modern UI**  | Organic Biophilic + Claymorphism design |
+| 🧱 **Bento Grid** | Responsive dashboard with hero cards    |
+| 🌐 **Multi-lang** | **Thai (TH) & English (EN)** support    |
+| 📱 **Responsive** | Works on desktop, tablet, and mobile    |
+| 🌙 **Dark Mode**  | System-aware theme switching            |
+| ⚡ **Fast**       | useMemo, useCallback optimizations      |
+| ♿ **Accessible** | ARIA labels and keyboard navigation     |
 
 ### Data Management
 
@@ -141,10 +142,23 @@ mytree-journal/
 ├── 📁 mytree-frontend/       # Next.js frontend
 │   ├── app/
 │   │   ├── page.tsx          # Dashboard
+│   │   ├── types.ts          # TypeScript type definitions
+│   │   ├── utils.ts          # Shared utility functions
+│   │   ├── constants.ts      # App-wide constants
 │   │   ├── strains/          # Strain management
 │   │   ├── batches/          # Batch management
-│   │   └── tree/[id]/        # Public tree page
+│   │   └── tree/[id]/        # Tree detail page
 │   ├── components/           # Reusable UI components
+│   │   ├── TreeCard.tsx      # Tree card with clay styling
+│   │   ├── DashboardStats.tsx # Bento grid stats
+│   │   ├── InfoCard.tsx      # Reusable info card
+│   │   └── Navbar.tsx        # Responsive navigation
+│   ├── constants/            # Shared constants
+│   │   └── treeStatus.ts     # Tree status constants
+│   ├── services/             # API service layer
+│   │   └── treeService.ts    # Tree API client
+│   ├── contexts/             # React contexts
+│   │   └── LanguageContext.tsx # i18n context
 │   └── hooks/                # Custom React hooks
 │
 ├── 📁 media/                 # Uploaded files
@@ -288,6 +302,9 @@ See the [Nginx configuration example](nginx/conf/nginx.conf) for production depl
 
 ## Roadmap
 
+- [x] 🎨 Design system (Claymorphism + Bento Grid)
+- [x] 🔧 Clean code refactoring
+- [x] ⚡ Performance optimizations (useMemo, useCallback)
 - [ ] 🔐 Authentication & user management
 - [ ] 🔍 Advanced search & filtering
 - [ ] 📱 Progressive Web App (PWA)

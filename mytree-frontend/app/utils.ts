@@ -88,3 +88,27 @@ export function formatTime(dateString: string) {
       hour: '2-digit', minute: '2-digit'
   });
 }
+
+/**
+ * Get CSS classes for sex badge styling
+ * Returns background, text, and border classes for light/dark modes
+ */
+export function getSexColorClass(sex: string): string {
+  switch (sex) {
+    case 'male':
+      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 border-blue-200 dark:border-blue-800';
+    case 'female':
+      return 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-300 border-pink-200 dark:border-pink-800';
+    case 'bisexual':
+      return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300 border-purple-200 dark:border-purple-800';
+    case 'mixed':
+      return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300 border-orange-200 dark:border-orange-800';
+    case 'monoecious':
+      return 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300 border-teal-200 dark:border-teal-800';
+    default:
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600';
+  }
+}
+
+export type SexType = 'male' | 'female' | 'bisexual' | 'mixed' | 'monoecious' | 'unknown';
+

@@ -1,142 +1,280 @@
+/**
+ * Tree Service - API client for tree-related operations
+ * Handles all HTTP requests to the backend API
+ */
 
-import { getApiBaseUrl } from "../app/constants";
-import { Tree, Strain, Batch, TreeLog } from "../app/types";
+import { getApiBaseUrl } from '../app/constants';
+import { Tree, Strain, Batch, TreeLog } from '../app/types';
+
+// =============================================================================
+// Constants
+// =============================================================================
 
 const API_BASE = getApiBaseUrl();
 
+/** API endpoint paths */
+const ENDPOINTS = {
+  TREES: '/api/trees/',
+  STRAINS: '/api/strains/',
+  BATCHES: '/api/batches/',
+  LOGS: '/api/logs/',
+  TREE_IMAGES: '/api/tree-images/',
+} as const;
+
+// =============================================================================
+// Types
+// =============================================================================
+
+/**
+ * Custom API error with status code and message
+ */
+export class ApiError extends Error {
+  constructor(
+    public readonly status: number,
+    message: string
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
+/**
+ * Tree service interface for dependency injection
+ */
 export interface TreeService {
+  // Tree CRUD
   getTrees: () => Promise<Tree[]>;
-  getStrains: () => Promise<Strain[]>;
-  getBatches: () => Promise<Batch[]>;
   getTree: (id: string | number) => Promise<Tree>;
   createTree: (formData: FormData) => Promise<Tree>;
   updateTree: (id: number, formData: FormData) => Promise<Tree>;
   deleteTree: (id: number) => Promise<void>;
   bulkDeleteTrees: (ids: number[]) => Promise<void>;
+
+  // Reference data
+  getStrains: () => Promise<Strain[]>;
+  getBatches: () => Promise<Batch[]>;
+
+  // Tree images & documents
   deleteTreeImage: (id: number) => Promise<void>;
   deleteAllTreeImages: (treeId: number) => Promise<void>;
   deleteTreeDocument: (treeId: number) => Promise<void>;
-  
+
   // Logs
   getLogs: (treeId: number) => Promise<TreeLog[]>;
   createLog: (formData: FormData) => Promise<TreeLog>;
   deleteLog: (id: number) => Promise<void>;
 }
 
-const handleResponse = async (res: Response) => {
-  if (!res.ok) {
-    const errorText = await res.text();
-    try {
-      const errorJson = JSON.parse(errorText);
-      throw new Error(errorJson.message || errorJson.error || `Error ${res.status}: ${res.statusText}`);
-    } catch (e: any) {
-      throw new Error(`Error ${res.status}: ${errorText || res.statusText}`);
-    }
+// =============================================================================
+// Helper Functions
+// =============================================================================
+
+/**
+ * Parse error response and extract message
+ */
+const parseErrorMessage = async (response: Response): Promise<string> => {
+  const errorText = await response.text();
+  
+  if (!errorText) {
+    return `Error ${response.status}: ${response.statusText}`;
   }
-  // Delete operations returns 204 No Content
-  if (res.status === 204) return null;
-  return res.json();
+
+  try {
+    const errorJson = JSON.parse(errorText);
+    return errorJson.message || errorJson.error || errorJson.detail || `Error ${response.status}`;
+  } catch {
+    return `Error ${response.status}: ${errorText}`;
+  }
 };
+
+/**
+ * Handle fetch response with proper error handling
+ * @throws {ApiError} When response is not ok
+ */
+const handleResponse = async <T>(response: Response): Promise<T> => {
+  if (!response.ok) {
+    const message = await parseErrorMessage(response);
+    throw new ApiError(response.status, message);
+  }
+
+  // DELETE operations return 204 No Content
+  if (response.status === 204) {
+    return null as T;
+  }
+
+  return response.json();
+};
+
+/**
+ * Build full URL from endpoint
+ */
+const buildUrl = (endpoint: string, params?: Record<string, string | number>): string => {
+  const url = `${API_BASE}${endpoint}`;
+  
+  if (!params) return url;
+
+  const searchParams = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    searchParams.append(key, String(value));
+  });
+
+  return `${url}?${searchParams.toString()}`;
+};
+
+// =============================================================================
+// Service Implementation
+// =============================================================================
 
 export const treeService: TreeService = {
+  // ---------------------------------------------------------------------------
+  // Tree CRUD Operations
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Get all trees
+   */
   getTrees: async () => {
-    const res = await fetch(`${API_BASE}/api/trees/`);
-    return handleResponse(res);
+    const response = await fetch(buildUrl(ENDPOINTS.TREES));
+    return handleResponse<Tree[]>(response);
   },
 
-  getStrains: async () => {
-    const res = await fetch(`${API_BASE}/api/strains/`);
-    return handleResponse(res);
-  },
-
-  getBatches: async () => {
-    const res = await fetch(`${API_BASE}/api/batches/`);
-    return handleResponse(res);
-  },
-
+  /**
+   * Get a single tree by ID
+   */
   getTree: async (id) => {
-    const res = await fetch(`${API_BASE}/api/trees/${id}/`);
-    return handleResponse(res);
+    const response = await fetch(buildUrl(`${ENDPOINTS.TREES}${id}/`));
+    return handleResponse<Tree>(response);
   },
 
+  /**
+   * Create a new tree
+   */
   createTree: async (formData) => {
-    const res = await fetch(`${API_BASE}/api/trees/`, {
-      method: "POST",
+    const response = await fetch(buildUrl(ENDPOINTS.TREES), {
+      method: 'POST',
       body: formData,
     });
-    return handleResponse(res);
+    return handleResponse<Tree>(response);
   },
 
+  /**
+   * Update an existing tree
+   */
   updateTree: async (id, formData) => {
-    const res = await fetch(`${API_BASE}/api/trees/${id}/`, {
-      method: "PUT",
+    const response = await fetch(buildUrl(`${ENDPOINTS.TREES}${id}/`), {
+      method: 'PUT',
       body: formData,
     });
-    return handleResponse(res);
+    return handleResponse<Tree>(response);
   },
 
+  /**
+   * Delete a tree by ID
+   */
   deleteTree: async (id) => {
-    const res = await fetch(`${API_BASE}/api/trees/${id}/`, {
-      method: "DELETE",
+    const response = await fetch(buildUrl(`${ENDPOINTS.TREES}${id}/`), {
+      method: 'DELETE',
     });
-    return handleResponse(res);
+    return handleResponse<void>(response);
   },
 
+  /**
+   * Delete multiple trees at once
+   */
   bulkDeleteTrees: async (ids) => {
-    const res = await fetch(`${API_BASE}/api/trees/bulk_delete/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+    const response = await fetch(buildUrl(`${ENDPOINTS.TREES}bulk_delete/`), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ids }),
     });
-    return handleResponse(res);
+    return handleResponse<void>(response);
   },
 
+  // ---------------------------------------------------------------------------
+  // Reference Data
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Get all strains
+   */
+  getStrains: async () => {
+    const response = await fetch(buildUrl(ENDPOINTS.STRAINS));
+    return handleResponse<Strain[]>(response);
+  },
+
+  /**
+   * Get all batches
+   */
+  getBatches: async () => {
+    const response = await fetch(buildUrl(ENDPOINTS.BATCHES));
+    return handleResponse<Batch[]>(response);
+  },
+
+  // ---------------------------------------------------------------------------
+  // Tree Images & Documents
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Delete a single tree image
+   */
   deleteTreeImage: async (id) => {
-    const res = await fetch(`${API_BASE}/api/tree-images/${id}/`, {
-      method: "DELETE",
+    const response = await fetch(buildUrl(`${ENDPOINTS.TREE_IMAGES}${id}/`), {
+      method: 'DELETE',
     });
-    return handleResponse(res);
+    return handleResponse<void>(response);
   },
 
+  /**
+   * Delete all images for a tree
+   */
   deleteAllTreeImages: async (treeId) => {
-    // Note: Assuming endpoint exists or handling via loop if strictly following current backend
-    // Based on previous code, page.tsx was calling deleteTreeImage in a loop or similar.
-    // If there's no dedicated endpoint, we might need to adjust.
-    // However, for Pro code, we should have a bulk delete or clear endpoint.
-    // Checking `page.tsx` again, `handleDeleteAllImages` calls `${API_BASE}/api/trees/${selectedTree.id}/delete_all_images/`
-    const res = await fetch(`${API_BASE}/api/trees/${treeId}/delete_all_images/`, {
-      method: "POST", // or DELETE depending on backend implementation, usually custom actions are POST
+    const response = await fetch(buildUrl(`${ENDPOINTS.TREES}${treeId}/delete_all_images/`), {
+      method: 'POST',
     });
-    return handleResponse(res);
+    return handleResponse<void>(response);
   },
-  
+
+  /**
+   * Delete the document attached to a tree
+   */
   deleteTreeDocument: async (treeId) => {
-     // Based on page.tsx: `${API_BASE}/api/trees/${selectedTree.id}/delete_document/`
-    const res = await fetch(`${API_BASE}/api/trees/${treeId}/delete_document/`, {
-      method: "POST", // or DELETE
+    const response = await fetch(buildUrl(`${ENDPOINTS.TREES}${treeId}/delete_document/`), {
+      method: 'POST',
     });
-    return handleResponse(res);
+    return handleResponse<void>(response);
   },
 
+  // ---------------------------------------------------------------------------
+  // Log Operations
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Get all logs for a tree
+   */
   getLogs: async (treeId) => {
-    const res = await fetch(`${API_BASE}/api/logs/?tree=${treeId}`);
-    return handleResponse(res);
+    const response = await fetch(buildUrl(ENDPOINTS.LOGS, { tree: treeId }));
+    return handleResponse<TreeLog[]>(response);
   },
 
+  /**
+   * Create a new log entry
+   */
   createLog: async (formData) => {
-    const res = await fetch(`${API_BASE}/api/logs/`, {
-      method: "POST",
+    const response = await fetch(buildUrl(ENDPOINTS.LOGS), {
+      method: 'POST',
       body: formData,
     });
-    return handleResponse(res);
+    return handleResponse<TreeLog>(response);
   },
 
+  /**
+   * Delete a log entry
+   */
   deleteLog: async (id) => {
-    const res = await fetch(`${API_BASE}/api/logs/${id}/`, {
-      method: "DELETE",
+    const response = await fetch(buildUrl(`${ENDPOINTS.LOGS}${id}/`), {
+      method: 'DELETE',
     });
-    return handleResponse(res);
-  }
+    return handleResponse<void>(response);
+  },
 };
+
